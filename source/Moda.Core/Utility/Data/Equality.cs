@@ -34,7 +34,8 @@ namespace Moda.Core.Utility.Data;
 ///            Pass in the calling object (this) and the other object.  This method will
 ///            ultimately relay the call to the instances <see cref="IEquatable{T}.Equals(T)"/>
 ///            method.
-///         5. For value types, implement the == operator. For reference types, skip to step 8.
+///         5. For value types or (when needed, immutable reference types), implement the ==
+///            operator. For reference types, skip to step 8.
 ///         6. In the == operator method, call <see cref="CheckFromOperator{T}(T, T)"/>.
 ///            Pass in the calling object (this) and the other object.  This method will
 ///            ultimately relay the call to the instances <see cref="IEquatable{T}.Equals(T)"/>
@@ -46,6 +47,9 @@ namespace Moda.Core.Utility.Data;
 ///                 directly.
 ///         8. Override <see cref="Object.GetHashCode"/> if the object is immutable. See
 ///            <see cref="Hash"/>.
+///     
+///     For more information see 
+///     https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/equality-operators
 /// </remarks>
 public static class Equality
 {
