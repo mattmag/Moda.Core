@@ -5,8 +5,8 @@
 // https://mozilla.org/MPL/2.0/
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 
 namespace Moda.Core.Utility.Data.Tests;
@@ -20,7 +20,7 @@ public class EqualityTests
     [Test]
     public void NullSafeEqualsShouldReturnFalseIfOneObjectIsNull()
     {
-        SimpleClass? objectA = new();
+        SimpleClass objectA = new();
         SimpleClass? objectB = null;
         Equality.NullSafeEquals(objectA, objectB).Should().BeFalse();
         Equality.NullSafeEquals(objectB, objectA).Should().BeFalse();
@@ -39,6 +39,7 @@ public class EqualityTests
     public void NullSafeEqualsShouldReturnTrueIfBothObjectsAreTheSameInstance()
     {
         SimpleClass objectA = new();
+        // ReSharper disable once InlineTemporaryVariable
         SimpleClass objectB = objectA;
         Equality.NullSafeEquals(objectA, objectB).Should().BeTrue();
         Equality.NullSafeEquals(objectB, objectA).Should().BeTrue();
@@ -102,7 +103,7 @@ public class EqualityTests
     [Test]
     public void CheckFromOverrideShouldReturnFalseIfOneObjectIsNull()
     {
-        EquatableClassX? objectA = new();
+        EquatableClassX objectA = new();
         EquatableClassX? objectB = null;
         Assert.False(Equality.CheckFromOverride(objectA, objectB), "A,B");
         Assert.False(Equality.CheckFromOverride(objectB, objectA), "B,A");
@@ -125,7 +126,7 @@ public class EqualityTests
 
         Equality.CheckFromOverride(objectA, objectB);
 
-        ReferenceEquals(objectB, objectA.EqualsOtherParamater).Should().BeTrue();
+        ReferenceEquals(objectB, objectA.EqualsOtherParameter).Should().BeTrue();
         objectA.EqualsCallCount.Should().Be(1);
     }
 
@@ -196,7 +197,7 @@ public class EqualityTests
     public void CheckFromOperatorShouldReturnFalseIfOneObjectIsNull()
     {
         EquatableClassX objectA = new();
-        EquatableClassX objectB = null;
+        EquatableClassX? objectB = null;
         Equality.CheckFromOperator(objectA, objectB).Should().BeFalse();
         Equality.CheckFromOperator(objectB, objectA).Should().BeFalse();
     }
@@ -218,7 +219,7 @@ public class EqualityTests
 
         Equality.CheckFromOperator(objectA, objectB);
 
-        ReferenceEquals(objectB, objectA.EqualsOtherParamater).Should().BeTrue();
+        ReferenceEquals(objectB, objectA.EqualsOtherParameter).Should().BeTrue();
         objectA.EqualsCallCount.Should().Be(1);
     }
 
@@ -291,7 +292,7 @@ public class EqualityTests
     public void CheckFromIEquatableShouldReturnFalseIfOneObjectIsNull()
     {
         EquatableClassX objectA = new();
-        EquatableClassX objectB = null;
+        EquatableClassX? objectB = null;
         Equality.CheckFromIEquatable(objectA, objectB).Should().BeFalse();
         Equality.CheckFromIEquatable(objectB, objectA).Should().BeFalse();
     }
@@ -299,8 +300,8 @@ public class EqualityTests
     [Test]
     public void CheckFromIEquatableShouldReturnTrueIfBothObjectsAreNull()
     {
-        EquatableClassX objectA = null;
-        EquatableClassX objectB = null;
+        EquatableClassX? objectA = null;
+        EquatableClassX? objectB = null;
         Equality.CheckFromIEquatable(objectA, objectB).Should().BeTrue();
         Equality.CheckFromIEquatable(objectB, objectA).Should().BeTrue();
     }
@@ -353,7 +354,7 @@ public class EqualityTests
     }
 
     [Test]
-    public void CheckFromIEquatableShouldIgnoreUnincludedProperties()
+    public void CheckFromIEquatableShouldIgnorePropertiesNotIncluded()
     {
         EquatableClassX objectA = new()
         {
@@ -376,21 +377,24 @@ public class EqualityTests
     //  Support
     //------------------------------------------------------------------------------------------
 
+    [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
     public class EquatableClassX : IEquatable<EquatableClassX>
     {
         public Int32 IntegerProperty { get; set; }
 
-        public String StringProperty { get; set; }
+        public String StringProperty { get; set; } = "";
 
         public Boolean EqualsReturnValue { get; set; }
 
         public Int32 EqualsCallCount { get; set; }
 
-        public Object EqualsOtherParamater { get; set; }
+        public Object? EqualsOtherParameter { get; private set; }
 
-        public Boolean Equals(EquatableClassX other)
+        public Boolean Equals(EquatableClassX? other)
         {
-            this.EqualsOtherParamater = other;
+            this.EqualsOtherParameter = other;
             this.EqualsCallCount++;
 
             return this.EqualsReturnValue;
@@ -398,21 +402,24 @@ public class EqualityTests
         }
     }
 
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+    [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public class EquatableClassY : IEquatable<EquatableClassY>
     {
         public Int32 IntegerProperty { get; set; }
 
-        public String StringProperty { get; set; }
+        public String StringProperty { get; set; } = "";
 
         public Boolean EqualsReturnValue { get; set; }
 
         public Int32 EqualsCallCount { get; set; }
 
-        public Object EqualsOtherParamater { get; set; }
+        public Object? EqualsOtherParameter{ get; set; }
 
-        public Boolean Equals(EquatableClassY other)
+        public Boolean Equals(EquatableClassY? other)
         {
-            this.EqualsOtherParamater = other;
+            this.EqualsOtherParameter = other;
             this.EqualsCallCount++;
 
             return this.EqualsReturnValue;
@@ -421,13 +428,14 @@ public class EqualityTests
 
     
 
+    [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Local")]
     private class SimpleClass
     {
         public Int32 IntegerProperty { get; set; }
 
-        public String StringProperty { get; set; }
+        public String StringProperty { get; set; } = "";
 
-        public override Boolean Equals(Object other)
+        public override Boolean Equals(Object? other)
         {
             if (other is SimpleClass otherSimpleObject)
             {
@@ -440,11 +448,13 @@ public class EqualityTests
 
         public override Int32 GetHashCode()
         {
+            // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
             return base.GetHashCode();
         }
     }
 
 
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     private struct SimpleStruct
     {
         public Int32 IntegerProperty { get; set; }
@@ -452,6 +462,8 @@ public class EqualityTests
         public String StringProperty { get; set; }
     }
 
+    
+    [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
     public struct EquatableStructX : IEquatable<EquatableStructX>
     {
         public Int32 IntegerProperty { get; set; }
@@ -470,6 +482,8 @@ public class EqualityTests
         }
     }
 
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public struct EquatableStructY : IEquatable<EquatableStructY>
     {
         public Boolean EqualsReturnValue { get; set; }

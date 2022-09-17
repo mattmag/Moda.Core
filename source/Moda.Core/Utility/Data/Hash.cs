@@ -59,10 +59,7 @@ public static class Hash
     /// </returns>
     public static Int32 Commutative(params Object?[] items)
     {
-        unchecked
-        {
-            return items.Aggregate(SEED, (current, item) => current ^ GetHashCode(item));
-        };
+        return items.Aggregate(SEED, (current, item) => current ^ GetHashCode(item));
     }
 
 
