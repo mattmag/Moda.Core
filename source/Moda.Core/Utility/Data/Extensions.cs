@@ -323,6 +323,33 @@ public static class Extensions
     }
 
 
-    
+    /// <summary>
+    ///     Add an item at it's sorted position into the list. 
+    /// </summary>
+    /// <param name="list">
+    ///     The list to add to.
+    /// </param>
+    /// <param name="value">
+    ///     The value to add.
+    /// </param>
+    /// <param name="comparer">
+    ///     The comparer to use while searching for the insertion index.
+    /// </param>
+    /// <typeparam name="T">
+    ///     The type of the items in the list.
+    /// </typeparam>
+    /// <remarks>
+    ///     Uses a <see cref="List{T}.BinarySearch(T,System.Collections.Generic.IComparer{T}?)"/> to
+    ///     search for the insertion index.
+    ///     If a matching value is already in the list, the new item will be inserted after it.
+    /// </remarks>
+    public static void AddSorted<T>(this List<T> list, T value, IComparer<T> comparer)
+    {
+        int index = list.BinarySearch(value, comparer);
+        list.Insert((index >= 0) ? index + 1 : ~index, value);
+    }
 
 }
+
+
+

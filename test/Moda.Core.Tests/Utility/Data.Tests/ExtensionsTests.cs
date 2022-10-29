@@ -131,6 +131,67 @@ public class ExtensionsTests
     }
 
 
+    // List.AddSorted() Tests
+    //----------------------------------------------------------------------------------------------
+
+    [Test]
+    public void AddSortedShouldAddValueAtSortedIndex()
+    {
+        List<int> list = new() { 1, 2, 4 };
+        list.AddSorted(3, Comparer<Int32>.Default);
+        list.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 }, a => a.WithStrictOrdering());
+    }
+    
+    [Test]
+    public void AddSortedShouldAddHighestValueAtEnd()
+    {
+        List<int> list = new() { 1, 2, 3 };
+        list.AddSorted(5, Comparer<Int32>.Default);
+        list.Should().BeEquivalentTo(new[] { 1, 2, 3, 5 }, a => a.WithStrictOrdering());
+    }
+    
+    [Test]
+    public void AddSortedShouldAddLowestValueAtBeginning()
+    {
+        List<int> list = new() { 2, 3, 4 };
+        list.AddSorted(1, Comparer<Int32>.Default);
+        list.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 }, a => a.WithStrictOrdering());
+    }
+    
+    [Test]
+    public void AddSortedShouldUseProvidedComparer()
+    {
+        Comparer<ValueWrapper<Int32>> comparer =Comparer<ValueWrapper<Int32>>.Create(
+            (a, b) => a.Value.CompareTo(b.Value));
+            
+        List<ValueWrapper<Int32>> list = new() { new(1), new(2), new(4) };
+        list.AddSorted(new(3), comparer);
+        list.Should().BeEquivalentTo(new ValueWrapper<Int32>[] { new(1), new(2), new(3), new(4) },
+            a => a .WithStrictOrdering());
+    }
+    
+    [Test]
+    public void AddSortedShouldAddAfterExistingValue()
+    {
+        Comparer<ValueWrapper<Int32>> comparer =Comparer<ValueWrapper<Int32>>.Create(
+            (a, b) => a.Value.CompareTo(b.Value));
+        
+        ValueWrapper<Int32> toAdd = new(2);
+        List<ValueWrapper<Int32>> list = new() { new(1), new(2), new(3) };
+        list.AddSorted(toAdd, comparer);
+
+        // sanity check
+        list.Should().BeEquivalentTo(new ValueWrapper<Int32>[] { new(1), new(2), new(2), new(3) },
+            a => a.WithStrictOrdering());
+        
+        // actual test
+        list[2].Should().BeSameAs(toAdd);
+    }
+
+
+    private record ValueWrapper<T>(T Value);
+
+
     // Dictionary.TryGetMultiple() Tests
     //----------------------------------------------------------------------------------------------
     
@@ -271,6 +332,7 @@ public class ExtensionsTests
     {
         "one".KeyedOn(1).Should().Be(new KeyValuePair<Int32, String>(1, "one"));
     }
+    
     
 
     // Support Classes

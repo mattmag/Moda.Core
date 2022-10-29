@@ -138,6 +138,8 @@ _TeamCity*
 
 # DotCover is a Code Coverage Tool
 *.dotCover
+dotCover.Output/*
+dotCover.Output.*
 
 # AxoCover is a Code Coverage Tool
 .axoCover/*

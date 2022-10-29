@@ -203,6 +203,37 @@ public class RangeFTests
     }
 
 
+    // Contains Tests
+    //----------------------------------------------------------------------------------------------
+
+    [TestCaseSource(nameof(GetContainedPoints))]
+    public void ContainsShouldReturnTrueWhenValueLiesInsideRange(RangeF range, Single value)
+    {
+        range.Contains(value).Should().BeTrue();
+    }
+    
+    [TestCaseSource(nameof(GetOutsidePoints))]
+    public void ContainsShouldReturnFalseValueLiesOutsideRange(RangeF range, Single value)
+    {
+        range.Contains(value).Should().BeFalse();
+    }
+
+
+    // Overlaps Tests
+    //----------------------------------------------------------------------------------------------
+
+    [TestCaseSource(nameof(GetOverlappingRanges))]
+    public Boolean OverlapsShouldReturnTrueWhenRangesOverlap(RangeF rangeA, RangeF rangeB)
+    {
+        return rangeA.Overlaps(rangeB);
+    }
+    
+    [TestCaseSource(nameof(GetNonOverlappingRanges))]
+    public Boolean OverlapsShouldReturnFalseWhenRangesOverlap(RangeF rangeA, RangeF rangeB)
+    {
+        return rangeA.Overlaps(rangeB);
+    }
+
     // Equality Test
     //----------------------------------------------------------------------------------------------
     
@@ -226,46 +257,95 @@ public class RangeFTests
     public static IEnumerable<TestCaseData> GetScaleData() => new TestCaseData[]
         {
             new (5, new RangeF(0, 10), new RangeF(0, 100), 50),
-            new (5, new RangeF(0, 10), new RangeF(0, 100), 50 ),
-            new (5, new RangeF(0, 10), new RangeF(10, 20), 15 ),
-            new (0, new RangeF(-5, 5), new RangeF(0, 100), 50 ),
-            new (10, new RangeF(10, 20), new RangeF(0, 100), 0 ),
-            new (15, new RangeF(10, 20), new RangeF(0, 100), 50 ),
+            new (5, new RangeF(0, 10), new RangeF(0, 100), 50),
+            new (5, new RangeF(0, 10), new RangeF(10, 20), 15),
+            new (0, new RangeF(-5, 5), new RangeF(0, 100), 50),
+            new (10, new RangeF(10, 20), new RangeF(0, 100), 0),
+            new (15, new RangeF(10, 20), new RangeF(0, 100), 50),
         };
 
     public static IEnumerable<TestCaseData> GetOutsideScaleData(Boolean isClamped) =>
         new TestCaseData[]
         {
-            new( 20, new RangeF(0, 10), new RangeF(0, 100), isClamped ? 100 : 200 ),
-            new( -10, new RangeF(0, 10), new RangeF(10, 20), isClamped ? 10 : 0 ),
-            new( 10, new RangeF(-5, 5), new RangeF(0, 100), isClamped ? 100 : 150 ),
-            new( 5, new RangeF(10, 20), new RangeF(0, 100), isClamped ? 0 : -50 ),
-            new( 25, new RangeF(10, 20), new RangeF(0, 100), isClamped ? 100 : 150 ),
-            new( 150, new RangeF(0, 100), new RangeF(-1, 1), isClamped ? 1 : 2 ),
-            new( -50, new RangeF(0, 100), new RangeF(-1, 1), isClamped ? -1 : -2 ),
-            new( 150, new RangeF(0, 100), new RangeF(10, 20), isClamped ? 20 : 25 ),
-            new( -50, new RangeF(0, 100), new RangeF(10, 20), isClamped ? 10 : 5 ),
+            new(20, new RangeF(0, 10), new RangeF(0, 100), isClamped ? 100 : 200),
+            new(-10, new RangeF(0, 10), new RangeF(10, 20), isClamped ? 10 : 0),
+            new(10, new RangeF(-5, 5), new RangeF(0, 100), isClamped ? 100 : 150),
+            new(5, new RangeF(10, 20), new RangeF(0, 100), isClamped ? 0 : -50),
+            new(25, new RangeF(10, 20), new RangeF(0, 100), isClamped ? 100 : 150),
+            new(150, new RangeF(0, 100), new RangeF(-1, 1), isClamped ? 1 : 2),
+            new(-50, new RangeF(0, 100), new RangeF(-1, 1), isClamped ? -1 : -2),
+            new(150, new RangeF(0, 100), new RangeF(10, 20), isClamped ? 20 : 25),
+            new(-50, new RangeF(0, 100), new RangeF(10, 20), isClamped ? 10 : 5),
         };
 
     public static IEnumerable<TestCaseData> GetMapData() => new TestCaseData[]
         {
-            new( 15, new RangeF(0, 10), new RangeF(0, 100), 50 ),
-            new( -5, new RangeF(0, 10), new RangeF(10, 20), 15 ),
-            new( 10, new RangeF(-5, 5), new RangeF(0, 100), 50 ),
-            new( 5, new RangeF(10, 20), new RangeF(0, 100), 50 ),
-            new( 25, new RangeF(10, 20), new RangeF(0, 100), 50 ),
-            new( 150, new RangeF(0, 100), new RangeF(-1, 1), 0 ),
-            new( -50, new RangeF(0, 100), new RangeF(-1, 1), 0 ),
-            new( 150, new RangeF(0, 100), new RangeF(10, 20), 15 ),
-            new( -50, new RangeF(0, 100), new RangeF(10, 20), 15 ),
+            new(15, new RangeF(0, 10), new RangeF(0, 100), 50),
+            new(-5, new RangeF(0, 10), new RangeF(10, 20), 15),
+            new(10, new RangeF(-5, 5), new RangeF(0, 100), 50),
+            new(5, new RangeF(10, 20), new RangeF(0, 100), 50),
+            new(25, new RangeF(10, 20), new RangeF(0, 100), 50),
+            new(150, new RangeF(0, 100), new RangeF(-1, 1), 0),
+            new(-50, new RangeF(0, 100), new RangeF(-1, 1), 0),
+            new(150, new RangeF(0, 100), new RangeF(10, 20), 15),
+            new(-50, new RangeF(0, 100), new RangeF(10, 20), 15),
+        };
+
+
+    public static IEnumerable<TestCaseData> GetContainedPoints() => new[]
+        {
+            new TestCaseData(new RangeF(10, 20), 10),
+            new TestCaseData(new RangeF(10, 20), 15),
+            new TestCaseData(new RangeF(10, 20), 20),
+            new TestCaseData(new RangeF(-5, 20), 0),
+            new TestCaseData(new RangeF(-10, -5), -5),
+            new TestCaseData(new RangeF(-10, -5), -7),
+            new TestCaseData(new RangeF(-10, -5), -10),
+            new TestCaseData(new RangeF(100, 500), 499),
         };
     
+    public static IEnumerable<TestCaseData> GetOutsidePoints() => new[]
+        {
+            new TestCaseData(new RangeF(10, 20), 5),
+            new TestCaseData(new RangeF(10, 20), 25),
+            new TestCaseData(new RangeF(10, 20), 100),
+            new TestCaseData(new RangeF(-5, 20), -7),
+            new TestCaseData(new RangeF(-5, 20), 25),
+            new TestCaseData(new RangeF(-10, -5), -12),
+            new TestCaseData(new RangeF(-10, -5), -2),
+            new TestCaseData(new RangeF(100, 500), 1000),
+            new TestCaseData(new RangeF(100, 500), 57),
+        };
+    
+    public static IEnumerable<TestCaseData> GetOverlappingRanges() => new[]
+        {
+            new TestCaseData(new RangeF(10, 20), new RangeF(15, 20))
+                .Returns(true).SetName("Overlap right"),
+            new TestCaseData(new RangeF(50, 100), new RangeF(10, 60))
+                .Returns(true).SetName("Overlap left"),
+            new TestCaseData(new RangeF(0, 100), new RangeF(20, 40))
+                .Returns(true).SetName("A contains B"),
+            new TestCaseData(new RangeF(10, 20), new RangeF(0, 50))
+                .Returns(true).SetName("B contains A"),
+            new TestCaseData(new RangeF(10, 20), new RangeF(20, 30))
+                .Returns(true).SetName("Touching right"),
+            new TestCaseData(new RangeF(50, 100), new RangeF(0, 50))
+                .Returns(true).SetName("Touching left"),
+        };
+    
+    public static IEnumerable<TestCaseData> GetNonOverlappingRanges() => new[]
+        {
+            new TestCaseData(new RangeF(10, 20), new RangeF(30, 40))
+                .Returns(false),
+            new TestCaseData(new RangeF(21, 40), new RangeF(10, 20))
+                .Returns(false),
+        };
 
     public static IEnumerable<TestCaseData> GetEqualityData() => new TestCaseData[]
         {
-            new( new RangeF(5, 10), new RangeF(5, 10), true ),
-            new( new RangeF(5, 10), new RangeF(5, 20), false ),
-            new( new RangeF(5, 10), new RangeF(1, 10), false ),
+            new(new RangeF(5, 10), new RangeF(5, 10), true),
+            new(new RangeF(5, 10), new RangeF(5, 20), false),
+            new(new RangeF(5, 10), new RangeF(1, 10), false),
         };
-    
+
 }

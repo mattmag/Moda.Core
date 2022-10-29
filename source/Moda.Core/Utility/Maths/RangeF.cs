@@ -14,7 +14,7 @@ namespace Moda.Core.Utility.Maths;
 ///     for evaluating or manipulating values with respect to the range.
 /// </summary>
 [DebuggerDisplay("{Minimum} ↔ {Maximum}")]
-public struct RangeF : IEquatable<RangeF>
+public readonly struct RangeF : IEquatable<RangeF>
 {
     //##############################################################################################
     //
@@ -242,6 +242,37 @@ public struct RangeF : IEquatable<RangeF>
     public Single Map(Single value, RangeF sourceRange)
     {
         return Wrap(Scale(value, sourceRange));
+    }
+
+
+    /// <summary>
+    ///     Check if the provided value inclusively falls within this range.
+    /// </summary>
+    /// <param name="value">
+    ///     The value to check
+    /// </param>
+    /// <returns>
+    ///     True if the value is greater than or equal to the minimum and less than or equal to the
+    ///     maximum.
+    /// </returns>
+    public Boolean Contains(Single value)
+    {
+        return this.Minimum <= value && value <= this.Maximum;
+    }
+
+    /// <summary>
+    ///     Check if another range has any overlap with this range.
+    /// </summary>
+    /// <param name="other">
+    ///     The other range to compare against this one.
+    /// </param>
+    /// <returns>
+    ///     True if this range contains any values of the other.
+    /// </returns>
+    public Boolean Overlaps(RangeF other)
+    {
+        return this.Contains(other.Minimum) || this.Contains(other.Maximum) ||
+            other.Contains(this.Minimum) || other.Contains(this.Maximum);
     }
 
 
