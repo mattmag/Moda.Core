@@ -1,0 +1,369 @@
+// This file is part of the Moda.Core project.
+// 
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+// If a copy of the MPL was not distributed with this file, You can obtain one at
+// https://mozilla.org/MPL/2.0/
+
+using Optional.Collections;
+
+namespace Moda.Core.Utility.Data;
+
+
+/// <summary>
+///     A directed graph implementation intended to represent complex dependencies between nodes.
+///     It allows for multiple roots, and offers methods to iterate nodes in a prerequisite-first
+///     order.
+/// </summary>
+/// <typeparam name="T">
+///     The type of the node stored in the graph.
+/// </typeparam>
+public class PrerequisiteGraph<T>
+    where T : notnull
+{
+    //##############################################################################################
+    //
+    //  Fields
+    //
+    //##############################################################################################
+    
+    /// <summary>
+    ///     node -> prerequisites (parents)
+    /// </summary>
+    private readonly Dictionary<T, HashSet<T>> prerequisites = new();
+    
+    /// <summary>
+    ///     node -> dependents (children)
+    /// </summary>
+    private readonly Dictionary<T, HashSet<T>> dependents = new();
+    
+    /// <summary>
+    ///     nodes with no prerequisites
+    /// </summary>
+    private readonly HashSet<T> sourceNodes = new();
+
+
+    //##############################################################################################
+    //
+    //  Public Methods
+    //
+    //##############################################################################################
+    
+    /// <summary>
+    ///     Add a node to the graph, if it does already already exist.
+    /// </summary>
+    /// <param name="node">
+    ///     The node to add.
+    /// </param>
+    /// <remarks>
+    ///     Use <see cref="DeclarePrerequisite"/> to add a node and assign it as a prerequisite to an
+    ///     existing node in one operation.
+    /// </remarks>
+    public void AddNode(T node)
+    {
+        if (!this.prerequisites.ContainsKey(node) && !this.dependents.ContainsKey(node))
+        {
+            this.sourceNodes.Add(node);
+        }
+    }
+    
+    /// <summary>
+    ///     Remove a node from the graph.
+    /// </summary>
+    /// <param name="node">
+    ///     The node to remove.
+    /// </param>
+    /// <remarks>
+    ///     Nodes that list this node as a prerequisite will become source nodes, breaking up the
+    ///     graph.  Nodes that were listed as prerequisites to this node will have it removed from
+    ///     their dependents.
+    /// </remarks>
+    public void RemoveNode(T node)
+    {
+        if (this.prerequisites.ContainsKey(node))
+        {
+            foreach (T prereqOfNode in this.prerequisites[node])
+            {
+                RevokePrerequisite(prereq:prereqOfNode, from:node);
+            }
+        }
+
+        if (this.dependents.ContainsKey(node))
+        {
+            foreach (T dependentOfNode in this.dependents[node])
+            {
+                RevokePrerequisite(prereq:node, from:dependentOfNode);
+            }
+        }
+        
+        this.sourceNodes.Remove(node);
+    }
+
+
+    /// <summary>
+    ///     Assign the node <paramref name="prereq"/> to be a prerequisite of the node
+    ///     <paramref name="of"/>.
+    /// </summary>
+    /// <param name="prereq">
+    ///     The node that is to be a prerequisite of another node.
+    /// </param>
+    /// <param name="of">
+    ///     The node that requires the other node as a prerequisite.
+    /// </param>
+    /// <remarks>
+    ///     Prerequisites can be thought of as parent nodes in the tree, where as dependents are
+    ///     children.  Prerequisites will be returned first when the graph is iterated.
+    /// </remarks>
+    /// <exception cref="CycleDetectedException">
+    ///     Thrown if the operation results in a cyclical graph, at which point it will be reverted
+    ///     to it's state before the method call.
+    /// </exception>
+    public void DeclarePrerequisite(T prereq, T of)
+    {
+        AddNode(prereq);
+        
+        this.prerequisites.GetOrAdd(of).Add(prereq);
+        this.dependents.GetOrAdd(prereq).Add(of);
+        
+        this.sourceNodes.Remove(of);
+
+        if (IsGraphCyclical(prereq))
+        {
+            RevokePrerequisite(prereq, of);
+            throw new CycleDetectedException();
+        }
+    }
+
+
+    /// <summary>
+    ///     Remove the link between the prerequisite node and it's dependent, but leave both nodes
+    ///     in the graph.
+    /// </summary>
+    /// <param name="prereq">
+    ///     The node that is a prerequisite to <paramref name="from"/>.
+    /// </param>
+    /// <param name="from">
+    ///     The node that is a dependent of <paramref name="prereq"/>.
+    /// </param>
+    /// <remarks>
+    ///     If node <paramref name="from"/> has no more remaining prerequisites, it becomes a
+    ///     source node.
+    /// </remarks>
+    public void RevokePrerequisite(T prereq, T from)
+    {
+        this.prerequisites.GetValueOrNone(from).MatchSome(prereqs =>
+            {
+                prereqs.Remove(prereq);
+                if (!prereqs.Any())
+                {
+                    this.prerequisites.Remove(from);
+                    this.sourceNodes.Add(from);
+                }
+            });
+        this.dependents.GetValueOrNone(prereq).MatchSome(deps =>
+            {
+                deps.Remove(from);
+                if (!deps.Any())
+                {
+                    this.dependents.Remove(prereq);
+                }
+            });
+    }
+
+    /// <summary>
+    ///     Iterate through the graph, yielding prerequisites before their dependents.
+    /// </summary>
+    /// <return>
+    ///     Each node in the graph, order determined by declared prerequisites.
+    /// </return>
+    /// <remarks>
+    ///     Prerequisites are guaranteed to be returned before their dependents, but order of
+    ///     unrelated nodes is not.
+    /// </remarks>
+    public IEnumerable<T> Iterate()
+    {
+        return KahnSort(this.sourceNodes);
+    }
+
+
+    /// <summary>
+    ///     Iterate through the graph beginning at the specified nodes, yielding prerequisites
+    ///     before their dependents.
+    /// </summary>
+    /// <param name="startingNodes">
+    ///     The nodes to start iterating from.
+    /// </param>
+    /// <return>
+    ///     Each node in the graph, order determined by declared prerequisites.
+    /// </return>
+    /// <remarks>
+    ///     Prerequisites are guaranteed to be returned before their dependents, but order of
+    ///     unrelated nodes is not.
+    ///
+    ///     A subgraph is created from the starting nodes, so overlapping trees resulting from the
+    ///     starting nodes and/or starting nodes that are decedents of others will be handled and
+    ///     will not result in duplicate or unoptimized results.
+    /// </remarks>
+    public IEnumerable<T> IterateFrom(params T[] startingNodes)
+    {
+        return IterateFrom((IEnumerable<T>)startingNodes);
+    }
+    
+    /// <inheritdoc cref="IterateFrom(T[])"/>
+    public IEnumerable<T> IterateFrom(IEnumerable<T> startingNodes)
+    {
+        return SubGraphFrom(startingNodes).Iterate();
+    }
+
+
+    //##############################################################################################
+    //
+    //  Private Methods
+    //
+    //##############################################################################################
+    
+    private IEnumerable<T> KahnSort(IEnumerable<T> startingNodes)
+    {
+        Queue<T> sortedNodes = new();
+        Stack<T> noPrereqs = new(startingNodes);
+        
+        Dictionary<T, Int32> prereqTally = new();
+        
+        while (noPrereqs.TryPop(out T? currentNode))
+        {
+            sortedNodes.Enqueue(currentNode);
+            // TODO: evaluate yield return instead? cycle check covered elsewhere
+            // TODO: only add dependents if user function returns a value indicating to continue downward? (not covered by yield return during complex graphs)
+            if (this.dependents.TryGetValue(currentNode, out HashSet<T>? deps))
+            {
+                foreach (T dependent in deps)
+                {
+                    int numberOfPrereqs = prereqTally.GetValueOrNone(dependent).Match
+                    (
+                        val => prereqTally[dependent] = val - 1,
+                        () => prereqTally[dependent] =
+                            this.prerequisites.GetValueOrNone(dependent)
+                                .Map(a => Math.Max(a.Count - 1, 0))
+                                .ValueOr(0)
+                    );
+                    
+                    if (numberOfPrereqs == 0)
+                    {
+                        prereqTally.Remove(dependent);
+                        noPrereqs.Push(dependent);
+                    }
+                }
+            }
+        }
+
+        if (prereqTally.Any())
+        {
+            // should not happen - cycles should be detected  during graph construction
+            throw new CycleDetectedException();
+        }
+        
+        return sortedNodes;
+    }
+    
+    
+    private bool IsGraphCyclical(T startingNode)
+    {
+        Stack<T> depthStack = new();
+        HashSet<T> visitedGrey = new();
+        HashSet<T> exploredBlack = new();
+        
+        depthStack.Push(startingNode);
+        while (depthStack.TryPeek(out T? currentNode))
+        {
+            if (!visitedGrey.Contains(currentNode))
+            {
+                visitedGrey.Add(currentNode);
+                if (this.dependents.TryGetValue(currentNode, out HashSet<T>? deps))
+                {
+                    foreach (T dependent in deps)
+                    {
+                        if (!visitedGrey.Contains(dependent))
+                        {
+                            if (!exploredBlack.Contains(dependent))
+                            {
+                                depthStack.Push(dependent);
+                            }
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                depthStack.Pop();
+                visitedGrey.Remove(currentNode);
+                exploredBlack.Add(currentNode);
+            }
+        }
+
+        return false;
+    }
+    
+    
+    private PrerequisiteGraph<T> SubGraphFrom(IEnumerable<T> potentialSourceNodes)
+    {
+        IEnumerable<T> sources = FindTrueSources(potentialSourceNodes);
+        if (this.sourceNodes.SetEquals(sources))
+        {
+            return this;
+        }
+        
+        PrerequisiteGraph<T> subGraph = new();
+        
+        foreach (T sourceNode in sources)
+        {
+            Stack<T> depthStack = new();
+            depthStack.Push(sourceNode);
+            while (depthStack.TryPop(out T? currentNode))
+            {
+                subGraph.AddNode(currentNode);
+                if (this.dependents.TryGetValue(currentNode, out HashSet<T>? deps))
+                {
+                    foreach (T dependent in deps)
+                    {
+                        subGraph.DeclarePrerequisite(prereq:currentNode, of:dependent);
+                        depthStack.Push(dependent);
+                    }
+                }
+            }
+        }
+        
+        return subGraph;
+    }
+    
+    
+    private IEnumerable<T> FindTrueSources(IEnumerable<T> potentialSources)
+    {
+        HashSet<T> sources = new(potentialSources);
+        HashSet<T> discoveredSources = new();
+        
+        foreach (T potentialSource in potentialSources)
+        {
+            Stack<T> depthStack = new();
+            depthStack.Push(potentialSource);
+            while (depthStack.TryPop(out T? currentNode))
+            {
+                if (potentialSources.Contains(currentNode))
+                {
+                    if (discoveredSources.Contains(currentNode))
+                    {
+                        sources.Remove(currentNode);
+                    }
+
+                    discoveredSources.Add(currentNode);
+                }
+                
+                this.dependents.GetValueOrNone(currentNode).MatchSome(a => depthStack.PushRange(a));
+            }
+        }
+
+        return sources;
+    }
+}

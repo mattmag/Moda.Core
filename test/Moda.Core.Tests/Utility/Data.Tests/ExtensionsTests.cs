@@ -334,6 +334,23 @@ public class ExtensionsTests
     }
     
     
+    // Stack.PushRange() Tests
+    //----------------------------------------------------------------------------------------------
+
+
+    [Test]
+    public void PushRangeShouldPushEachItem()
+    {
+        Stack<int> stack = new();
+        stack.Push(1);
+        stack.Push(2);
+        
+        stack.PushRange(new[] { 3, 4, 5, 6 });
+
+        stack.Should().ContainInOrder(6, 5, 4, 3, 2, 1);
+    }
+    
+    
 
     // Support Classes
     // -----------------------------------------------------------------------------------------

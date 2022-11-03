@@ -349,6 +349,30 @@ public static class Extensions
         list.Insert((index >= 0) ? index + 1 : ~index, value);
     }
 
+
+    // Stacks
+    //----------------------------------------------------------------------------------------------
+    
+    /// <summary>
+    ///     Push each item onto the stack.
+    /// </summary>
+    /// <param name="stack">
+    ///     The stack to push the items onto.
+    /// </param>
+    /// <param name="items">
+    ///     The items to push onto the stack.
+    /// </param>
+    /// <typeparam name="T">
+    ///     The type of the item contained in the stack.
+    /// </typeparam>
+    public static void PushRange<T>(this Stack<T> stack, IEnumerable<T> items)
+    {
+        foreach (T item in items)
+        {
+            stack.Push(item);
+        }
+    }
+
 }
 
 
