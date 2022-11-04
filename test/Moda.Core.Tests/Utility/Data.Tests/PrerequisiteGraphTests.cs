@@ -617,4 +617,266 @@ public class PrerequisiteGraphTests
                 nodeA1, nodeA2, nodeB1, nodeB2, nodeB3
             });
     }
+    
+    
+    // Process() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void ProcessShouldExcludeNodesAfterDepthStop()
+    {
+        PrerequisiteGraph<Node> graph = new();
+        
+        Node nodeA = new("Node A");
+        Node nodeB = new("Node B");
+        Node nodeC = new("Node C");
+        Node nodeD = new("Node D");
+        
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB);
+        graph.DeclarePrerequisite(prereq:nodeB, of:nodeC);
+        graph.DeclarePrerequisite(prereq:nodeC, of:nodeD);
+
+        List<Node> results = new();
+        graph.Process(node =>
+            {
+                results.Add(node);
+                return node == nodeB ? GraphDirective.DepthStop : GraphDirective.Continue;
+            });
+        results.Should().BeEquivalentTo(new[] { nodeA, nodeB });
+    }
+
+    
+    [Test]
+    public void ProcessShouldIncludeNodesFromOtherBranchesAfterDepthStop()
+    {
+        PrerequisiteGraph<Node> graph = new();
+        
+        Node nodeA = new("Node A");
+        Node nodeB1 = new("Node B1");
+        Node nodeB2 = new("Node B2");
+        Node nodeC1 = new("Node C1");
+        Node nodeC2 = new("Node C2");
+        Node nodeC3 = new("Node C3");
+        Node nodeC4 = new("Node C4");
+        Node nodeD1 = new("Node D1");
+        Node nodeD2 = new("Node D2");
+        Node nodeD3 = new("Node D3");
+        
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB1);
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB2);
+        
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC1);
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC2);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC3);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC4);
+        
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD1);
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD2);
+        graph.DeclarePrerequisite(prereq:nodeC2, of:nodeD3);
+
+        List<Node> results = new();
+        graph.Process(node =>
+            {
+                results.Add(node);
+                return node == nodeC1 ? GraphDirective.DepthStop : GraphDirective.Continue;
+            });
+        results.Should().BeEquivalentTo(new[]
+            {
+                nodeA, nodeB1, nodeB2,
+                nodeC1, nodeC2, nodeC3, nodeC4,
+                nodeD3
+            });
+    }
+    
+    [Test]
+    public void ProcessShouldIncludeNodesFromOtherBranchesAfterComplexDepthStop()
+    {
+        PrerequisiteGraph<Node> graph = new();
+        
+        Node nodeA = new("Node A");
+        Node nodeB1 = new("Node B1");
+        Node nodeB2 = new("Node B2");
+        Node nodeC1 = new("Node C1");
+        Node nodeC2 = new("Node C2");
+        Node nodeC3 = new("Node C3");
+        Node nodeC4 = new("Node C4");
+        Node nodeD1 = new("Node D1");
+        Node nodeD2 = new("Node D2");
+        Node nodeD3 = new("Node D3");
+        Node nodeD4 = new("Node D4");
+        Node nodeD5 = new("Node D5");
+        
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB1);
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB2);
+        
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC1);
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC2);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC3);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC4);
+        
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD1);
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD2);
+        graph.DeclarePrerequisite(prereq:nodeC2, of:nodeD3);
+        graph.DeclarePrerequisite(prereq:nodeC3, of:nodeD4);
+        graph.DeclarePrerequisite(prereq:nodeC3, of:nodeD5);
+
+        List<Node> results = new();
+        graph.Process(node =>
+            {
+                results.Add(node);
+                return node == nodeC1 || node == nodeC3
+                    ? GraphDirective.DepthStop
+                    : GraphDirective.Continue;
+            });
+        results.Should().BeEquivalentTo(new[]
+            {
+                nodeA, nodeB1, nodeB2,
+                nodeC1, nodeC2, nodeC3, nodeC4,
+                nodeD3
+            });
+    }
+    
+    
+     [Test]
+    public void ProcessShouldReturnPrerequisitesFirst()
+    {
+        PrerequisiteGraph<Node> graph = new();
+        
+        Node nodeA = new("Node A");
+        Node nodeB1 = new("Node B1");
+        Node nodeB2 = new("Node B2");
+        Node nodeC1 = new("Node C1");
+        Node nodeC2 = new("Node C2");
+        Node nodeC3 = new("Node C3");
+        Node nodeC4 = new("Node C4");
+        Node nodeD1 = new("Node D1");
+        Node nodeD2 = new("Node D2");
+        Node nodeD3 = new("Node D3");
+        Node nodeD4 = new("Node D4");
+        Node nodeD5 = new("Node D5");
+        
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB1);
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB2);
+        
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC1);
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC2);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC3);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC4);
+        
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD1);
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD2);
+        graph.DeclarePrerequisite(prereq:nodeC2, of:nodeD3);
+        graph.DeclarePrerequisite(prereq:nodeC3, of:nodeD4);
+        graph.DeclarePrerequisite(prereq:nodeC3, of:nodeD5);
+
+        List<Node> results = new();
+        graph.Process(node =>
+            {
+                results.Add(node);
+                return node == nodeC1 || node == nodeC3
+                    ? GraphDirective.DepthStop
+                    : GraphDirective.Continue;
+            });
+        results.Should().ContainInOrder(nodeA, nodeB1, nodeC1);
+        results.Should().ContainInOrder(nodeA, nodeC2, nodeD3);
+        results.Should().ContainInOrder(nodeA, nodeB2, nodeC3);
+        results.Should().ContainInOrder(nodeA, nodeB2, nodeC4);
+    }
+
+
+    // ProcessFrom() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void ProcessFromShouldIncludeNodesFromOtherBranchesAfterComplexDepthStop()
+    {
+        PrerequisiteGraph<Node> graph = new();
+        
+        Node nodeA = new("Node A");
+        Node nodeB1 = new("Node B1");
+        Node nodeB2 = new("Node B2");
+        Node nodeC1 = new("Node C1");
+        Node nodeC2 = new("Node C2");
+        Node nodeC3 = new("Node C3");
+        Node nodeC4 = new("Node C4");
+        Node nodeD1 = new("Node D1");
+        Node nodeD2 = new("Node D2");
+        Node nodeD3 = new("Node D3");
+        Node nodeD4 = new("Node D4");
+        Node nodeD5 = new("Node D5");
+        
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB1);
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB2);
+        
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC1);
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC2);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC3);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC4);
+        
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD1);
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD2);
+        graph.DeclarePrerequisite(prereq:nodeC2, of:nodeD3);
+        graph.DeclarePrerequisite(prereq:nodeC3, of:nodeD4);
+        graph.DeclarePrerequisite(prereq:nodeC3, of:nodeD5);
+
+        List<Node> results = new();
+        graph.ProcessFrom(new [] { nodeB1, nodeC3 },node =>
+            {
+                results.Add(node);
+                return node == nodeC1 || node == nodeC3
+                    ? GraphDirective.DepthStop
+                    : GraphDirective.Continue;
+            });
+        results.Should().BeEquivalentTo(new[]
+            {
+                nodeB1,
+                nodeC1, nodeC2, nodeC3,
+                nodeD3
+            });
+    }
+    
+    
+    [Test]
+    public void ProcessFromShouldReturnPrerequisitesFirst()
+    {
+        PrerequisiteGraph<Node> graph = new();
+        
+        Node nodeA = new("Node A");
+        Node nodeB1 = new("Node B1");
+        Node nodeB2 = new("Node B2");
+        Node nodeC1 = new("Node C1");
+        Node nodeC2 = new("Node C2");
+        Node nodeC3 = new("Node C3");
+        Node nodeC4 = new("Node C4");
+        Node nodeD1 = new("Node D1");
+        Node nodeD2 = new("Node D2");
+        Node nodeD3 = new("Node D3");
+        Node nodeD4 = new("Node D4");
+        Node nodeD5 = new("Node D5");
+        
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB1);
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB2);
+        
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC1);
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC2);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC3);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC4);
+        
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD1);
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD2);
+        graph.DeclarePrerequisite(prereq:nodeC2, of:nodeD3);
+        graph.DeclarePrerequisite(prereq:nodeC3, of:nodeD4);
+        graph.DeclarePrerequisite(prereq:nodeC3, of:nodeD5);
+
+        List<Node> results = new();
+        graph.ProcessFrom(new [] { nodeB1, nodeC3 },node =>
+            {
+                results.Add(node);
+                return node == nodeC1 || node == nodeC3
+                    ? GraphDirective.DepthStop
+                    : GraphDirective.Continue;
+            });
+        results.Should().ContainInOrder(nodeB1, nodeC1);
+        results.Should().ContainInOrder(nodeB1, nodeC2, nodeD3);
+    }
 }

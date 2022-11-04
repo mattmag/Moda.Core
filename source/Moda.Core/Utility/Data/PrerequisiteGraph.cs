@@ -8,7 +8,6 @@ using Optional.Collections;
 
 namespace Moda.Core.Utility.Data;
 
-
 /// <summary>
 ///     A directed graph implementation intended to represent complex dependencies between nodes.
 ///     It allows for multiple roots, and offers methods to iterate nodes in a prerequisite-first
@@ -169,6 +168,7 @@ public class PrerequisiteGraph<T>
             });
     }
 
+    
     /// <summary>
     ///     Iterate through the graph, yielding prerequisites before their dependents.
     /// </summary>
@@ -181,10 +181,10 @@ public class PrerequisiteGraph<T>
     /// </remarks>
     public IEnumerable<T> Iterate()
     {
-        return KahnSort(this.sourceNodes);
+        return IterateWithKahnSort(this.sourceNodes);
     }
-
-
+    
+    
     /// <summary>
     ///     Iterate through the graph beginning at the specified nodes, yielding prerequisites
     ///     before their dependents.
@@ -208,10 +208,42 @@ public class PrerequisiteGraph<T>
         return IterateFrom((IEnumerable<T>)startingNodes);
     }
     
+    
     /// <inheritdoc cref="IterateFrom(T[])"/>
     public IEnumerable<T> IterateFrom(IEnumerable<T> startingNodes)
     {
         return SubGraphFrom(startingNodes).Iterate();
+    }
+    
+    
+    /// <summary>
+    ///     Iterate the graph and apply the <paramref name="process"/> function to each item,
+    ///     respecting the <see cref="GraphDirective"/> return value for control.
+    /// </summary>
+    /// <param name="process">
+    ///     A function to execute on each item, the return value of which will control iteration
+    ///     through the graph.
+    /// </param>
+    public void Process(Func<T,GraphDirective> process)
+    {
+        ProcessWithKahnSort(this.sourceNodes, process);
+    }
+    
+    
+    /// <summary>
+    ///     Iterate the graph and apply the <paramref name="process"/> function to each item,
+    ///     respecting the <see cref="GraphDirective"/> return value for control.
+    /// </summary>
+    /// <param name="startingNodes">
+    ///     The nodes to start iterating from.
+    /// </param>
+    /// <param name="process">
+    ///     A function to execute on each item, the return value of which will control iteration
+    ///     through the graph.
+    /// </param>
+    public void ProcessFrom(IEnumerable<T> startingNodes, Func<T, GraphDirective> process)
+    {
+        SubGraphFrom(startingNodes).Process(process);
     }
 
 
@@ -221,48 +253,66 @@ public class PrerequisiteGraph<T>
     //
     //##############################################################################################
     
-    private IEnumerable<T> KahnSort(IEnumerable<T> startingNodes)
+    private IEnumerable<T> IterateWithKahnSort(IEnumerable<T> startingNodes)
     {
-        Queue<T> sortedNodes = new();
         Stack<T> noPrereqs = new(startingNodes);
-        
+        Dictionary<T, Int32> prereqTally = new();
+    
+        while (noPrereqs.TryPop(out T? currentNode))
+        {
+            yield return currentNode;
+            KahnSort(currentNode, noPrereqs, prereqTally);
+        }
+    }
+    
+    
+    private void ProcessWithKahnSort(IEnumerable<T> startingNodes, Func<T, GraphDirective> process)
+    {
+        Stack<T> noPrereqs = new(startingNodes);
         Dictionary<T, Int32> prereqTally = new();
         
         while (noPrereqs.TryPop(out T? currentNode))
         {
-            sortedNodes.Enqueue(currentNode);
-            // TODO: evaluate yield return instead? cycle check covered elsewhere
-            // TODO: only add dependents if user function returns a value indicating to continue downward? (not covered by yield return during complex graphs)
-            if (this.dependents.TryGetValue(currentNode, out HashSet<T>? deps))
+            if (process(currentNode) == GraphDirective.DepthStop)
             {
-                foreach (T dependent in deps)
+                continue;
+            }
+            
+            KahnSort(currentNode, noPrereqs, prereqTally);
+        }
+    }
+    
+    
+    private void KahnSort(T currentNode,
+        Stack<T> noPrereqs,
+        Dictionary<T, Int32> prereqTally)
+    {
+        if (this.dependents.TryGetValue(currentNode, out HashSet<T>? deps))
+        {
+            foreach (T dependent in deps)
+            {
+                int numberOfPrereqs = prereqTally.GetValueOrNone(dependent).Match
+                (
+                    val => prereqTally[dependent] = val - 1,
+                    () => prereqTally[dependent] =
+                        this.prerequisites.GetValueOrNone(dependent)
+                            .Map(a => Math.Max(a.Count - 1, 0))
+                            .ValueOr(0)
+                );
+    
+                if (numberOfPrereqs == 0)
                 {
-                    int numberOfPrereqs = prereqTally.GetValueOrNone(dependent).Match
-                    (
-                        val => prereqTally[dependent] = val - 1,
-                        () => prereqTally[dependent] =
-                            this.prerequisites.GetValueOrNone(dependent)
-                                .Map(a => Math.Max(a.Count - 1, 0))
-                                .ValueOr(0)
-                    );
-                    
-                    if (numberOfPrereqs == 0)
-                    {
-                        prereqTally.Remove(dependent);
-                        noPrereqs.Push(dependent);
-                    }
+                    prereqTally.Remove(dependent);
+                    noPrereqs.Push(dependent);
                 }
             }
         }
-
-        if (prereqTally.Any())
-        {
-            // should not happen - cycles should be detected  during graph construction
-            throw new CycleDetectedException();
-        }
-        
-        return sortedNodes;
     }
+
+
+
+
+    
     
     
     private bool IsGraphCyclical(T startingNode)
@@ -366,4 +416,7 @@ public class PrerequisiteGraph<T>
 
         return sources;
     }
+
+
+    
 }
