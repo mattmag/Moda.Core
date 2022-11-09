@@ -1,0 +1,217 @@
+// This file is part of the Moda.Core project.
+// 
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+// If a copy of the MPL was not distributed with this file, You can obtain one at
+// https://mozilla.org/MPL/2.0/
+
+using Moda.Core.Utility.Data;
+using Optional;
+
+namespace Moda.Core.UI;
+
+/// <summary>
+///     A coordinate defines one end of a <see cref="Boundary"/>, or put another way, one corner of
+///     a <see cref="Cell"/>. 
+/// </summary>
+public class Coordinate : IDependentValue
+{
+    //##############################################################################################
+    //
+    //  Events
+    //
+    //##############################################################################################
+
+    // TODO: can we just set RelativeValue to Option.None?
+    /// <summary>
+    ///     Fired to indicate that the results of the previous calculation are no longer valid and
+    ///     must be re-evaluated.
+    /// </summary>
+    public event EventHandler? ValueInvalidated;
+    
+    /// <summary>
+    ///     Fired to indicate that the prerequisites of the <see cref="Recipe"/> (coordinates that
+    ///     must be calculated before this one) have changed.
+    /// </summary>
+    public event EventHandler<CollectionChangedArgs<Coordinate>>? PrerequisitesChanged;
+    
+    
+    
+    //##############################################################################################
+    //
+    //  Properties
+    //
+    //##############################################################################################
+
+    private ICalculable _recipe = new DefaultRecipe();
+    /// <summary>
+    ///     The calculation to use when calling <see cref="Calculate"/>.
+    /// </summary>
+    public ICalculable Recipe
+    {
+        get
+        {
+            return this._recipe;
+        }
+        set
+        {
+            if (this._recipe != value)
+            {
+                ICalculable old = this._recipe;
+                old.ValueInvalidated -= OnRecipeOnValueInvalidated;
+                old.PrerequisitesChanged -= OnRecipeOnPrerequisitesChanged;
+
+                this._recipe = value;
+                this._recipe.ValueInvalidated += OnRecipeOnValueInvalidated;
+                this._recipe.PrerequisitesChanged += OnRecipeOnPrerequisitesChanged;
+                
+                this.RecipeChanged?.Invoke(this, new(old, value));
+            }
+        }
+    }
+    /// <summary>
+    ///     Fired when the value of <see cref="Recipe"/> has changed.
+    /// </summary>
+    public event EventHandler<ValueChangedArgs<ICalculable>>? RecipeChanged;
+    
+    
+    
+    private Option<Single> _relativeValue;
+    /// <summary>
+    ///     The value of the coordinate relative to it's parent, or <see cref="Option.None{T}"/> if
+    ///     the value has not yet been calculated.
+    /// </summary>
+    public Option<Single> RelativeValue
+    {
+        get => this._relativeValue;
+        private set
+        {
+            if (this._relativeValue != value)
+            {
+                Option<Single> old = this._relativeValue;
+                this._relativeValue = value;
+                this.RelativeValueChanged?.Invoke(this, new(old, value));
+                UpdateAbsolute();
+            }
+        }
+    }
+    /// <summary>
+    ///     Fired when the value of <see cref="RelativeValue"/> has changed.
+    /// </summary>
+    public event EventHandler<ValueChangedArgs<Option<Single>>>? RelativeValueChanged;
+
+    
+    
+    
+    private Option<Single> _tare;
+    /// <summary>
+    ///     The <see cref="AbsoluteValue"/> of the parent's
+    ///     <see cref="Boundary.AlphaCoordinate"/> (in the same axis) that is used to add to this
+    ///     coordinate's <see cref="RelativeValue"/> to calculate it's <see cref="AbsoluteValue"/>.
+    /// </summary>
+    /// <remarks>
+    ///     If the owning cell does not have a parent, or it's parent's boundary's absolute
+    ///     coordinate is not yet known, this value will be <see cref="Option.None{T}"/>.
+    /// </remarks>
+    public Option<Single> Tare
+    {
+        get => this._tare;
+        set
+        {
+            if (this._tare != value)
+            {
+                Option<Single> old = this._tare;
+                this._tare = value;
+                this.TareChanged?.Invoke(this, new(old, value));
+                UpdateAbsolute();
+            }
+        }
+    }
+    
+    /// <summary>
+    ///     Fired when the value of <see cref="Tare"/> has changed.
+    /// </summary>
+    public event EventHandler<ValueChangedArgs<Option<Single>>>? TareChanged;
+
+    
+    
+    
+    private Option<Single> _absoluteValue;
+    /// <summary>
+    ///     The value of the coordinate in screen space, or <see cref="Option.None{T}"/> if
+    ///     the value has not yet been calculated.
+    /// </summary>
+    /// <remarks>
+    ///     Calculated as <see cref="Tare"/> + <see cref="RelativeValue"/>.
+    /// </remarks>
+    public Option<Single> AbsoluteValue
+    {
+        get => this._absoluteValue;
+        private set
+        {
+            if (this._absoluteValue != value)
+            {
+                Option<Single> old = this._absoluteValue;
+                this._absoluteValue = value;
+                this.AbsoluteValueChanged?.Invoke(this, new(old, value));
+            }
+        }
+    }
+    /// <summary>
+    ///     Fired when the value of <see cref="AbsoluteValue"/> has changed.
+    /// </summary>
+    public event EventHandler<ValueChangedArgs<Option<Single>>>? AbsoluteValueChanged;
+
+    
+    
+    // TODO: this
+    public IEnumerable<Coordinate> Prerequisites { get; }
+    
+    
+
+    //##############################################################################################
+    //
+    //  Public Methods
+    //
+    //##############################################################################################
+    
+    /// <summary>
+    ///     Evaluate the <see cref="Recipe"/> and assign it's results to
+    ///     <see cref="AbsoluteValue"/>.
+    /// </summary>
+    /// <remarks>
+    ///     If <see cref="Tare"/> has a value, <see cref="AbsoluteValue"/> will be updated as well.
+    /// </remarks>
+    public void Calculate()
+    {
+        this.RelativeValue = _recipe.Calculate().Some();
+    }
+
+
+    //##############################################################################################
+    //
+    //  Private Methods
+    //
+    //##############################################################################################
+
+
+    private void UpdateAbsolute()
+    {
+        this.AbsoluteValue = this.Tare
+            .FlatMap(tare => this.RelativeValue.Map(relative => tare + relative));
+    }
+
+    
+    private void OnRecipeOnPrerequisitesChanged(Object? s, CollectionChangedArgs<Coordinate> e)
+    {
+        this.PrerequisitesChanged?.Invoke(this, e);
+    }
+
+
+    private void OnRecipeOnValueInvalidated(Object? s, EventArgs e)
+    {
+        this.ValueInvalidated?.Invoke(this, e);
+    }
+
+    
+    
+}
