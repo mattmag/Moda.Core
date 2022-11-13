@@ -45,7 +45,10 @@ public class Cell : TreeNode<Cell>
     /// </summary>
     public Boundary YBoundary { get; } = new();
 
-    
+    /// <summary>
+    ///     The ID of the entity that owns this cell as a component.
+    /// </summary>
+    public Option<UInt64> Entity { get; set; }
 
     //##############################################################################################
     //
@@ -70,4 +73,7 @@ public class Cell : TreeNode<Cell>
         child.YBoundary.AlphaCoordinate.Tare = Option.None<Single>();
         child.YBoundary.BetaCoordinate.Tare = Option.None<Single>();
     }
+
+
+    
 }

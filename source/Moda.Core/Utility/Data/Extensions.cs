@@ -350,6 +350,24 @@ public static class Extensions
     }
 
 
+    // TODO: unit test
+    public static Option<Int32> IndexOf<T>(this IEnumerable<T> collection, T value)
+    {
+        Int32 index = 0;
+        
+        foreach (T item in collection)
+        {
+            if (Equals(item, value))
+            {
+                return index.Some();
+            }
+
+            index++;
+        }
+
+        return Option.None<Int32>();
+    }
+
     // Stacks
     //----------------------------------------------------------------------------------------------
     

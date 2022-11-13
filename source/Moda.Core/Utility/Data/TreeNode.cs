@@ -52,7 +52,8 @@ public abstract class TreeNode<T> : IEnumerable<T>
     /// <summary>
     ///     The children belonging to this node.
     /// </summary>
-    public IEnumerable<T> Children => this._children;
+    public IReadOnlyList<T> Children => this._children;
+    
     /// <summary>
     ///     Fired when children are added to or removed from <see cref="Children"/>.
     /// </summary>
@@ -93,6 +94,11 @@ public abstract class TreeNode<T> : IEnumerable<T>
         this.ChildrenChanged?.Invoke(this, new(new[] { child }, Enumerable.Empty<T>()));
     }
 
+    public void InsertChild(T cell, Int32 index)
+    {
+        // TODO: unit test, checks, everything else append does
+        this._children.Insert(index, cell);
+    }
 
     /// <summary>
     ///     Remove the specified node from this nodes <see cref="Children"/> list.

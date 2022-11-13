@@ -42,6 +42,7 @@ public class Coordinate : IDependentValue
     //
     //##############################################################################################
 
+    // TODO: optional instead of default?
     private ICalculable _recipe = new DefaultRecipe();
     /// <summary>
     ///     The calculation to use when calling <see cref="Calculate"/>.
