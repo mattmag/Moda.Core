@@ -1,3 +1,6 @@
+using Moda.Core.Lengths;
+using Optional;
+
 namespace Moda.Core.UI.Builders;
 
 public class AnchoredVerticalBuilder : AnchoredAxisBuilder
@@ -5,6 +8,9 @@ public class AnchoredVerticalBuilder : AnchoredAxisBuilder
     public AnchoredVerticalBuilder(BoundariesRecipe boundariesBoundariesRecipe, Vertical anchor)
         : base(boundariesBoundariesRecipe, Axis.Y, ConvertAnchor(anchor))
     {
+        //  TODO: placeholder, could probably do in base class
+        this.MyAxisRecipe.Alpha = new Pixels(0).Some<Length>();
+        this.MyAxisRecipe.Beta = new Pixels(0).Some<Length>();
     }
     
     public ICellComposer WithHeight(Length width)

@@ -1,5 +1,6 @@
 using Moda.Core.Utility.Data;
 using Optional;
+using Optional.Unsafe;
 
 namespace Moda.Core.UI.Builders;
 
@@ -8,6 +9,7 @@ public class CellComposer : ICellComposer, IReadyForConstruction
     public CellComposer(BoundariesRecipe boundariesRecipe)
     {
         this.BoundariesRecipe = boundariesRecipe;
+        this.CompositionRecipe = new();
     }
 
     public BoundariesRecipe BoundariesRecipe { get; }
@@ -35,32 +37,36 @@ public class CellComposer : ICellComposer, IReadyForConstruction
     }
 
 
-    public IReadyForConstruction InsertAt(Cell cell, Int32 index)
+    public IReadyForConstruction InsertAt(Cell parent, Int32 index)
     {
-        this.CompositionRecipe.Parent = cell.Some();
-        this.CompositionRecipe.InsertionIndex = Math.Max(0, Math.Min(cell.Children.Count, index)).Some();
+        this.CompositionRecipe.Parent = parent.Some();
+        this.CompositionRecipe.InsertionIndex =
+            Math.Max(0, Math.Min(parent.Children.Count, index)).Some();
         return this;
     }
 
 
     public IReadyForConstruction InsertBefore(Cell peer)
     {
-        this.CompositionRecipe.Parent = peer.Parent;
-        this.CompositionRecipe.InsertionIndex = peer.Children.IndexOf(peer);
+        Cell parent = peer.Parent.ValueOrFailure();
+        this.CompositionRecipe.Parent = parent.Some();
+        this.CompositionRecipe.InsertionIndex = parent.Children.IndexOf(peer).OrFailure();
         return this;
     }
 
 
     public IReadyForConstruction InsertAfter(Cell peer)
     {
-        this.CompositionRecipe.Parent = peer.Parent;
-        this.CompositionRecipe.InsertionIndex = peer.Children.IndexOf(peer).Map(i => i + 1);
+        Cell parent = peer.Parent.ValueOrFailure();
+        this.CompositionRecipe.Parent = parent.Some();
+        this.CompositionRecipe.InsertionIndex = parent.Children.IndexOf(peer).Map(i => i + 1)
+                .OrFailure();
         return this;
     }
 
 
     public CellRecipe GetRecipe()
     {
-        throw new NotImplementedException();
+        return new(this.BoundariesRecipe, this.CompositionRecipe);
     }
 }

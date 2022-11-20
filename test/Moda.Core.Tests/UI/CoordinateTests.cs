@@ -25,10 +25,7 @@ public class CoordinateTests
         Mock<ICalculable> recipe = new();
         recipe.Setup(a => a.Calculate()).Returns(4.3f);
 
-        Coordinate coordinate = new()
-            {
-                Recipe = recipe.Object,
-            };
+        Coordinate coordinate = new(recipe.Object);
         coordinate.Calculate();
 
         coordinate.RelativeValue.Should().Be(4.3f.Some());
@@ -41,10 +38,7 @@ public class CoordinateTests
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
         recipe.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new()
-            {
-                Recipe = recipe.Object,
-            };
+        Coordinate coordinate = new(recipe.Object);
         coordinate.Calculate();
         lengthValue = 7;
         
@@ -63,7 +57,7 @@ public class CoordinateTests
     [Test]
     public void AbsoluteValueShouldReturnNoneIfRelativeIsNone()
     {
-        Coordinate coordinate = new()
+        Coordinate coordinate = new(Mock.Of<ICalculable>())
             {
                 Tare = 2.3f.Some(),
             };
@@ -76,10 +70,7 @@ public class CoordinateTests
         Mock<ICalculable> recipe = new();
         recipe.Setup(a => a.Calculate()).Returns(6.1f);
 
-        Coordinate coordinate = new()
-            {
-                Recipe = recipe.Object,
-            };
+        Coordinate coordinate = new(recipe.Object);
         coordinate.Calculate();
         coordinate.AbsoluteValue.Should().Be(Option.None<Single>());
     }
@@ -91,9 +82,8 @@ public class CoordinateTests
         Mock<ICalculable> recipe = new();
         recipe.Setup(a => a.Calculate()).Returns(6.1f);
         
-        Coordinate coordinate = new()
+        Coordinate coordinate = new(recipe.Object)
             {
-                Recipe = recipe.Object,
                 Tare = 2.5f.Some(),
             };
         coordinate.Calculate();
@@ -109,10 +99,7 @@ public class CoordinateTests
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
         recipe.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new()
-            {
-                Recipe = recipe.Object,
-            };
+        Coordinate coordinate = new(recipe.Object);
         coordinate.Tare = 2f.Some();
         coordinate.Calculate();
         lengthValue = 7;
@@ -135,9 +122,8 @@ public class CoordinateTests
         Mock<ICalculable> recipe = new();
         recipe.Setup(a => a.Calculate()).Returns(6.1f);
         
-        Coordinate coordinate = new()
+        Coordinate coordinate = new(recipe.Object)
             {
-                Recipe = recipe.Object,
                 Tare = 2.5f.Some(),
             };
         coordinate.Calculate();
@@ -151,7 +137,7 @@ public class CoordinateTests
     [Test]
     public void ChangeToTareShouldFireEvent()
     {
-        Coordinate coordinate = new();
+        Coordinate coordinate = new(Mock.Of<ICalculable>());
         
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
         coordinate.Tare = 8f.Some();
@@ -169,11 +155,8 @@ public class CoordinateTests
     public void ValueInvalidatedFromRecipeShouldForward()
     {
         Mock<ICalculable> recipe = new();
-
-        Coordinate coordinate = new()
-            {
-                Recipe = recipe.Object
-            };
+        Coordinate coordinate = new(recipe.Object);
+        
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
         
         recipe.Raise(a => a.ValueInvalidated += null, EventArgs.Empty);
@@ -186,21 +169,18 @@ public class CoordinateTests
     public void PrerequisitesChangedFromRecipeShouldForward()
     {
         Mock<ICalculable> recipe = new();
-
-        Coordinate coordinate = new()
-            {
-                Recipe = recipe.Object
-            };
+        Coordinate coordinate = new(recipe.Object);
+        
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
 
         CollectionChangedArgs<Coordinate> args = new(
             new []
             {
-                new Coordinate()
+                new Coordinate(Mock.Of<ICalculable>())
             },
             new []
             {
-                new Coordinate(), new Coordinate()
+                new Coordinate(Mock.Of<ICalculable>()), new Coordinate(Mock.Of<ICalculable>())
             });
     
         recipe.Raise(a => a.PrerequisitesChanged += null, recipe, args);

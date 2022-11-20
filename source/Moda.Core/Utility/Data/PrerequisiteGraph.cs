@@ -391,6 +391,8 @@ public class PrerequisiteGraph<T>
     
     private IEnumerable<T> FindTrueSources(IEnumerable<T> potentialSources)
     {
+        // TODO: optimization: if sourcenodes.IsSubsetOf(potentialSourceNodes) then just choose source nodes without having to find true sources
+        
         HashSet<T> sources = new(potentialSources);
         HashSet<T> discoveredSources = new();
         

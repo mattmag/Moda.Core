@@ -20,7 +20,7 @@ public class BoundaryTests
     [Test]
     public void RelativeRangeShouldReturnNoneIfBothAbsoluteCoordinatesAreNone()
     {
-        Boundary boundary = new();
+        Boundary boundary = new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>());
         boundary.RelativeRange.Should().Be(Option.None<RangeF>());
     }
     
@@ -30,14 +30,8 @@ public class BoundaryTests
         Mock<ICalculable> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new()
-        {
-            BetaCoordinate =
-            {
-                Recipe = lengthB.Object,
-            },
-        };
-
+        Boundary boundary = new(Mock.Of<ICalculable>(), lengthB.Object);
+        
         boundary.BetaCoordinate.Calculate();
         
         boundary.RelativeRange.Should().Be(Option.None<RangeF>());
@@ -48,14 +42,8 @@ public class BoundaryTests
     {
         Mock<ICalculable> lengthA = new();
         lengthA.Setup(a => a.Calculate()).Returns(3.5f);
-        
-        Boundary boundary = new()
-        {
-            AlphaCoordinate =
-            {
-                Recipe = lengthA.Object,
-            },
-        };
+
+        Boundary boundary = new(lengthA.Object, Mock.Of<ICalculable>());
         
         boundary.AlphaCoordinate.Calculate();
         
@@ -70,18 +58,8 @@ public class BoundaryTests
 
         Mock<ICalculable> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(10.5f);
-        
-        Boundary boundary = new()
-        {
-            AlphaCoordinate =
-            {
-                Recipe = lengthA.Object,
-            },
-            BetaCoordinate =
-            {
-                Recipe = lengthB.Object,
-            },
-        };
+
+        Boundary boundary = new(lengthA.Object, lengthB.Object);
         
         boundary.AlphaCoordinate.Calculate();
         boundary.BetaCoordinate.Calculate();
@@ -96,7 +74,7 @@ public class BoundaryTests
     [Test]
     public void AbsoluteRangeShouldReturnNoneIfBothAbsoluteCoordinatesAreNone()
     {
-        Boundary boundary = new();
+        Boundary boundary = new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>());
         boundary.AbsoluteRange.Should().Be(Option.None<RangeF>());
     }
     
@@ -106,11 +84,10 @@ public class BoundaryTests
         Mock<ICalculable> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new()
+        Boundary boundary = new(Mock.Of<ICalculable>(), lengthB.Object)
         {
             BetaCoordinate =
             {
-                Recipe = lengthB.Object,
                 Tare = 2f.Some(),
             },
         };
@@ -126,11 +103,10 @@ public class BoundaryTests
         Mock<ICalculable> lengthA = new();
         lengthA.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new()
+        Boundary boundary = new(lengthA.Object, Mock.Of<ICalculable>())
         {
             AlphaCoordinate =
             {
-                Recipe = lengthA.Object,
                 Tare = 2f.Some(),
             },
         };
@@ -149,16 +125,14 @@ public class BoundaryTests
         Mock<ICalculable> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(10.5f);
         
-        Boundary boundary = new()
+        Boundary boundary = new(lengthA.Object, lengthB.Object)
         {
             AlphaCoordinate =
             {
-                Recipe = lengthA.Object,
                 Tare = 2f.Some(),
             },
             BetaCoordinate =
             {
-                Recipe = lengthB.Object,
                 Tare = 2f.Some(),
             },
         };
@@ -168,5 +142,19 @@ public class BoundaryTests
         
         boundary.AbsoluteRange.Should().Be(new RangeF(5.5f, 12.5f).Some());
     }
+
+
+    // GetCoordinates() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void GetCoordinatesShouldReturnAlphaAndBeta()
+    {
+        Boundary boundary = new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>());
+        boundary.GetCoordinates().Should()
+            .BeEquivalentTo(new[] { boundary.AlphaCoordinate, boundary.BetaCoordinate },
+                a => a.WithStrictOrdering());
+    }
+    
     
 }

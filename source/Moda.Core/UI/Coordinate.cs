@@ -17,11 +17,24 @@ public class Coordinate : IDependentValue
 {
     //##############################################################################################
     //
+    //  Constructors
+    //
+    //##############################################################################################
+    public Coordinate(ICalculable calculation)
+    {
+        this._calculation = calculation;
+        InitializeCalculation(this._calculation);
+    }
+    
+    
+    //##############################################################################################
+    //
     //  Events
     //
     //##############################################################################################
 
     // TODO: can we just set RelativeValue to Option.None?
+    // TODO: default EventHandler allows for null sender...do we want strongly typed again too?
     /// <summary>
     ///     Fired to indicate that the results of the previous calculation are no longer valid and
     ///     must be re-evaluated.
@@ -29,7 +42,7 @@ public class Coordinate : IDependentValue
     public event EventHandler? ValueInvalidated;
     
     /// <summary>
-    ///     Fired to indicate that the prerequisites of the <see cref="Recipe"/> (coordinates that
+    ///     Fired to indicate that the prerequisites of the <see cref="Calculation"/> (coordinates that
     ///     must be calculated before this one) have changed.
     /// </summary>
     public event EventHandler<CollectionChangedArgs<Coordinate>>? PrerequisitesChanged;
@@ -42,35 +55,35 @@ public class Coordinate : IDependentValue
     //
     //##############################################################################################
 
-    // TODO: optional instead of default?
-    private ICalculable _recipe = new DefaultRecipe();
+
+    private ICalculable _calculation;
     /// <summary>
     ///     The calculation to use when calling <see cref="Calculate"/>.
     /// </summary>
-    public ICalculable Recipe
+    public ICalculable Calculation
     {
         get
         {
-            return this._recipe;
+            return this._calculation;
         }
         set
         {
-            if (this._recipe != value)
+            if (this._calculation != value)
             {
-                ICalculable old = this._recipe;
-                old.ValueInvalidated -= OnRecipeOnValueInvalidated;
-                old.PrerequisitesChanged -= OnRecipeOnPrerequisitesChanged;
+                ICalculable old = this._calculation;
+                old.ValueInvalidated -= OnCalculationOnValueInvalidated;
+                old.PrerequisitesChanged -= OnCalculationOnPrerequisitesChanged;
 
-                this._recipe = value;
-                this._recipe.ValueInvalidated += OnRecipeOnValueInvalidated;
-                this._recipe.PrerequisitesChanged += OnRecipeOnPrerequisitesChanged;
+                this._calculation = value;
+                InitializeCalculation(this._calculation);
                 
                 this.RecipeChanged?.Invoke(this, new(old, value));
             }
         }
     }
+    
     /// <summary>
-    ///     Fired when the value of <see cref="Recipe"/> has changed.
+    ///     Fired when the value of <see cref="Calculation"/> has changed.
     /// </summary>
     public event EventHandler<ValueChangedArgs<ICalculable>>? RecipeChanged;
     
@@ -165,7 +178,8 @@ public class Coordinate : IDependentValue
     
     
     // TODO: this
-    public IEnumerable<Coordinate> Prerequisites { get; }
+    public IEnumerable<Coordinate> Prerequisites => this._calculation?.Prerequisites
+        ?? Enumerable.Empty<Coordinate>();
     
     
 
@@ -176,7 +190,7 @@ public class Coordinate : IDependentValue
     //##############################################################################################
     
     /// <summary>
-    ///     Evaluate the <see cref="Recipe"/> and assign it's results to
+    ///     Evaluate the <see cref="Calculation"/> and assign it's results to
     ///     <see cref="AbsoluteValue"/>.
     /// </summary>
     /// <remarks>
@@ -184,7 +198,7 @@ public class Coordinate : IDependentValue
     /// </remarks>
     public void Calculate()
     {
-        this.RelativeValue = _recipe.Calculate().Some();
+        this.RelativeValue = this._calculation.Calculate().Some();
     }
 
 
@@ -195,6 +209,12 @@ public class Coordinate : IDependentValue
     //##############################################################################################
 
 
+    private void InitializeCalculation(ICalculable calculable)
+    {
+        calculable.ValueInvalidated += OnCalculationOnValueInvalidated;
+        calculable.PrerequisitesChanged += OnCalculationOnPrerequisitesChanged;
+    }
+
     private void UpdateAbsolute()
     {
         this.AbsoluteValue = this.Tare
@@ -202,13 +222,13 @@ public class Coordinate : IDependentValue
     }
 
     
-    private void OnRecipeOnPrerequisitesChanged(Object? s, CollectionChangedArgs<Coordinate> e)
+    private void OnCalculationOnPrerequisitesChanged(Object? s, CollectionChangedArgs<Coordinate> e)
     {
         this.PrerequisitesChanged?.Invoke(this, e);
     }
 
 
-    private void OnRecipeOnValueInvalidated(Object? s, EventArgs e)
+    private void OnCalculationOnValueInvalidated(Object? s, EventArgs e)
     {
         this.ValueInvalidated?.Invoke(this, e);
     }

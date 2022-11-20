@@ -21,10 +21,14 @@ public class Cell : TreeNode<Cell>
 {
     //##############################################################################################
     //
-    //  Fields
+    //  Constructors
     //
     //##############################################################################################
-    
+    public Cell(Boundary xBoundary, Boundary yBoundary)
+    {
+        this.XBoundary = xBoundary;
+        this.YBoundary = yBoundary;
+    }
     
     
     //##############################################################################################
@@ -37,18 +41,34 @@ public class Cell : TreeNode<Cell>
     ///     The <see cref="Coordinate">Coordinates</see> that define the bounds of the cell in the X
     ///     axis.
     /// </summary>
-    public Boundary XBoundary { get; } = new();
+    public Boundary XBoundary { get; }
     
     /// <summary>
     ///     The <see cref="Coordinate">Coordinates</see> that define the bounds of the cell in the Y
     ///     axis.
     /// </summary>
-    public Boundary YBoundary { get; } = new();
+    public Boundary YBoundary { get; }
 
     /// <summary>
     ///     The ID of the entity that owns this cell as a component.
     /// </summary>
-    public Option<UInt64> Entity { get; set; }
+    public UInt64 EntityID { get; internal set; }
+    
+    
+    public String DebugName { get; set; }
+
+
+    //##############################################################################################
+    //
+    //  Public Methods
+    //
+    //##############################################################################################
+    
+    // TODO: unit test
+    public IEnumerable<Coordinate> GetCoordinates()
+    {
+        return this.XBoundary.GetCoordinates().Concat(this.YBoundary.GetCoordinates());
+    }
 
     //##############################################################################################
     //

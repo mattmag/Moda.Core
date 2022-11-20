@@ -31,16 +31,17 @@ public class CellTests
         Mock<ICalculable> yAlphaLength = new();
         yAlphaLength.Setup(a => a.Calculate()).Returns(yLength);
         
-        Cell parent = new();
-        parent.XBoundary.AlphaCoordinate.Recipe = xAlphaLength.Object;
+        Cell parent = new(
+            new(xAlphaLength.Object, Mock.Of<ICalculable>()),
+            new(yAlphaLength.Object, Mock.Of<ICalculable>()));
         parent.XBoundary.AlphaCoordinate.Tare = xTare.Some();
         parent.XBoundary.AlphaCoordinate.Calculate();
         
-        parent.YBoundary.AlphaCoordinate.Recipe = yAlphaLength.Object;
         parent.YBoundary.AlphaCoordinate.Tare = yTare.Some();
         parent.YBoundary.AlphaCoordinate.Calculate();
         
-        Cell child = new();
+        Cell child = new(new(Mock.Of<ICalculable>(),Mock.Of<ICalculable>()),
+            new(Mock.Of<ICalculable>(),Mock.Of<ICalculable>()));
         
         parent.AppendChild(child);
         
@@ -70,16 +71,17 @@ public class CellTests
         Mock<ICalculable> yAlphaLength = new();
         yAlphaLength.Setup(a => a.Calculate()).Returns(yLength);
         
-        Cell parent = new();
-        parent.XBoundary.AlphaCoordinate.Recipe = xAlphaLength.Object;
+        Cell parent = new(
+            new(xAlphaLength.Object, Mock.Of<ICalculable>()),
+            new(yAlphaLength.Object, Mock.Of<ICalculable>()));
         parent.XBoundary.AlphaCoordinate.Tare = xTare.Some();
         parent.XBoundary.AlphaCoordinate.Calculate();
         
-        parent.YBoundary.AlphaCoordinate.Recipe = yAlphaLength.Object;
         parent.YBoundary.AlphaCoordinate.Tare = yTare.Some();
         parent.YBoundary.AlphaCoordinate.Calculate();
         
-        Cell child = new();
+        Cell child = new(new(Mock.Of<ICalculable>(),Mock.Of<ICalculable>()),
+            new(Mock.Of<ICalculable>(),Mock.Of<ICalculable>()));
         
         parent.AppendChild(child);
         
@@ -88,6 +90,24 @@ public class CellTests
         child.XBoundary.BetaCoordinate.Tare.Should().Be(Option.None<Single>());
         child.YBoundary.AlphaCoordinate.Tare.Should().Be(Option.None<Single>());
         child.YBoundary.BetaCoordinate.Tare.Should().Be(Option.None<Single>());
+    }
+    
+    // GetCoordinates() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void GetCoordinatesShouldReturnAllCoordinates()
+    {
+        Cell cell = new(
+            new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>()),
+            new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>()));
+        cell.GetCoordinates().Should()
+            .BeEquivalentTo(new[]
+                    {
+                        cell.XBoundary.AlphaCoordinate, cell.XBoundary.BetaCoordinate,
+                        cell.YBoundary.AlphaCoordinate, cell.YBoundary.BetaCoordinate
+                    },
+                a => a.WithStrictOrdering());
     }
     
 }

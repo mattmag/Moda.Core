@@ -24,11 +24,14 @@ public class Boundary
     /// <summary>
     ///     Initializes a new <see cref="Boundary"/> instance.
     /// </summary>
-    public Boundary()
+    public Boundary(ICalculable alphaRecipe, ICalculable betaRecipe)
     {
+        this.AlphaCoordinate = new(alphaRecipe);
         this.AlphaCoordinate.RelativeValueChanged += (_, _) => UpdateSecondaryRelativeValues();
-        this.BetaCoordinate.RelativeValueChanged += (_, _) => UpdateSecondaryRelativeValues();
         this.AlphaCoordinate.AbsoluteValueChanged += (_, _) => UpdateSecondaryAbsoluteValues();
+
+        this.BetaCoordinate = new(betaRecipe);
+        this.BetaCoordinate.RelativeValueChanged += (_, _) => UpdateSecondaryRelativeValues();
         this.BetaCoordinate.AbsoluteValueChanged += (_, _) => UpdateSecondaryAbsoluteValues();
     }
 
@@ -38,17 +41,16 @@ public class Boundary
     //  Public Properties
     //
     //##############################################################################################
-
-
+    
     /// <summary>
     ///     The minimum value of the boundary along it's axis (Left if X, Top if Y).
     /// </summary>
-    public Coordinate AlphaCoordinate { get; } = new();
+    public Coordinate AlphaCoordinate { get; }
     
     /// <summary>
     ///     The maximum value of the boundary along it's axis  (Right if X, Bottom if Y).
     /// </summary>
-    public Coordinate BetaCoordinate { get; } = new();
+    public Coordinate BetaCoordinate { get; }
     
     /// <summary>
     ///     The <see cref="Coordinate.AbsoluteValue">Absolute Values</see>
@@ -64,6 +66,28 @@ public class Boundary
     /// </summary>
     public Option<RangeF> RelativeRange { get; private set; }
 
+
+    //##############################################################################################
+    //
+    //  Public Methods
+    //
+    //##############################################################################################
+    
+    /// <summary>
+    ///     Provides an easy way to iterate both <see cref="AlphaCoordinate"/> and
+    ///     <see cref="BetaCoordinate"/>.
+    /// </summary>
+    /// <returns>
+    ///     The <see cref="AlphaCoordinate"/> and <see cref="BetaCoordinate"/> as an
+    ///     <see cref="IEnumerable{T}"/>
+    /// </returns>
+    public IEnumerable<Coordinate> GetCoordinates()
+    {
+        yield return this.AlphaCoordinate;
+        yield return this.BetaCoordinate;
+    }
+
+    
     //##############################################################################################
     //
     //  Private Methods
@@ -82,4 +106,7 @@ public class Boundary
         this.AbsoluteRange = this.AlphaCoordinate.AbsoluteValue.FlatMap(
             alpha => this.BetaCoordinate.AbsoluteValue.Map(beta => new RangeF(alpha, beta)));
     }
+
+
+    
 }

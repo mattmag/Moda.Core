@@ -5,6 +5,7 @@
 // https://mozilla.org/MPL/2.0/
 
 using Optional;
+using Optional.Unsafe;
 
 namespace Moda.Core.Utility.Data;
 
@@ -391,6 +392,15 @@ public static class Extensions
         }
     }
 
+
+    // Options
+    //----------------------------------------------------------------------------------------------
+    
+    // TODO: unit test
+    public static Option<T> OrFailure<T>(this Option<T> option)
+    {
+        return option.HasValue ? option : throw new InvalidOperationException();
+    }
 }
 
 

@@ -2,6 +2,13 @@ namespace Moda.Core.UI.Builders;
 
 public class CellRecipe
 {
-    public BoundariesRecipe Boundaries { get; } = new();
-    public CompositionRecipe Composition { get; } = new();
+    public CellRecipe(BoundariesRecipe boundaries, CompositionRecipe composition)
+    {
+        Boundaries = boundaries;
+        Composition = composition;
+    }
+
+
+    public BoundariesRecipe Boundaries { get; }
+    public CompositionRecipe Composition { get; }
 }

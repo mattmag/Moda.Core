@@ -4,7 +4,6 @@ namespace Moda.Core.UI.Builders;
 
 public abstract class AnchoredAxisBuilder : ICellBuilder
 {
-    
     public AnchoredAxisBuilder(BoundariesRecipe boundariesBoundariesRecipe, Axis axis, Neutral anchor)
     {
         this.BoundariesRecipe = boundariesBoundariesRecipe;
