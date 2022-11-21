@@ -8,19 +8,19 @@ using Moda.Core.Utility.Data;
 
 namespace Moda.Core.UI;
 
-public abstract class Length : ICalculable
+public interface ILength : ICalculable
 {
-    // TODO: prereqs
-    public IEnumerable<Coordinate> Prerequisites { get; }
     
-    public event EventHandler? ValueInvalidated;
-    public event EventHandler<CollectionChangedArgs<Coordinate>>? PrerequisitesChanged;
-    public abstract Single Calculate();
+     // event EventHandler? ValueInvalidated;
+     // event EventHandler<CollectionChangedArgs<Coordinate>>? PrerequisitesChanged;
+    
+     // abstract IEnumerable<Coordinate> Prerequisites { get; }
+     // abstract Single Calculate();
     
     
-    // public static Add operator +(Length lengthA, Length lengthB) =>
+    // static Add operator +(ILength lengthA, ILength lengthB) =>
     //     new Add(lengthA, lengthB);
-    //
+    
     // public static Subtract operator -(Length lengthA, Length lengthB) =>
     //     new Subtract(lengthA, lengthB);
     //
@@ -29,4 +29,18 @@ public abstract class Length : ICalculable
     //
     // public static DivideByConstant operator /(Length lengthA, Single constant) =>
     //     new DivideByConstant(lengthA, constant);
+    
+    
+    // protected void RaiseValueInvalidated()
+    // {
+    //     this.ValueInvalidated?.Invoke(this, EventArgs.Empty);
+    // }
+    //
+    //
+    //
+    // protected void RaisePrerequisitesChanged(CollectionChangedArgs<Coordinate> args)
+    // {
+    //     this.PrerequisitesChanged?.Invoke(this, args);
+    // }
 }
+

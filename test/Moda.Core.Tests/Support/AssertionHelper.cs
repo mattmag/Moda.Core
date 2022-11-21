@@ -14,7 +14,7 @@ namespace Moda.Core.Support;
 
 public static class AssertionHelper
 {
-    public static bool ToPredicate(Action act)
+    public static Boolean ToPredicate(Action act)
     {
         using (var scope = new AssertionScope())
         {

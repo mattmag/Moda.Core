@@ -22,7 +22,7 @@ public abstract class AnchoredAxisBuilder : ICellBuilder
     
     
     
-    protected void SetLength(Length length)
+    protected void SetLength(ILength length)
     {
         switch (this.Anchor)
         {

@@ -49,6 +49,22 @@ public class CoordinateTests
             .WithArgs<ValueChangedArgs<Option<Single>>>(a => 
                 a.OldValue == 4f.Some() && a.NewValue == 7f.Some());
     }
+    
+    
+    [Test]
+    public void NoChangeToRelativeValueShouldNotFireEvent()
+    {
+        Mock<ICalculable> recipe = new();
+        Single lengthValue = 4;
+        // ReSharper disable once AccessToModifiedClosure
+        recipe.Setup(a => a.Calculate()).Returns(() => lengthValue);
+        Coordinate coordinate = new(recipe.Object);
+        coordinate.Calculate();
+
+        using IMonitor<Coordinate>? monitor = coordinate.Monitor();
+        coordinate.Calculate();
+        monitor.Should().NotRaise(nameof(Coordinate.RelativeValueChanged));
+    }
 
 
     // AbsoluteValue Tests
@@ -111,7 +127,23 @@ public class CoordinateTests
             .WithArgs<ValueChangedArgs<Option<Single>>>(a => 
                 a.OldValue == 6f.Some() && a.NewValue == 9f.Some());
     }
+    
+    [Test]
+    public void NoChangeToAbsoluteValueShouldNotFireEvent()
+    {
+        Mock<ICalculable> recipe = new();
+        Single lengthValue = 4;
+        // ReSharper disable once AccessToModifiedClosure
+        recipe.Setup(a => a.Calculate()).Returns(() => lengthValue);
+        Coordinate coordinate = new(recipe.Object);
+        coordinate.Tare = 2f.Some();
+        coordinate.Calculate();
 
+        using IMonitor<Coordinate>? monitor = coordinate.Monitor();
+        coordinate.Calculate();
+        monitor.Should().NotRaise(nameof(Coordinate.AbsoluteValueChanged));
+    }
+    
 
     // Tare Tests
     //----------------------------------------------------------------------------------------------

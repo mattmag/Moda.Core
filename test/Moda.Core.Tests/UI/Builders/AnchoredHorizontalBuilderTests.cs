@@ -48,11 +48,11 @@ public class AnchoredHorizontalBuilderTests
         builder.WithWidth(new Pixels(200));
 
         AxisRecipe axisRecipe = builder.BoundariesRecipe.GetAxisRecipe(Axis.X);
-        Option<Length> alpha = axisRecipe.Alpha;
+        Option<ILength> alpha = axisRecipe.Alpha;
         alpha.HasValue.Should().BeTrue();
         alpha.ValueOrFailure().Calculate().Should().Be(0);
         
-        Option<Length> beta = axisRecipe.Beta;
+        Option<ILength> beta = axisRecipe.Beta;
         beta.HasValue.Should().BeTrue();
         beta.ValueOrFailure().Calculate().Should().Be(200);
     }

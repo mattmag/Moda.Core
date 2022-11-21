@@ -4,6 +4,7 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
+using System.Diagnostics;
 using Moda.Core.Utility.Data;
 using Optional;
 
@@ -13,6 +14,7 @@ namespace Moda.Core.UI;
 ///     A coordinate defines one end of a <see cref="Boundary"/>, or put another way, one corner of
 ///     a <see cref="Cell"/>. 
 /// </summary>
+[DebuggerDisplay("{DebugName}")]
 public class Coordinate : IDependentValue
 {
     //##############################################################################################
@@ -77,7 +79,7 @@ public class Coordinate : IDependentValue
                 this._calculation = value;
                 InitializeCalculation(this._calculation);
                 
-                this.RecipeChanged?.Invoke(this, new(old, value));
+                this.CalculationChanged?.Invoke(this, new(old, value));
             }
         }
     }
@@ -85,7 +87,7 @@ public class Coordinate : IDependentValue
     /// <summary>
     ///     Fired when the value of <see cref="Calculation"/> has changed.
     /// </summary>
-    public event EventHandler<ValueChangedArgs<ICalculable>>? RecipeChanged;
+    public event EventHandler<ValueChangedArgs<ICalculable>>? CalculationChanged;
     
     
     
@@ -178,9 +180,10 @@ public class Coordinate : IDependentValue
     
     
     // TODO: this
-    public IEnumerable<Coordinate> Prerequisites => this._calculation?.Prerequisites
+    public IEnumerable<Coordinate> Prerequisites => this._calculation.Prerequisites
         ?? Enumerable.Empty<Coordinate>();
     
+    public string DebugName { get; set; } = String.Empty;
     
 
     //##############################################################################################

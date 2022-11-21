@@ -6,6 +6,7 @@
 
 namespace Moda.Core.UI;
 
+// TODO: even needed if we're using length in builders and such anyway?
 public interface ICalculable : IDependentValue
 {
     Single Calculate();

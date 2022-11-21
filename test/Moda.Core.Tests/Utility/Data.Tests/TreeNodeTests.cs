@@ -130,7 +130,7 @@ public class TreeNodeTests
         TestNode parent2 = new();
         
         using IMonitor<TestNode>? monitor = child.Monitor();
-        int parentChangedCount = 0;
+        Int32 parentChangedCount = 0;
         child.ParentChanged += (_, _) => parentChangedCount++; 
         
         parent2.AppendChild(child);
@@ -373,7 +373,7 @@ public class TreeNodeTests
         }
 
 
-        public string Name { get; } = "";
+        public String Name { get; } = "";
 
         public override String ToString()
         {

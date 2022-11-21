@@ -18,7 +18,7 @@ public class KeysAlreadyExistException : ArgumentException
     /// <summary>
     ///     Initialize a new instance with the default message.
     /// </summary>
-    public KeysAlreadyExistException(IEnumerable<string> keysAsStrings)
+    public KeysAlreadyExistException(IEnumerable<String> keysAsStrings)
         : base("Keys already exist. See the keys collection for details")
     {
         this.KeysAsStrings = keysAsStrings;

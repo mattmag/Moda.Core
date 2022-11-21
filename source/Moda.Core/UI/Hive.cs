@@ -74,6 +74,18 @@ public class Hive
     }
 
 
+    public void Layout()
+    {
+        this.coordinateGraph.ProcessFrom(this.requestingMeasure,
+            coordinate =>
+                {
+                    coordinate.Calculate();
+                    return GraphDirective.Continue;
+                });
+        
+        requestingMeasure.Clear();;
+    }
+
     //##############################################################################################
     //
     //  Private Methods
@@ -87,16 +99,20 @@ public class Hive
             {
                 XBoundary =
                 {
-                    Alpha = new Pixels(0).Some<Length>(),
-                    Beta = this.rootWidth.Some<Length>(),
+                    Alpha = new Pixels(0).Some<ILength>(),
+                    Beta = this.rootWidth.Some<ILength>(),
                 },
                 YBoundary =
                 {
-                    Alpha = new Pixels(0).Some<Length>(),
-                    Beta = this.rootHeight.Some<Length>(),
+                    Alpha = new Pixels(0).Some<ILength>(),
+                    Beta = this.rootHeight.Some<ILength>(),
                 },
             });
         root.DebugName = "root";
+        foreach (Coordinate coordinate in root.GetCoordinates())
+        {
+            coordinate.Tare = 0.0f.Some();
+        }
         
         ComposeAndRegisterCell(root, new());
         SetupCell(root);
@@ -119,6 +135,9 @@ public class Hive
             {
                 this.coordinateGraph.DeclarePrerequisite(prereq:prereq, of:coordinate);
             }
+            
+            //
+            this.requestingMeasure.Add(coordinate);
         }
     }
 
@@ -138,7 +157,7 @@ public class Hive
     }
 
 
-    private void CoordinateValueInvalidated(object? sender, EventArgs args)
+    private void CoordinateValueInvalidated(Object? sender, EventArgs args)
     {
         if (sender == null)
         {
@@ -148,22 +167,36 @@ public class Hive
     }
 
 
-    private void CoordinatePrerequisitesChanged(object? sender,
+    private void CoordinatePrerequisitesChanged(Object? sender,
         CollectionChangedArgs<Coordinate> changes)
     {
+        Coordinate coordinate = sender as Coordinate;
+        if (coordinate == null)
+        {
+            return;
+        }
         
+        foreach (Coordinate removed in changes.ItemsRemoved)
+        {
+            this.coordinateGraph.RevokePrerequisite(prereq:removed, from:coordinate);
+        }
+        
+        foreach (Coordinate added in changes.ItemsAdded)
+        {
+            this.coordinateGraph.DeclarePrerequisite(prereq:added, of:coordinate);
+        }
     }
     
-    private void CellChildrenChanged(object? sender, CollectionChangedArgs<Cell> changes)
+    private void CellChildrenChanged(Object? sender, CollectionChangedArgs<Cell> changes)
     {
-        foreach (Cell added in changes.ItemsAdded)
-        {
-            SetupCell(added);
-        }
-
         foreach (Cell removed in changes.ItemsRemoved)
         {
             TeardownCell(removed);
+        }
+        
+        foreach (Cell added in changes.ItemsAdded)
+        {
+            SetupCell(added);
         }
     }
     

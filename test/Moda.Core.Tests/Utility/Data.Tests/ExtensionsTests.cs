@@ -90,7 +90,7 @@ public class ExtensionsTests
     [Test]
     public void AddIfSomeShouldAddIfValueExist()
     {
-        List<int> list = new() { 1, 2, 3 };
+        List<Int32> list = new() { 1, 2, 3 };
         
         list.AddIfSome(4.Some());
         
@@ -100,9 +100,9 @@ public class ExtensionsTests
     [Test]
     public void AddIfSomeShouldAddNothingIfValueIsEmpty()
     {
-        List<int> list = new() { 1, 2, 3 };
+        List<Int32> list = new() { 1, 2, 3 };
         
-        list.AddIfSome(Option.None<int>());
+        list.AddIfSome(Option.None<Int32>());
 
         list.Should().BeEquivalentTo(new[] { 1, 2, 3 });
     }
@@ -113,7 +113,7 @@ public class ExtensionsTests
     [Test]
     public void IfSomeAddToShouldAddIfValueExist()
     {
-        List<int> list = new() { 1, 2, 3 };
+        List<Int32> list = new() { 1, 2, 3 };
         
         4.Some().IfSomeAddTo(list);
         
@@ -123,9 +123,9 @@ public class ExtensionsTests
     [Test]
     public void IfSomeAddToShouldAddNothingIfValueIsEmpty()
     {
-        List<int> list = new() { 1, 2, 3 };
+        List<Int32> list = new() { 1, 2, 3 };
         
-        Option.None<int>().IfSomeAddTo(list);
+        Option.None<Int32>().IfSomeAddTo(list);
 
         list.Should().BeEquivalentTo(new[] { 1, 2, 3 });
     }
@@ -137,7 +137,7 @@ public class ExtensionsTests
     [Test]
     public void AddSortedShouldAddValueAtSortedIndex()
     {
-        List<int> list = new() { 1, 2, 4 };
+        List<Int32> list = new() { 1, 2, 4 };
         list.AddSorted(3, Comparer<Int32>.Default);
         list.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 }, a => a.WithStrictOrdering());
     }
@@ -145,7 +145,7 @@ public class ExtensionsTests
     [Test]
     public void AddSortedShouldAddHighestValueAtEnd()
     {
-        List<int> list = new() { 1, 2, 3 };
+        List<Int32> list = new() { 1, 2, 3 };
         list.AddSorted(5, Comparer<Int32>.Default);
         list.Should().BeEquivalentTo(new[] { 1, 2, 3, 5 }, a => a.WithStrictOrdering());
     }
@@ -153,7 +153,7 @@ public class ExtensionsTests
     [Test]
     public void AddSortedShouldAddLowestValueAtBeginning()
     {
-        List<int> list = new() { 2, 3, 4 };
+        List<Int32> list = new() { 2, 3, 4 };
         list.AddSorted(1, Comparer<Int32>.Default);
         list.Should().BeEquivalentTo(new[] { 1, 2, 3, 4 }, a => a.WithStrictOrdering());
     }
@@ -341,7 +341,7 @@ public class ExtensionsTests
     [Test]
     public void PushRangeShouldPushEachItem()
     {
-        Stack<int> stack = new();
+        Stack<Int32> stack = new();
         stack.Push(1);
         stack.Push(2);
         

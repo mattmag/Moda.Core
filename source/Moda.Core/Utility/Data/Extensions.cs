@@ -184,7 +184,7 @@ public static class Extensions
     public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue> dict,
         IEnumerable<KeyValuePair<TKey, TValue>> values)
     {
-        List<string> keysOfFailedAdditions = new();
+        List<String> keysOfFailedAdditions = new();
         foreach ((TKey key, TValue value) in values)
         {
             if (dict.ContainsKey(key))
@@ -346,7 +346,7 @@ public static class Extensions
     /// </remarks>
     public static void AddSorted<T>(this List<T> list, T value, IComparer<T> comparer)
     {
-        int index = list.BinarySearch(value, comparer);
+        Int32 index = list.BinarySearch(value, comparer);
         list.Insert((index >= 0) ? index + 1 : ~index, value);
     }
 
@@ -367,6 +367,15 @@ public static class Extensions
         }
 
         return Option.None<Int32>();
+    }
+    
+    // TODO: unit test
+    public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> items)
+    {
+        foreach (T item in items)
+        {
+            collection.Add(item);
+        }
     }
 
     // Stacks
@@ -392,7 +401,7 @@ public static class Extensions
         }
     }
 
-
+    
     // Options
     //----------------------------------------------------------------------------------------------
     

@@ -291,7 +291,7 @@ public class PrerequisiteGraph<T>
         {
             foreach (T dependent in deps)
             {
-                int numberOfPrereqs = prereqTally.GetValueOrNone(dependent).Match
+                Int32 numberOfPrereqs = prereqTally.GetValueOrNone(dependent).Match
                 (
                     val => prereqTally[dependent] = val - 1,
                     () => prereqTally[dependent] =
@@ -315,7 +315,7 @@ public class PrerequisiteGraph<T>
     
     
     
-    private bool IsGraphCyclical(T startingNode)
+    private Boolean IsGraphCyclical(T startingNode)
     {
         Stack<T> depthStack = new();
         HashSet<T> visitedGrey = new();

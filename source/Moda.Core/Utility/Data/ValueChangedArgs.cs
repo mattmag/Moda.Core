@@ -6,7 +6,7 @@
 
 namespace Moda.Core.Utility.Data;
 
-public delegate void ValueChangedHandler<T>(object? sender, ValueChangedArgs<T> args);
+public delegate void ValueChangedHandler<T>(Object? sender, ValueChangedArgs<T> args);
 
 public class ValueChangedArgs<T>
 {

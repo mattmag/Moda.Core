@@ -4,6 +4,7 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
+using System.Diagnostics;
 using Moda.Core.Utility.Data;
 using Optional;
 
@@ -17,6 +18,7 @@ namespace Moda.Core.UI;
 ///     A cell declares a rectangular area by it's <see cref="XBoundary"/> and
 ///     <see cref="YBoundary"/>.
 /// </remarks>
+[DebuggerDisplay("{DebugName}")]
 public class Cell : TreeNode<Cell>
 {
     //##############################################################################################
@@ -53,9 +55,21 @@ public class Cell : TreeNode<Cell>
     ///     The ID of the entity that owns this cell as a component.
     /// </summary>
     public UInt64 EntityID { get; internal set; }
-    
-    
-    public String DebugName { get; set; }
+
+
+    private string _debugName = string.Empty;
+    public String DebugName
+    {
+        get => this._debugName;
+        set
+        {
+            this._debugName = value;
+            this.XBoundary.AlphaCoordinate.DebugName = $"{this._debugName}.X.Alpha";
+            this.XBoundary.BetaCoordinate.DebugName = $"{this._debugName}.X.Beta";
+            this.YBoundary.AlphaCoordinate.DebugName = $"{this._debugName}.Y.Alpha";
+            this.YBoundary.BetaCoordinate.DebugName = $"{this._debugName}.Y.Beta";
+        }
+    }
 
 
     //##############################################################################################

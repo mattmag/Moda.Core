@@ -10,12 +10,12 @@ public class AnchoredHorizontalBuilder : AnchoredAxisBuilder
         : base(boundariesBoundariesRecipe, Axis.X, ConvertAnchor(anchor))
     {
         //  TODO: placeholder
-        this.MyAxisRecipe.Alpha = new Pixels(0).Some<Length>();
-        this.MyAxisRecipe.Beta = new Pixels(0).Some<Length>();
+        this.MyAxisRecipe.Alpha = new Pixels(0).Some<ILength>();
+        this.MyAxisRecipe.Beta = new Pixels(0).Some<ILength>();
     }
 
 
-    public IInitializeVerticalAxis WithWidth(Length width)
+    public IInitializeVerticalAxis WithWidth(ILength width)
     {
         this.SetLength(width);
         return new CellBuilder(this.BoundariesRecipe);

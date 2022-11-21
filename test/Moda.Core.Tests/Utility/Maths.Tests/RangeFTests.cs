@@ -152,7 +152,7 @@ public class RangeFTests
         scaleTo.Scale(value, scaleFrom).Should().Be(expectedResult);
     }
 
-    [TestCaseSource(nameof(GetOutsideScaleData), new object[] { false })]
+    [TestCaseSource(nameof(GetOutsideScaleData), new Object[] { false })]
     public void ScaleShouldAdjustValuesOutsideOfRange(Single value, RangeF scaleFrom,
         RangeF scaleTo, Single expectedResult)
     {

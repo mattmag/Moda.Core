@@ -5,20 +5,40 @@
 // https://mozilla.org/MPL/2.0/
 
 using Moda.Core.UI;
+using Moda.Core.Utility.Data;
 
 namespace Moda.Core.Lengths;
 
-public class Pixels : Length
+public class Pixels : ILength
 {
     public Pixels(Int32 value)
     {
         Value = value;
     }
-    
-    public Int32 Value { get; set; }
-    
-    public override Single Calculate()
+
+
+     private Int32 _value;
+    public Int32 Value
     {
-        throw new NotImplementedException();
+        get => this._value;
+        set
+        {
+            if (this._value != null)
+            {
+                this._value = value;
+                this.ValueInvalidated?.Invoke(this, EventArgs.Empty);
+            }
+        }
+    }
+
+    public IEnumerable<Coordinate> Prerequisites { get; } = Enumerable.Empty<Coordinate>();
+    
+    public event EventHandler? ValueInvalidated;
+    public event EventHandler<CollectionChangedArgs<Coordinate>>? PrerequisitesChanged;
+
+
+    public Single Calculate()
+    {
+        return this.Value;
     }
 }

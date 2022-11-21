@@ -109,5 +109,21 @@ public class CellTests
                     },
                 a => a.WithStrictOrdering());
     }
-    
+
+
+    // DebugName Tests
+    //----------------------------------------------------------------------------------------------
+    [Test]
+    public void SetDebugNameShouldSetCoordinateDebugNames()
+    {
+        Cell cell = new(
+            new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>()),
+            new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>()));
+        cell.DebugName = "TestCell";
+        cell.DebugName.Should().Be("TestCell");
+        cell.XBoundary.AlphaCoordinate.DebugName.Should().Be("TestCell.X.Alpha");
+        cell.XBoundary.BetaCoordinate.DebugName.Should().Be("TestCell.X.Beta");
+        cell.YBoundary.AlphaCoordinate.DebugName.Should().Be("TestCell.Y.Alpha");
+        cell.YBoundary.AlphaCoordinate.DebugName.Should().Be("TestCell.Y.Alpha");
+    }
 }

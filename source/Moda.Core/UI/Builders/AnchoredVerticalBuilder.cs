@@ -9,11 +9,11 @@ public class AnchoredVerticalBuilder : AnchoredAxisBuilder
         : base(boundariesBoundariesRecipe, Axis.Y, ConvertAnchor(anchor))
     {
         //  TODO: placeholder, could probably do in base class
-        this.MyAxisRecipe.Alpha = new Pixels(0).Some<Length>();
-        this.MyAxisRecipe.Beta = new Pixels(0).Some<Length>();
+        this.MyAxisRecipe.Alpha = new Pixels(0).Some<ILength>();
+        this.MyAxisRecipe.Beta = new Pixels(0).Some<ILength>();
     }
     
-    public ICellComposer WithHeight(Length width)
+    public ICellComposer WithHeight(ILength width)
     {
         this.SetLength(width);
         return new CellComposer(this.BoundariesRecipe);
