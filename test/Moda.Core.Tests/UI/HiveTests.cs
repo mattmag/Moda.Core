@@ -368,7 +368,7 @@ public class HiveTests
     
     
     [Test]
-    public void LayoutShouldIncludeChangedCoordinates()
+    public void LayoutShouldIncludeInvalidatedCoordinates()
     {
         Hive hive = new(Mock.Of<IEntityManager>())
         {
@@ -504,6 +504,68 @@ public class HiveTests
         results.Should().ContainInOrder(mockedC.XAlpha, mockedB.XBeta);
         results.Should().ContainInOrder(mockedC.XBeta, mockedB.XBeta);
     }
+    
+    
+    [Test]
+    public void LayoutShouldDepthStopWhenRelativeValueHasNotChanged()
+    {
+        Hive hive = new(Mock.Of<IEntityManager>());
+        
+        Int32 callOrder = 0;
+        Int32 getCallOrder() => ++callOrder;
+
+        MockRecipe mockedA = new("mockedA", hive.Root.Some(), getCallOrder);
+        Cell cellA = hive.NewCell(a => mockedA);
+        
+        MockRecipe mockedB = new("mockedB", cellA.Some(), getCallOrder);
+        Cell cellB = hive.NewCell(a => mockedB);
+        
+        MockRecipe mockedC = new("mockedC", cellA.Some(), getCallOrder);
+        Cell cellC = hive.NewCell(a => mockedC);
+        
+        MockRecipe mockedD = new("mockedD", cellA.Some(), getCallOrder);
+        Cell cellD = hive.NewCell(a => mockedD);
+        
+        MockRecipe mockedE = new("mockedE", cellA.Some(), getCallOrder);
+        Cell cellE = hive.NewCell(a => mockedE);
+        
+        mockedB.YAlpha.AddPrerequisites(cellA.YBoundary.AlphaCoordinate);
+        mockedC.YAlpha.AddPrerequisites(cellA.YBoundary.AlphaCoordinate);
+        mockedD.YAlpha.AddPrerequisites(cellC.YBoundary.AlphaCoordinate,
+            cellB.YBoundary.AlphaCoordinate);
+        mockedE.YAlpha.AddPrerequisites(cellC.YBoundary.AlphaCoordinate);
+        
+        hive.Layout();
+        
+        mockedA.ResetAllInvocations();
+        mockedB.ResetAllInvocations();
+        mockedC.ResetAllInvocations();
+        mockedD.ResetAllInvocations();
+        mockedE.ResetAllInvocations();
+
+        mockedA.YAlpha.LengthToReturn = 2.0f;
+        mockedA.YAlpha.RaiseInvalidated();
+        mockedB.YAlpha.LengthToReturn = 2.0f;
+        mockedD.YAlpha.LengthToReturn = 2.0f;
+        
+        hive.Layout();
+        
+        List<MockLength> results = mockedA.GetAllCalculateCalls()
+            .Concat(mockedB.GetAllCalculateCalls())
+            .Concat(mockedC.GetAllCalculateCalls())
+            .Concat(mockedD.GetAllCalculateCalls())
+            .Concat(mockedE.GetAllCalculateCalls())
+            .OrderBy(a => a.Key)
+            .Select(a => a.Value)
+            .ToList();
+        
+        // results.Should().NotContain(mockedE.YAlpha);
+        results.Should().BeEquivalentTo(new []
+            {
+                mockedA.YAlpha, mockedB.YAlpha,
+                mockedC.YAlpha, mockedD .YAlpha,
+            });
+    }
 
     
 
@@ -533,8 +595,8 @@ public class HiveTests
 
 
         public String DebugName { get; }
-        public Single Length { get; set; } = 1.0f;
-
+        public Single LengthToReturn { get; set; } = 1.0f;
+        
         public IEnumerable<Int32> CalculateCallOrders => this.calculateCallOrders;
 
 
@@ -564,7 +626,8 @@ public class HiveTests
         {
             calculateCallCount++;
             this.calculateCallOrders.Add(this.getCallOrder());
-            return this.Length;
+            
+            return this.LengthToReturn;
         }
 
 
@@ -635,9 +698,9 @@ public class HiveTests
             DebugName = debugName;
             this.getCallOrder = getCallOrder;
             
-            this.XAlpha = new($"{debugName}X.Alpha.", getCallOrder);
+            this.XAlpha = new($"{debugName}.X.Alpha.", getCallOrder);
             this.XBeta = new($"{debugName}.X.Beta.", getCallOrder);
-            this.YAlpha = new($"{debugName}Y.Alpha", getCallOrder);
+            this.YAlpha = new($"{debugName}.Y.Alpha", getCallOrder);
             this.YBeta = new($"{debugName}.Y.Beta.", getCallOrder);
             
             this.BoundariesRecipe = new();
@@ -692,30 +755,15 @@ public class HiveTests
                 yield return length.KeyedOn(callOrder);
             }
         }
+
+
+        public override String ToString()
+        {
+            return this.DebugName;
+        }
     }
     
-    // public class MockRecipe : IReadyForConstruction
-    // {
-    //     public MockRecipe()
-    //     {
-    //         
-    //     }
-    //     
-    //     public MockRecipe(Option<Cell> parent)
-    //     {
-    //         this.Composition.Parent = parent;
-    //     }
-    //     
-    //
-    //
-    //     public BoundariesRecipe Boundaries { get; } = new();
-    //     public CompositionRecipe Composition { get; } = new();
-    //     
-    //     public CellRecipe GetRecipe()
-    //     {
-    //         return new(this.Boundaries, this.Composition);
-    //     }
-    // }
+    
     
     private enum Result
     {

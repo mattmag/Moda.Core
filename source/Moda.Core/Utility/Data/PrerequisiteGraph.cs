@@ -4,6 +4,7 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
+using Moda.Core.Utility.Maths;
 using Optional.Collections;
 
 namespace Moda.Core.Utility.Data;
@@ -269,16 +270,95 @@ public class PrerequisiteGraph<T>
     private void ProcessWithKahnSort(IEnumerable<T> startingNodes, Func<T, GraphDirective> process)
     {
         Stack<T> noPrereqs = new(startingNodes);
-        Dictionary<T, Int32> prereqTally = new();
+        Dictionary<T, HashSet<T>> prereqChecklist = new();
+        Dictionary<T, HashSet<T>> ignoredPrereqs = new();
+
+
+        void removeRequiredPrereq(T prereq, T from)
+        {
+            prereqChecklist.GetValueOrNone(from).Match(
+                val => val.Remove(prereq),
+                () => this.prerequisites.GetValueOrNone(from)
+                    .MatchSome(p => prereqChecklist[from] =
+                        new(p.Except(new [] { prereq }))));
+        }
         
+        void addIgnoredPrereq(T toIgnore, T by)
+        {
+            ignoredPrereqs.GetOrAdd(by).Add(toIgnore);
+        }
+        
+
         while (noPrereqs.TryPop(out T? currentNode))
         {
             if (process(currentNode) == GraphDirective.DepthStop)
             {
+                // #error does marking as a depth stop mean it has no dependents anymore? remove them before next step below? 
+                // #error rather than requiredPrereqs, do satisfiedPrereqs, then below check if existing/remaining prereqs are all satisfied?
+                // #error will this prevent orphaned nodes from being iterated?
+                Stack<T> lookAhead = new();
+                lookAhead.Push(currentNode);
+                while (lookAhead.TryPop(out T? lookAheadNode))
+                {
+                    if (this.dependents.TryGetValue(lookAheadNode, out HashSet<T>? lookAheadDeps))
+                    {
+                        foreach (T lookAheadDependent in lookAheadDeps)
+                        {
+                            addIgnoredPrereq(toIgnore:lookAheadNode, by:lookAheadDependent);
+                            if (this.prerequisites.TryGetValue(lookAheadDependent,
+                                out HashSet<T>? lookBackPrereqs))
+                            {
+                                if (lookBackPrereqs.IsSubsetOf(ignoredPrereqs[lookAheadDependent]))
+                                {
+                                    // this node can be completely ignored because all if it's prerequisites are ignored
+                                    lookAhead.Push(lookAheadDependent);
+                                }
+                                else if (prereqChecklist.TryGetValue(lookAheadDependent, out HashSet<T>? checklist))
+                                {
+                                    if (!checklist
+                                        .Except(ignoredPrereqs.GetValueOrNone(lookAheadDependent)
+                                            .Map(a => (IEnumerable<T>)a)
+                                            .ValueOr(Enumerable.Empty<T>()))
+                                        .Any())
+                                    {
+                                        // this node's remaining prerequisites were satisfied by the depth stop,
+                                        // so they are ready to process
+                                        noPrereqs.Push(lookAheadDependent);
+                                        prereqChecklist.Remove(lookAheadDependent);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
                 continue;
             }
             
-            KahnSort(currentNode, noPrereqs, prereqTally);
+            
+            if (this.dependents.TryGetValue(currentNode, out HashSet<T>? deps))
+            {
+                T currentNodeCopy = currentNode;
+                foreach (T dependent in deps)
+                {
+                    // requiredPrereqs.GetValueOrNone(dependent).Match(
+                    //         val => val.Remove(currentNodeCopy),
+                    //         () => this.prerequisites.GetValueOrNone(dependent)
+                    //             .MatchSome(p => requiredPrereqs[dependent] =
+                    //                 new(p.Except(new [] { currentNodeCopy }))));
+                    removeRequiredPrereq(prereq:currentNodeCopy, from:dependent);
+
+                    if (!prereqChecklist[dependent]
+                        .Except(ignoredPrereqs.GetValueOrNone(dependent)
+                            .Map(a =>(IEnumerable<T>)a).ValueOr(Enumerable .Empty<T>()))
+                        .Any())
+                    {
+                        // node is ready
+                        noPrereqs.Push(dependent);
+                        // clean up
+                        prereqChecklist.Remove(dependent);
+                    }
+                }
+            }
         }
     }
     
@@ -293,20 +373,24 @@ public class PrerequisiteGraph<T>
             {
                 Int32 numberOfPrereqs = prereqTally.GetValueOrNone(dependent).Match
                 (
-                    val => prereqTally[dependent] = val - 1,
-                    () => prereqTally[dependent] =
-                        this.prerequisites.GetValueOrNone(dependent)
-                            .Map(a => Math.Max(a.Count - 1, 0))
-                            .ValueOr(0)
+                    val => prereqTally[dependent] = val.Decrement(),
+                    () => prereqTally[dependent] = GetPrereqTally(dependent).Decrement()
                 );
     
                 if (numberOfPrereqs == 0)
                 {
                     prereqTally.Remove(dependent);
-                    noPrereqs.Push(dependent);
+                    noPrereqs.Push(dependent);  //
                 }
             }
         }
+    }
+    
+    private int GetPrereqTally(T dependent)
+    {
+        return this.prerequisites.GetValueOrNone(dependent)
+            .Map(a => a.Count)
+            .ValueOr(0);
     }
 
 
@@ -360,10 +444,12 @@ public class PrerequisiteGraph<T>
     private PrerequisiteGraph<T> SubGraphFrom(IEnumerable<T> potentialSourceNodes)
     {
         IEnumerable<T> sources = FindTrueSources(potentialSourceNodes);
-        if (this.sourceNodes.SetEquals(sources))
-        {
-            return this;
-        }
+        
+        // removed to always provide a copy
+        // if (this.sourceNodes.SetEquals(sources))
+        // {
+        //     return this;
+        // }
         
         PrerequisiteGraph<T> subGraph = new();
         

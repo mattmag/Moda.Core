@@ -79,8 +79,14 @@ public class Hive
         this.coordinateGraph.ProcessFrom(this.requestingMeasure,
             coordinate =>
                 {
+                    Option<Single> oldValue = coordinate.RelativeValue;
+                    
                     coordinate.Calculate();
-                    return GraphDirective.Continue;
+
+                    // return GraphDirective.Continue;
+                    return (oldValue == coordinate.RelativeValue) 
+                        ? GraphDirective.DepthStop
+                        : GraphDirective.Continue;
                 });
         
         requestingMeasure.Clear();;
