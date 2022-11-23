@@ -932,6 +932,47 @@ public class PrerequisiteGraphTests
         Node nodeB1 = new("Node B1");
         Node nodeB2 = new("Node B2");
         Node nodeC1 = new("Node C1");
+        Node nodeD1 = new("Node D1");
+        Node nodeE = new("Node E");
+        
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB1);
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeB2);
+        graph.DeclarePrerequisite(prereq:nodeB1, of:nodeC1);
+        graph.DeclarePrerequisite(prereq:nodeB2, of:nodeC1);
+        graph.DeclarePrerequisite(prereq:nodeC1, of:nodeD1);
+        graph.DeclarePrerequisite(prereq:nodeA, of:nodeE);
+        graph.DeclarePrerequisite(prereq:nodeD1, of:nodeE);
+
+        
+        List<Node> results = new();
+        graph.Process(node =>
+            {
+                results.Add(node);
+                return node == nodeB1 || node == nodeB2
+                    ? GraphDirective.DepthStop
+                    : GraphDirective.Continue;
+            });
+        results.Should().BeEquivalentTo(new[]
+            {
+                nodeA,
+                nodeB1, nodeB2,
+                nodeE,
+            });
+        results.Should().ContainInOrder(nodeA, nodeB1);
+        results.Should().ContainInOrder(nodeA, nodeB2);
+        results.Should().ContainInOrder(nodeA, nodeE);
+    }
+    
+    
+    [Test]
+    public void ProcessShouldIncludeNodesFromSharedBranchesAfterDepthStop7()
+    {
+        PrerequisiteGraph<Node> graph = new();
+        
+        Node nodeA = new("Node A");
+        Node nodeB1 = new("Node B1");
+        Node nodeB2 = new("Node B2");
+        Node nodeC1 = new("Node C1");
         Node nodeC2 = new("Node C2");
         
         graph.DeclarePrerequisite(prereq:nodeA, of:nodeB1);

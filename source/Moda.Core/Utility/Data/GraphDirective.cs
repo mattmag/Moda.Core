@@ -14,10 +14,10 @@ public enum GraphDirective
     /// <summary>
     ///     Continue to iterate the graph as normal.
     /// </summary>
-    Continue,
+    Continue = 1,
     
     /// <summary>
     ///     Stop iterating the current branch, but continue to iterate the rest of the graph.
     /// </summary>
-    DepthStop,
+    DepthStop = 2,
 }

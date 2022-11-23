@@ -265,102 +265,87 @@ public class PrerequisiteGraph<T>
             KahnSort(currentNode, noPrereqs, prereqTally);
         }
     }
-    
-    
+
+
     private void ProcessWithKahnSort(IEnumerable<T> startingNodes, Func<T, GraphDirective> process)
     {
-        Stack<T> noPrereqs = new(startingNodes);
-        Dictionary<T, HashSet<T>> prereqChecklist = new();
-        Dictionary<T, HashSet<T>> ignoredPrereqs = new();
+        Stack<T> readyToProcess = new(startingNodes);
+        Dictionary<T, HashSet<T>> pendingPrereqs = new();
+        Dictionary<T, HashSet<T>> depthStoppedPrereqs = new();
 
-
-        void removeRequiredPrereq(T prereq, T from)
+        HashSet<T> getPendingPrereqs(T of)
         {
-            prereqChecklist.GetValueOrNone(from).Match(
-                val => val.Remove(prereq),
-                () => this.prerequisites.GetValueOrNone(from)
-                    .MatchSome(p => prereqChecklist[from] =
-                        new(p.Except(new [] { prereq }))));
+            return pendingPrereqs.GetOrAdd(of, () => new(this.prerequisites[of]));
         }
         
-        void addIgnoredPrereq(T toIgnore, T by)
+        void satisfyPrereq(T prereq, T of)
         {
-            ignoredPrereqs.GetOrAdd(by).Add(toIgnore);
+            getPendingPrereqs(of).Remove(prereq);
         }
-        
 
-        while (noPrereqs.TryPop(out T? currentNode))
+        void markPrereqAsDepthStopped(T prereq, T of)
         {
-            if (process(currentNode) == GraphDirective.DepthStop)
-            {
-                // #error does marking as a depth stop mean it has no dependents anymore? remove them before next step below? 
-                // #error rather than requiredPrereqs, do satisfiedPrereqs, then below check if existing/remaining prereqs are all satisfied?
-                // #error will this prevent orphaned nodes from being iterated?
-                Stack<T> lookAhead = new();
-                lookAhead.Push(currentNode);
-                while (lookAhead.TryPop(out T? lookAheadNode))
-                {
-                    if (this.dependents.TryGetValue(lookAheadNode, out HashSet<T>? lookAheadDeps))
-                    {
-                        foreach (T lookAheadDependent in lookAheadDeps)
-                        {
-                            addIgnoredPrereq(toIgnore:lookAheadNode, by:lookAheadDependent);
-                            if (this.prerequisites.TryGetValue(lookAheadDependent,
-                                out HashSet<T>? lookBackPrereqs))
-                            {
-                                if (lookBackPrereqs.IsSubsetOf(ignoredPrereqs[lookAheadDependent]))
-                                {
-                                    // this node can be completely ignored because all if it's prerequisites are ignored
-                                    lookAhead.Push(lookAheadDependent);
-                                }
-                                else if (prereqChecklist.TryGetValue(lookAheadDependent, out HashSet<T>? checklist))
-                                {
-                                    if (!checklist
-                                        .Except(ignoredPrereqs.GetValueOrNone(lookAheadDependent)
-                                            .Map(a => (IEnumerable<T>)a)
-                                            .ValueOr(Enumerable.Empty<T>()))
-                                        .Any())
-                                    {
-                                        // this node's remaining prerequisites were satisfied by the depth stop,
-                                        // so they are ready to process
-                                        noPrereqs.Push(lookAheadDependent);
-                                        prereqChecklist.Remove(lookAheadDependent);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                continue;
-            }
+            depthStoppedPrereqs.GetOrAdd(of).Add(prereq);
+        }
             
+        Boolean isReadyToProcess(T node)
+        {
+            if (depthStoppedPrereqs.ContainsKey(node))
+            {
+                return !(getPendingPrereqs(node).Except(depthStoppedPrereqs[node]).Any());
+            }
+
+            return pendingPrereqs.GetValueOrNone(node).Map(a => !a.Any()).ValueOr(false);
+        }
+        
+        Boolean hasBeenDepthStoppedFromAbove(T node)
+        {
+            if (!depthStoppedPrereqs.ContainsKey(node))
+            {
+                return false;
+            }
+
+            return this.prerequisites[node].IsSubsetOf(depthStoppedPrereqs[node]);
+        }
+        
+        while (readyToProcess.TryPop(out T? currentNode))
+        {
+            GraphDirective directive;
+            // if all of the prerequisites for this node were depth-stopped, then this one should
+            // be too
+            if (hasBeenDepthStoppedFromAbove(currentNode))
+            {
+                directive = GraphDirective.DepthStop;
+            }
+            else
+            {
+                directive = process(currentNode);
+            }
             
             if (this.dependents.TryGetValue(currentNode, out HashSet<T>? deps))
             {
-                T currentNodeCopy = currentNode;
                 foreach (T dependent in deps)
                 {
-                    // requiredPrereqs.GetValueOrNone(dependent).Match(
-                    //         val => val.Remove(currentNodeCopy),
-                    //         () => this.prerequisites.GetValueOrNone(dependent)
-                    //             .MatchSome(p => requiredPrereqs[dependent] =
-                    //                 new(p.Except(new [] { currentNodeCopy }))));
-                    removeRequiredPrereq(prereq:currentNodeCopy, from:dependent);
-
-                    if (!prereqChecklist[dependent]
-                        .Except(ignoredPrereqs.GetValueOrNone(dependent)
-                            .Map(a =>(IEnumerable<T>)a).ValueOr(Enumerable .Empty<T>()))
-                        .Any())
+                    if (directive == GraphDirective.DepthStop)
                     {
-                        // node is ready
-                        noPrereqs.Push(dependent);
-                        // clean up
-                        prereqChecklist.Remove(dependent);
+                        // ensure dependents know that the current known flagged a depth stop
+                        markPrereqAsDepthStopped(prereq:currentNode, of:dependent);
                     }
+                    else
+                    {
+                        satisfyPrereq(currentNode, dependent);
+                    }
+
+                    if (isReadyToProcess(dependent))
+                    {
+                        readyToProcess.Push(dependent);
+                    }
+                    
                 }
             }
         }
     }
+    
     
     
     private void KahnSort(T currentNode,
@@ -380,7 +365,7 @@ public class PrerequisiteGraph<T>
                 if (numberOfPrereqs == 0)
                 {
                     prereqTally.Remove(dependent);
-                    noPrereqs.Push(dependent);  //
+                    noPrereqs.Push(dependent);
                 }
             }
         }
@@ -445,11 +430,10 @@ public class PrerequisiteGraph<T>
     {
         IEnumerable<T> sources = FindTrueSources(potentialSourceNodes);
         
-        // removed to always provide a copy
-        // if (this.sourceNodes.SetEquals(sources))
-        // {
-        //     return this;
-        // }
+        if (this.sourceNodes.SetEquals(sources))
+        {
+            return this;
+        }
         
         PrerequisiteGraph<T> subGraph = new();
         
@@ -477,18 +461,22 @@ public class PrerequisiteGraph<T>
     
     private IEnumerable<T> FindTrueSources(IEnumerable<T> potentialSources)
     {
-        // TODO: optimization: if sourcenodes.IsSubsetOf(potentialSourceNodes) then just choose source nodes without having to find true sources
+        IEnumerable<T> potential = potentialSources as T[] ?? potentialSources.ToArray();
+        if (this.sourceNodes.IsSubsetOf(potential))
+        {
+            return this.sourceNodes;
+        }
         
-        HashSet<T> sources = new(potentialSources);
+        HashSet<T> sources = new(potential);
         HashSet<T> discoveredSources = new();
         
-        foreach (T potentialSource in potentialSources)
+        foreach (T potentialSource in potential)
         {
             Stack<T> depthStack = new();
             depthStack.Push(potentialSource);
             while (depthStack.TryPop(out T? currentNode))
             {
-                if (potentialSources.Contains(currentNode))
+                if (potential.Contains(currentNode))
                 {
                     if (discoveredSources.Contains(currentNode))
                     {

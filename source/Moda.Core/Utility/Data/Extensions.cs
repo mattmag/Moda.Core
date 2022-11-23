@@ -250,7 +250,7 @@ public static class Extensions
             dict[key] = value;
         }
     }
-    
+
     
     /// <summary>
     ///     Syntactic alternative to created a new <see cref="KeyValuePair{TKey, TValue}"/>
