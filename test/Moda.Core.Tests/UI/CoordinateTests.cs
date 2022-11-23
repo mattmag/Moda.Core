@@ -22,10 +22,10 @@ public class CoordinateTests
     [Test]
     public void CalculateShouldUpdateRelativeValue()
     {
-        Mock<ICalculable> recipe = new();
-        recipe.Setup(a => a.Calculate()).Returns(4.3f);
+        Mock<ICalculable> calculable = new();
+        calculable.Setup(a => a.Calculate()).Returns(4.3f);
 
-        Coordinate coordinate = new(recipe.Object);
+        Coordinate coordinate = new(calculable.Object);
         coordinate.Calculate();
 
         coordinate.RelativeValue.Should().Be(4.3f.Some());
@@ -34,11 +34,11 @@ public class CoordinateTests
     [Test]
     public void ChangeToRelativeValueShouldFireEvent()
     {
-        Mock<ICalculable> recipe = new();
+        Mock<ICalculable> calculable = new();
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
-        recipe.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new(recipe.Object);
+        calculable.Setup(a => a.Calculate()).Returns(() => lengthValue);
+        Coordinate coordinate = new(calculable.Object);
         coordinate.Calculate();
         lengthValue = 7;
         
@@ -54,11 +54,11 @@ public class CoordinateTests
     [Test]
     public void NoChangeToRelativeValueShouldNotFireEvent()
     {
-        Mock<ICalculable> recipe = new();
+        Mock<ICalculable> calculable = new();
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
-        recipe.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new(recipe.Object);
+        calculable.Setup(a => a.Calculate()).Returns(() => lengthValue);
+        Coordinate coordinate = new(calculable.Object);
         coordinate.Calculate();
 
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
@@ -83,10 +83,10 @@ public class CoordinateTests
     [Test]
     public void AbsoluteValueShouldReturnNoneIfTareIsNone()
     {
-        Mock<ICalculable> recipe = new();
-        recipe.Setup(a => a.Calculate()).Returns(6.1f);
+        Mock<ICalculable> calculable = new();
+        calculable.Setup(a => a.Calculate()).Returns(6.1f);
 
-        Coordinate coordinate = new(recipe.Object);
+        Coordinate coordinate = new(calculable.Object);
         coordinate.Calculate();
         coordinate.AbsoluteValue.Should().Be(Option.None<Single>());
     }
@@ -95,10 +95,10 @@ public class CoordinateTests
     [Test]
     public void CalculateShouldUpdateAbsoluteWithRespectToTare()
     {
-        Mock<ICalculable> recipe = new();
-        recipe.Setup(a => a.Calculate()).Returns(6.1f);
+        Mock<ICalculable> calculable = new();
+        calculable.Setup(a => a.Calculate()).Returns(6.1f);
         
-        Coordinate coordinate = new(recipe.Object)
+        Coordinate coordinate = new(calculable.Object)
             {
                 Tare = 2.5f.Some(),
             };
@@ -111,11 +111,11 @@ public class CoordinateTests
     [Test]
     public void ChangeToAbsoluteValueShouldFireEvent()
     {
-        Mock<ICalculable> recipe = new();
+        Mock<ICalculable> calculable = new();
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
-        recipe.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new(recipe.Object);
+        calculable.Setup(a => a.Calculate()).Returns(() => lengthValue);
+        Coordinate coordinate = new(calculable.Object);
         coordinate.Tare = 2f.Some();
         coordinate.Calculate();
         lengthValue = 7;
@@ -131,11 +131,11 @@ public class CoordinateTests
     [Test]
     public void NoChangeToAbsoluteValueShouldNotFireEvent()
     {
-        Mock<ICalculable> recipe = new();
+        Mock<ICalculable> calculable = new();
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
-        recipe.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new(recipe.Object);
+        calculable.Setup(a => a.Calculate()).Returns(() => lengthValue);
+        Coordinate coordinate = new(calculable.Object);
         coordinate.Tare = 2f.Some();
         coordinate.Calculate();
 
@@ -151,10 +151,10 @@ public class CoordinateTests
     [Test]
     public void SettingTareShouldUpdateAbsoluteValue()
     {
-        Mock<ICalculable> recipe = new();
-        recipe.Setup(a => a.Calculate()).Returns(6.1f);
+        Mock<ICalculable> calculable = new();
+        calculable.Setup(a => a.Calculate()).Returns(6.1f);
         
-        Coordinate coordinate = new(recipe.Object)
+        Coordinate coordinate = new(calculable.Object)
             {
                 Tare = 2.5f.Some(),
             };
@@ -184,24 +184,24 @@ public class CoordinateTests
     //----------------------------------------------------------------------------------------------
     
     [Test]
-    public void ValueInvalidatedFromRecipeShouldForward()
+    public void ValueInvalidatedFromCalculationShouldForward()
     {
-        Mock<ICalculable> recipe = new();
-        Coordinate coordinate = new(recipe.Object);
+        Mock<ICalculable> calculable = new();
+        Coordinate coordinate = new(calculable.Object);
         
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
         
-        recipe.Raise(a => a.ValueInvalidated += null, EventArgs.Empty);
+        calculable.Raise(a => a.ValueInvalidated += null, EventArgs.Empty);
         
         monitor.Should().Raise(nameof(Coordinate.ValueInvalidated))
             .WithSender(coordinate);
     }
     
     [Test]
-    public void PrerequisitesChangedFromRecipeShouldForward()
+    public void PrerequisitesChangedFromCalculationShouldForward()
     {
-        Mock<ICalculable> recipe = new();
-        Coordinate coordinate = new(recipe.Object);
+        Mock<ICalculable> calculable = new();
+        Coordinate coordinate = new(calculable.Object);
         
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
 
@@ -215,11 +215,139 @@ public class CoordinateTests
                 new Coordinate(Mock.Of<ICalculable>()), new Coordinate(Mock.Of<ICalculable>())
             });
     
-        recipe.Raise(a => a.PrerequisitesChanged += null, recipe, args);
+        calculable.Raise(a => a.PrerequisitesChanged += null, calculable, args);
 
         monitor.Should().Raise(nameof(Coordinate.PrerequisitesChanged))
             .WithSender(coordinate)
             .WithArgs<CollectionChangedArgs<Coordinate>>(a => a == args);
+    }
+
+
+    // Calculation Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void SetCalculationShouldSetNewValue()
+    {
+        ICalculable calculable1 = Mock.Of<ICalculable>();
+        ICalculable calculable2 = Mock.Of<ICalculable>();
+        Coordinate coordinate = new(calculable1);
+        
+        coordinate.Calculation = calculable2;
+
+        coordinate.Calculation.Should().Be(calculable2);
+    }
+    
+    [Test]
+    public void SetCalculationShouldRaiseCalculationChanged()
+    {
+        ICalculable calculable1 = Mock.Of<ICalculable>();
+        ICalculable calculable2 = Mock.Of<ICalculable>();
+        Coordinate coordinate = new(calculable1);
+        
+        
+        using IMonitor<Coordinate>? monitor = coordinate.Monitor();
+        
+        coordinate.Calculation = calculable2;
+        
+        monitor.Should().Raise(nameof(Coordinate.CalculationChanged))
+            .WithSender(coordinate)
+            .WithArgs<ValueChangedArgs<ICalculable>>(a =>
+                a.OldValue == calculable1 && a.NewValue == calculable2);
+        
+
+        coordinate.Calculation.Should().Be(calculable2);
+    }
+    
+    [Test]
+    public void ValueInvalidatedFromNewCalculationShouldForward()
+    {
+        ICalculable calculable1 = Mock.Of<ICalculable>();
+        Mock<ICalculable> calculable2 = new();
+        Coordinate coordinate = new(calculable1);
+        
+        coordinate.Calculation = calculable2.Object;
+
+        using IMonitor<Coordinate>? monitor = coordinate.Monitor();
+        
+        calculable2.Raise(a => a.ValueInvalidated += null, EventArgs.Empty);
+        
+        monitor.Should().Raise(nameof(Coordinate.ValueInvalidated))
+            .WithSender(coordinate);
+        
+
+    }
+    
+    [Test]
+    public void PrerequisitesChangedFromNewCalculationShouldForward()
+    {
+        ICalculable calculable1 = Mock.Of<ICalculable>();
+        Mock<ICalculable> calculable2 = new();
+        Coordinate coordinate = new(calculable1);
+        
+        coordinate.Calculation = calculable2.Object;
+        
+        using IMonitor<Coordinate>? monitor = coordinate.Monitor();
+
+        CollectionChangedArgs<Coordinate> args = new(
+            new []
+            {
+                new Coordinate(Mock.Of<ICalculable>())
+            },
+            new []
+            {
+                new Coordinate(Mock.Of<ICalculable>()), new Coordinate(Mock.Of<ICalculable>())
+            });
+    
+        calculable2.Raise(a => a.PrerequisitesChanged += null, calculable2, args);
+
+        monitor.Should().Raise(nameof(Coordinate.PrerequisitesChanged))
+            .WithSender(coordinate)
+            .WithArgs<CollectionChangedArgs<Coordinate>>(a => a == args);
+    }
+    
+    [Test]
+    public void ValueInvalidatedFromOldCalculationShouldNotForward()
+    {
+        Mock<ICalculable> calculable1 = new();
+        Mock<ICalculable> calculable2 = new();
+        Coordinate coordinate = new(calculable1.Object);
+        
+        coordinate.Calculation = calculable2.Object;
+
+        using IMonitor<Coordinate>? monitor = coordinate.Monitor();
+        
+        calculable1.Raise(a => a.ValueInvalidated += null, EventArgs.Empty);
+
+        monitor.Should().NotRaise(nameof(Coordinate.ValueInvalidated));
+
+
+    }
+    
+    [Test]
+    public void PrerequisitesChangedFromOldCalculationShouldNotForward()
+    {
+        Mock<ICalculable> calculable1 = new();
+        Mock<ICalculable> calculable2 = new();
+        Coordinate coordinate = new(calculable1.Object);
+        
+        coordinate.Calculation = calculable2.Object;
+        
+        using IMonitor<Coordinate>? monitor = coordinate.Monitor();
+
+        CollectionChangedArgs<Coordinate> args = new(
+            new []
+            {
+                new Coordinate(Mock.Of<ICalculable>())
+            },
+            new []
+            {
+                new Coordinate(Mock.Of<ICalculable>()), new Coordinate(Mock.Of<ICalculable>())
+            });
+    
+        calculable1.Raise(a => a.PrerequisitesChanged += null, calculable1, args);
+
+        monitor.Should().NotRaise(nameof(Coordinate.PrerequisitesChanged));
     }
     
 }

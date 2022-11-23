@@ -82,23 +82,30 @@ public abstract class TreeNode<T> : IEnumerable<T>
     /// </remarks>
     public void AppendChild(T child)
     {
-        if (this._children.Contains(child))
-        {
-            throw new ChildAlreadyExistsException();
-        }
-        
-        child.Parent.MatchSome(oldParent => oldParent.RemoveFromChildren(child));
-        child.Parent = ((T)this).Some();
-        this._children.Add(child);
-        OnChildAdded(child);
-        this.ChildrenChanged?.Invoke(this, new(new[] { child }, Enumerable.Empty<T>()));
+        AddToChildren(child, this._children.Count);
     }
 
-    public void InsertChild(T cell, Int32 index)
+    /// <summary>
+    ///     Assign the specified node as a child to this node, inserting it into the
+    ///     <see cref="Children"/> collection at the specified index.
+    /// </summary>
+    /// <param name="child">
+    ///     The node to assign as a child to this node.
+    /// </param>
+    /// <param name="index">
+    ///     The index to insert the child into the <see cref="Children"/> collection.
+    /// </param>
+    /// <exception cref="ChildAlreadyExistsException">
+    ///     Thrown when this node already contains the specified node as a child.
+    /// </exception>
+    /// <remarks>
+    ///     The node's <see cref="Parent"/> property will be updated to be this node.
+    /// </remarks>
+    public void InsertChild(T child, Int32 index)
     {
-        // TODO: unit test, checks, everything else append does
-        this._children.Insert(index, cell);
+        AddToChildren(child, index);
     }
+    
 
     /// <summary>
     ///     Remove the specified node from this nodes <see cref="Children"/> list.
@@ -169,6 +176,26 @@ public abstract class TreeNode<T> : IEnumerable<T>
     protected virtual void OnChildRemoved(T child)
     {
         
+    }
+    
+    private void AddToChildren(T child, Int32 index)
+    {
+        if (this._children.Contains(child))
+        {
+            throw new ChildAlreadyExistsException();
+        }
+        
+        if (index < 0 || index > this._children.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(index), index,
+                $"Expected range 0-{this._children.Count}");
+        }
+        
+        child.Parent.MatchSome(oldParent => oldParent.RemoveFromChildren(child));
+        child.Parent = ((T)this).Some();
+        this._children.Insert(index, child);
+        OnChildAdded(child);
+        this.ChildrenChanged?.Invoke(this, new(new[] { child }, Enumerable.Empty<T>()));
     }
     
 

@@ -351,7 +351,23 @@ public static class Extensions
     }
 
 
-    // TODO: unit test
+    /// <summary>
+    ///     Searches of the value in the IEnumerable and returns the index at which it was found,
+    ///     if it exists. 
+    /// </summary>
+    /// <param name="collection">
+    ///     The <see cref="IEnumerable{T}"/> to search.
+    /// </param>
+    /// <param name="value">
+    ///     The value to search for.
+    /// </param>
+    /// <typeparam name="T">
+    ///     The type of the items in the <see cref="IEnumerable{T}"/>
+    /// </typeparam>
+    /// <returns>
+    ///     An optional value containing the index of the item, if found. Otherwise,
+    ///     <see cref="Option.None{T}"/>
+    /// </returns>
     public static Option<Int32> IndexOf<T>(this IEnumerable<T> collection, T value)
     {
         Int32 index = 0;
@@ -369,7 +385,44 @@ public static class Extensions
         return Option.None<Int32>();
     }
     
-    // TODO: unit test
+    /// <summary>
+    ///     Offers a general purpose way to add multiple items to an <see cref="ICollection{T}"/>
+    /// </summary>
+    /// <param name="collection">
+    ///     The collection to add to.
+    /// </param>
+    /// <param name="items">
+    ///     The items to add.
+    /// </param>
+    /// <typeparam name="T">
+    ///     The type of the items.
+    /// </typeparam>
+    /// <remarks>
+    ///     This is for the case when the concrete collection type does not implement AddRange,
+    ///     and/for for cases where <see cref="ICollection{T}"/> is the most known about the type.
+    /// </remarks>
+    public static void AddRange<T>(this ICollection<T> collection, params T[] items)
+    {
+        AddRange(collection, (IEnumerable<T>)items);
+    }
+    
+    
+    /// <summary>
+    ///     Offers a general purpose way to add multiple items to an <see cref="ICollection{T}"/>
+    /// </summary>
+    /// <param name="collection">
+    ///     The collection to add to.
+    /// </param>
+    /// <param name="items">
+    ///     The items to add.
+    /// </param>
+    /// <typeparam name="T">
+    ///     The type of the items.
+    /// </typeparam>
+    /// <remarks>
+    ///     This is for the case when the concrete collection type does not implement AddRange,
+    ///     and/for for cases where <see cref="ICollection{T}"/> is the most known about the type.
+    /// </remarks>
     public static void AddRange<T>(this ICollection<T> collection, IEnumerable<T> items)
     {
         foreach (T item in items)

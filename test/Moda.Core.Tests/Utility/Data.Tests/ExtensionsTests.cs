@@ -192,6 +192,37 @@ public class ExtensionsTests
     private record ValueWrapper<T>(T Value);
 
 
+    // IEnumerable<T>.IndexOf() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void IndexOfShouldReturnIndexIfFound()
+    {
+        IEnumerable<Int32> enumerable = new[] { 0, 1, 2, 3, 4, 5 };
+        enumerable.IndexOf(4).Should().Be(4.Some());
+        enumerable.IndexOf(2).Should().Be(2.Some());
+    }
+    
+    [Test]
+    public void IndexOfShouldReturnNoneIfNotFound()
+    {
+        IEnumerable<Int32> enumerable = new[] { 0, 1, 2, 3, 5, 6 };
+        enumerable.IndexOf(4).Should().Be(Option.None<Int32>());
+    }
+
+
+    // ICollection<T>.AddRange() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void AddRangeShouldAddAllItems()
+    {
+        ICollection<Int32> collection = new HashSet<Int32> { 0, 1, 2 };
+        collection.AddRange((IEnumerable<Int32>) new[] { 3, 4, 5 });
+        collection.AddRange(6, 7, 8);
+        collection.Should().BeEquivalentTo(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 });
+    }
+
     // Dictionary.TryGetMultiple() Tests
     //----------------------------------------------------------------------------------------------
     

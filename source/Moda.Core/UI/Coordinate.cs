@@ -35,7 +35,6 @@ public class Coordinate : IDependentValue
     //
     //##############################################################################################
 
-    // TODO: can we just set RelativeValue to Option.None?
     // TODO: default EventHandler allows for null sender...do we want strongly typed again too?
     /// <summary>
     ///     Fired to indicate that the results of the previous calculation are no longer valid and

@@ -78,7 +78,13 @@ public class Cell : TreeNode<Cell>
     //
     //##############################################################################################
     
-    // TODO: unit test
+    
+    /// <summary>
+    ///     Enumerate through the alpha and beta coordinates of both the X and Y boundary.
+    /// </summary>
+    /// <returns>
+    ///     An <see cref="IEnumerable{T}"/> of each coordinate in the cell.
+    /// </returns>
     public IEnumerable<Coordinate> GetCoordinates()
     {
         return this.XBoundary.GetCoordinates().Concat(this.YBoundary.GetCoordinates());
