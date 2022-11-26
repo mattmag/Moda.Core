@@ -8,7 +8,7 @@ using Moda.Core.Utility.Data;
 
 namespace Moda.Core.UI;
 
-public interface ILength : ICalculable
+public interface ILength : ICalculation
 {
     
      // event EventHandler? ValueInvalidated;
@@ -29,6 +29,7 @@ public interface ILength : ICalculable
     //
     // public static DivideByConstant operator /(Length lengthA, Single constant) =>
     //     new DivideByConstant(lengthA, constant);
+    
     
     
     // protected void RaiseValueInvalidated()

@@ -26,15 +26,15 @@ public class Pixels : ILength
             if (this._value != null)
             {
                 this._value = value;
-                this.ValueInvalidated?.Invoke(this, EventArgs.Empty);
+                this.ValueInvalidated?.Invoke(this);
             }
         }
     }
 
     public IEnumerable<Coordinate> Prerequisites { get; } = Enumerable.Empty<Coordinate>();
     
-    public event EventHandler? ValueInvalidated;
-    public event EventHandler<CollectionChangedArgs<Coordinate>>? PrerequisitesChanged;
+    public event NotificationHandler<ICalculation>? ValueInvalidated;
+    public event CollectionChangedHandler<ICalculation, Coordinate>? PrerequisitesChanged;
 
 
     public Single Calculate()

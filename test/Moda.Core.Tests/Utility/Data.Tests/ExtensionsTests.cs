@@ -380,6 +380,24 @@ public class ExtensionsTests
 
         stack.Should().ContainInOrder(6, 5, 4, 3, 2, 1);
     }
+
+
+    // OrFailure() Tests
+    //----------------------------------------------------------------------------------------------
+
+    [Test]
+    public void OrFailureShouldThrowExceptionIfOptionalIsNone()
+    {
+        Option<Int32> option = Option.None<Int32>();
+        option.Invoking(a => a.OrFailure()).Should().Throw<InvalidOperationException>();
+    }
+    
+    [Test]
+    public void OrFailureShouldReturnSomeIfSome()
+    {
+        Option<Int32> option = 13.Some();
+        option.OrFailure().Should().Be(13.Some());
+    }
     
     
 

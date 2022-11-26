@@ -24,7 +24,7 @@ public class Boundary
     /// <summary>
     ///     Initializes a new <see cref="Boundary"/> instance.
     /// </summary>
-    public Boundary(ICalculable alphaCalculation, ICalculable betaCalculation)
+    public Boundary(ICalculation alphaCalculation, ICalculation betaCalculation)
     {
         this.AlphaCoordinate = new(alphaCalculation);
         this.AlphaCoordinate.RelativeValueChanged += (_, _) => UpdateSecondaryRelativeValues();

@@ -5,23 +5,17 @@
 // https://mozilla.org/MPL/2.0/
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
 using FluentAssertions;
 using Moda.Core.Entity;
-using Moda.Core.Lengths;
 using Moda.Core.UI.Builders;
 using Moda.Core.Utility.Data;
 using Moda.Core.Utility.Geometry;
 using Moq;
 using NUnit.Framework;
 using Optional;
-using Optional.Unsafe;
 using AssertionHelper = Moda.Core.Support.AssertionHelper;
 
 namespace Moda.Core.UI;
@@ -74,7 +68,7 @@ public class HiveTests
 
 
     [Test]
-    public void NewCellShouldAppendParent()
+    public void NewCellShouldAppendToParent()
     {
         Mock<IEntityManager> entityManager = new();
         Hive hive = new(entityManager.Object);
@@ -233,6 +227,59 @@ public class HiveTests
         cell.EntityID.Should().Be(expected);
     }
 
+    
+
+    // Cell.RemoveChild() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void HiveShouldStopListeningToValueInvalidatedFromRemovedChildren()
+    {
+        Mock<IEntityManager> entityManager = new();
+        Hive hive = new(entityManager.Object);
+
+        MockRecipe recipe = new(hive.Root.Some());
+        Cell cell = hive.NewCell(_ => recipe);
+        
+        hive.Layout();
+        recipe.ResetAllInvocations();
+        
+        hive.Root.RemoveChild(cell);
+        recipe.XAlpha.RaiseInvalidated();
+        recipe.XBeta.RaiseInvalidated();
+        recipe.YAlpha.RaiseInvalidated();
+        recipe.YBeta.RaiseInvalidated();
+        
+        hive.Layout();
+        recipe.GetAllCalculateCalls().Should().BeEmpty();
+    }
+    
+    [Test]
+    public void HiveShouldStopListeningToPrerequisitesChangedFromRemovedChildren()
+    {
+        Mock<IEntityManager> entityManager = new();
+        Hive hive = new(entityManager.Object);
+
+        MockRecipe recipeA = new(hive.Root.Some());
+        Cell cellA = hive.NewCell(_ => recipeA);
+        
+        MockRecipe recipeB = new(hive.Root.Some());
+        Cell cellB = hive.NewCell(_ => recipeB);
+        
+        hive.Layout();
+        recipeA.ResetAllInvocations();
+        
+        hive.Root.RemoveChild(cellA);
+        recipeA.XAlpha.AddPrerequisites(cellB.XBoundary.AlphaCoordinate);
+        recipeA.XBeta.AddPrerequisites(cellB.XBoundary.AlphaCoordinate);
+        recipeA.YAlpha.AddPrerequisites(cellB.XBoundary.AlphaCoordinate);
+        recipeA.YBeta.AddPrerequisites(cellB.XBoundary.AlphaCoordinate);
+        
+        hive.Layout();
+        recipeA.GetAllCalculateCalls().Should().BeEmpty();
+    }
+    
+    
 
     // ViewPort Tests
     //----------------------------------------------------------------------------------------------
@@ -261,6 +308,17 @@ public class HiveTests
         hive.Root.YBoundary.AlphaCoordinate.RelativeValue.Should().Be(0.0f.Some());
         hive.Root.YBoundary.BetaCoordinate.AbsoluteValue.Should().Be(1280.0f.Some());
         hive.Root.YBoundary.BetaCoordinate.RelativeValue.Should().Be(1280.0f.Some());
+    }
+
+
+    [Test]
+    public void ViewPortShouldReturnSetValue()
+    {
+        Hive hive = new(Mock.Of<IEntityManager>())
+        {
+            ViewPortSize = new(600, 400),
+        };
+        hive.ViewPortSize.Should().BeEquivalentTo(new Size2(600, 400));
     }
 
 
@@ -336,7 +394,7 @@ public class HiveTests
         };
         
         MockRecipe mocked = new(hive.Root.Some());
-        Cell cell = hive.NewCell(a => mocked);
+        hive.NewCell(_ => mocked);
         
         hive.Layout();
         mocked.XAlpha.VerifyLayoutPass();
@@ -354,7 +412,7 @@ public class HiveTests
         };
         
         MockRecipe mocked = new(hive.Root.Some());
-        Cell cell = hive.NewCell(a => mocked);
+        hive.NewCell(_ => mocked);
         
         hive.Layout();
         mocked.ResetAllInvocations();
@@ -376,7 +434,7 @@ public class HiveTests
         };
         
         MockRecipe mocked = new(hive.Root.Some());
-        Cell cell = hive.NewCell(a => mocked);
+        hive.NewCell(_ => mocked);
         
         hive.Layout();
         mocked.ResetAllInvocations();
@@ -390,6 +448,39 @@ public class HiveTests
         mocked.YAlpha.VerifyLayoutPass();
         mocked.YBeta.VerifyNoLayoutPass();
     }
+    
+    [Test]
+    public void LayoutShouldIncludeCoordinatesWithPrerequisiteChanges()
+    {
+        Hive hive = new(Mock.Of<IEntityManager>())
+        {
+            ViewPortSize = new(1200, 600),
+        };
+        
+        MockRecipe mockedA = new(hive.Root.Some());
+        Cell cellA = hive.NewCell(_ => mockedA);
+        
+        MockRecipe mockedB = new(hive.Root.Some());
+        Cell cellB = hive.NewCell(_ => mockedB);
+        
+        hive.Layout();
+        mockedA.ResetAllInvocations();
+        mockedB.ResetAllInvocations();
+        
+        mockedB.XBeta.AddPrerequisites(cellA.XBoundary.AlphaCoordinate);
+        mockedB.YAlpha.AddPrerequisites(cellA.YBoundary.BetaCoordinate);
+        
+        hive.Layout();
+        mockedA.XAlpha.VerifyNoLayoutPass();
+        mockedA.XBeta.VerifyNoLayoutPass();
+        mockedA.YAlpha.VerifyNoLayoutPass();
+        mockedA.YBeta.VerifyNoLayoutPass();
+        
+        mockedB.XAlpha.VerifyNoLayoutPass();
+        mockedB.XBeta.VerifyLayoutPass();
+        mockedB.YAlpha.VerifyLayoutPass();
+        mockedB.YBeta.VerifyNoLayoutPass();
+    }
 
 
     [Test]
@@ -401,17 +492,17 @@ public class HiveTests
         Int32 getCallOrder() => ++callOrder;
 
         MockRecipe mockedA = new(hive.Root.Some(), getCallOrder);
-        Cell cellA = hive.NewCell(a => mockedA);
+        Cell cellA = hive.NewCell(_ => mockedA);
         
         MockRecipe mockedB = new(cellA.Some(), getCallOrder);
         
-        mockedB.XAlpha.AddPrerequisites( cellA.XBoundary.AlphaCoordinate);
+        mockedB.XAlpha.AddPrerequisites(cellA.XBoundary.AlphaCoordinate);
         mockedB.YAlpha.AddPrerequisites(cellA.YBoundary.AlphaCoordinate);
         mockedB.XBeta.AddPrerequisites(cellA.XBoundary.AlphaCoordinate,
             cellA.XBoundary.BetaCoordinate);
         mockedB.YBeta.AddPrerequisites(cellA.YBoundary.BetaCoordinate);
 
-        Cell cellB = hive.NewCell(a => mockedB);
+        hive.NewCell(_ => mockedB);
         
         hive.Layout();
         
@@ -438,10 +529,10 @@ public class HiveTests
         Int32 getCallOrder() => ++callOrder;
 
         MockRecipe mockedA = new(hive.Root.Some(), getCallOrder);
-        Cell cellA = hive.NewCell(a => mockedA);
+        Cell cellA = hive.NewCell(_ => mockedA);
         
         MockRecipe mockedB = new(cellA.Some(), getCallOrder);
-        Cell cellB = hive.NewCell(a => mockedB);
+        hive.NewCell(_ => mockedB);
         
         mockedB.XAlpha.AddPrerequisites( cellA.XBoundary.AlphaCoordinate);
         mockedB.YAlpha.AddPrerequisites(cellA.YBoundary.AlphaCoordinate);
@@ -464,6 +555,49 @@ public class HiveTests
         results.Should().ContainInOrder(mockedA.YBeta, mockedB.YAlpha);
     }
     
+    
+    [Test]
+    public void LayoutShouldProcessInOrderOfNewPrerequisitesInSubsequentCalls()
+    {
+        Hive hive = new(Mock.Of<IEntityManager>());
+        
+        Int32 callOrder = 0;
+        Int32 getCallOrder() => ++callOrder;
+
+        MockRecipe mockedA = new("CellA", hive.Root.Some(), getCallOrder);
+        Cell cellA = hive.NewCell(_ => mockedA);
+        
+        MockRecipe mockedB = new("CellB", cellA.Some(), getCallOrder);
+        Cell cellB = hive.NewCell(_ => mockedB);
+        
+        mockedB.XAlpha.AddPrerequisites(cellA.XBoundary.AlphaCoordinate);
+        mockedB.YAlpha.AddPrerequisites(cellA.YBoundary.AlphaCoordinate);
+        
+        hive.Layout();
+        mockedA.ResetAllInvocations();
+        mockedB.ResetAllInvocations();
+        mockedA.XAlpha.LengthToReturn++;
+        mockedA.YAlpha.LengthToReturn++;
+        mockedB.XAlpha.LengthToReturn++;
+        mockedB.YAlpha.LengthToReturn++;
+        
+        mockedB.XAlpha.RemovePrerequisite(cellA.XBoundary.AlphaCoordinate);
+        mockedB.YAlpha.RemovePrerequisite(cellA.YBoundary.AlphaCoordinate);
+        mockedA.XAlpha.AddPrerequisites(cellB.XBoundary.AlphaCoordinate);
+        mockedA.YAlpha.AddPrerequisites(cellB.YBoundary.AlphaCoordinate);
+
+        hive.Layout();
+        
+        List<MockLength> results = mockedA.GetAllCalculateCalls()
+            .Concat(mockedB.GetAllCalculateCalls())
+            .OrderBy(a => a.Key)
+            .Select(a => a.Value)
+            .ToList();
+
+        results.Should().ContainInOrder(mockedB.XAlpha, mockedA.XAlpha);
+        results.Should().ContainInOrder(mockedB.YAlpha, mockedA.YAlpha);
+    }
+    
     [Test]
     public void LayoutShouldProcessInOrderOfComplexPrerequisites()
     {
@@ -473,16 +607,16 @@ public class HiveTests
         Int32 getCallOrder() => ++callOrder;
 
         MockRecipe mockedA = new("mockedA", hive.Root.Some(), getCallOrder);
-        Cell cellA = hive.NewCell(a => mockedA);
+        Cell cellA = hive.NewCell(_ => mockedA);
         
         MockRecipe mockedB = new("mockedB", cellA.Some(), getCallOrder);
-        Cell cellB = hive.NewCell(a => mockedB);
+        Cell cellB = hive.NewCell(_ => mockedB);
         
         MockRecipe mockedC = new("mockedC", cellA.Some(), getCallOrder);
-        Cell cellC = hive.NewCell(a => mockedC);
+        Cell cellC = hive.NewCell(_ => mockedC);
         
         MockRecipe mockedD = new("mockedD", cellC.Some(), getCallOrder);
-        Cell cellD = hive.NewCell(a => mockedD);
+        Cell cellD = hive.NewCell(_ => mockedD);
         
         mockedA.YBeta.AddPrerequisites(cellB.YBoundary.BetaCoordinate, cellC.YBoundary.BetaCoordinate);
         mockedC.YBeta.AddPrerequisites(cellD.YBoundary.BetaCoordinate);
@@ -515,19 +649,19 @@ public class HiveTests
         Int32 getCallOrder() => ++callOrder;
 
         MockRecipe mockedA = new("mockedA", hive.Root.Some(), getCallOrder);
-        Cell cellA = hive.NewCell(a => mockedA);
+        Cell cellA = hive.NewCell(_ => mockedA);
         
         MockRecipe mockedB = new("mockedB", cellA.Some(), getCallOrder);
-        Cell cellB = hive.NewCell(a => mockedB);
+        Cell cellB = hive.NewCell(_ => mockedB);
         
         MockRecipe mockedC = new("mockedC", cellA.Some(), getCallOrder);
-        Cell cellC = hive.NewCell(a => mockedC);
+        Cell cellC = hive.NewCell(_ => mockedC);
         
         MockRecipe mockedD = new("mockedD", cellA.Some(), getCallOrder);
-        Cell cellD = hive.NewCell(a => mockedD);
+        hive.NewCell(_ => mockedD);
         
         MockRecipe mockedE = new("mockedE", cellA.Some(), getCallOrder);
-        Cell cellE = hive.NewCell(a => mockedE);
+        hive.NewCell(_ => mockedE);
         
         mockedB.YAlpha.AddPrerequisites(cellA.YBoundary.AlphaCoordinate);
         mockedC.YAlpha.AddPrerequisites(cellA.YBoundary.AlphaCoordinate);
@@ -568,6 +702,21 @@ public class HiveTests
     }
 
     
+    [Test]
+    public void LayoutShouldNotIncludeRemovedChildren()
+    {
+        Mock<IEntityManager> entityManager = new();
+        Hive hive = new(entityManager.Object);
+
+        MockRecipe recipe = new(hive.Root.Some());
+        Cell cell = hive.NewCell(_ => recipe);
+
+        hive.Root.RemoveChild(cell);
+
+        hive.Layout();
+        recipe.GetAllCalculateCalls().Should().BeEmpty();
+    }
+    
 
     // Support
     //----------------------------------------------------------------------------------------------
@@ -577,17 +726,17 @@ public class HiveTests
     public class MockLength : ILength
     {
         private readonly Func<Int32> getCallOrder;
-        private Int32 calculateCallCount = 0;
-        private List<Int32> calculateCallOrders = new();
-        private List<Coordinate> prerequisites = new();
+        private Int32 calculateCallCount;
+        private readonly List<Int32> calculateCallOrders = new();
+        private readonly List<Coordinate> prerequisites = new();
 
 
-        public MockLength() : this(string.Empty, () => -1)
+        public MockLength() : this(String.Empty, () => -1)
         {
             
         }
         
-        public MockLength(string debugName, Func<Int32> getCallOrder)
+        public MockLength(String debugName, Func<Int32> getCallOrder)
         {
             DebugName = debugName;
             this.getCallOrder = getCallOrder;
@@ -618,8 +767,8 @@ public class HiveTests
             this.PrerequisitesChanged?.Invoke(this, new(Enumerable.Empty<Coordinate>(),  prereqs ));
         }
         
-        public event EventHandler? ValueInvalidated;
-        public event EventHandler<CollectionChangedArgs<Coordinate>>? PrerequisitesChanged;
+        public event NotificationHandler<ICalculation>? ValueInvalidated;
+        public event CollectionChangedHandler<ICalculation, Coordinate>? PrerequisitesChanged;
         
         
         public Single Calculate()
@@ -646,7 +795,7 @@ public class HiveTests
         
         public void RaiseInvalidated()
         {
-            this.ValueInvalidated?.Invoke(this, EventArgs.Empty);
+            this.ValueInvalidated?.Invoke(this);
         }
 
         public void ClearInvocations()
@@ -660,27 +809,27 @@ public class HiveTests
     public class MockRecipe : IReadyForConstruction
     {
         public String DebugName { get; }
-        private readonly Func<Int32> getCallOrder;
+
 
         public MockRecipe()
-            : this(string.Empty, Option.None<Cell>(), () => -1)
+            : this(String.Empty, Option.None<Cell>(), () => -1)
         {
         
         }
         
         
-        public MockRecipe(string debugName)
+        public MockRecipe(String debugName)
             : this(debugName, Option.None<Cell>(), () => -1)
         {
         
         }
         
-        public MockRecipe(Option<Cell> parent) : this(string.Empty, parent, () => -1)
+        public MockRecipe(Option<Cell> parent) : this(String.Empty, parent, () => -1)
         {
         
         }
         
-        public MockRecipe(string debugName, Option<Cell> parent)
+        public MockRecipe(String debugName, Option<Cell> parent)
             : this(debugName, parent, () => -1)
         {
         
@@ -688,29 +837,38 @@ public class HiveTests
 
 
         public MockRecipe(Option<Cell> parent, Func<Int32> getCallOrder)
-            : this(string.Empty, parent, getCallOrder)
+            : this(String.Empty, parent, getCallOrder)
         {
         }
 
 
-        public MockRecipe(string debugName, Option<Cell> parent, Func<Int32> getCallOrder)
+        public MockRecipe(String debugName, Option<Cell> parent, Func<Int32> getCallOrder)
         {
             DebugName = debugName;
-            this.getCallOrder = getCallOrder;
-            
+
             this.XAlpha = new($"{debugName}.X.Alpha.", getCallOrder);
             this.XBeta = new($"{debugName}.X.Beta.", getCallOrder);
             this.YAlpha = new($"{debugName}.Y.Alpha", getCallOrder);
             this.YBeta = new($"{debugName}.Y.Beta.", getCallOrder);
             
-            this.BoundariesRecipe = new();
-            this.BoundariesRecipe.XBoundary.Alpha = this.XAlpha.Some<ILength>();
-            this.BoundariesRecipe.XBoundary.Beta = this.XBeta.Some<ILength>();
-            this.BoundariesRecipe.YBoundary.Alpha = this.YAlpha.Some<ILength>();
-            this.BoundariesRecipe.YBoundary.Beta = this.YBeta.Some<ILength>();
+            this.BoundariesRecipe = new()
+                {
+                    XBoundary =
+                        {
+                            Alpha = this.XAlpha.Some<ILength>(),
+                            Beta = this.XBeta.Some<ILength>(),
+                        },
+                    YBoundary =
+                        {
+                            Alpha = this.YAlpha.Some<ILength>(),
+                            Beta = this.YBeta.Some<ILength>(),
+                        },
+                };
 
-            this.CompositionRecipe = new();
-            this.CompositionRecipe.Parent = parent;
+            this.CompositionRecipe = new()
+                {
+                    Parent = parent,
+                };
         }
         
 
@@ -748,12 +906,9 @@ public class HiveTests
         }
 
 
-        public IEnumerable<KeyValuePair<Int32, MockLength>> GetCalculateCalls(MockLength length)
+        private IEnumerable<KeyValuePair<Int32, MockLength>> GetCalculateCalls(MockLength length)
         {
-            foreach (Int32 callOrder in length.CalculateCallOrders)
-            {
-                yield return length.KeyedOn(callOrder);
-            }
+            return length.CalculateCallOrders.Select(length.KeyedOn);
         }
 
 

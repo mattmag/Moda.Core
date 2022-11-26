@@ -4,10 +4,14 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
+using Moda.Core.Utility.Data;
+
 namespace Moda.Core.UI;
 
-// TODO: even needed if we're using length in builders and such anyway?
-public interface ICalculable : IDependentValue
+public interface ICalculation
 {
     Single Calculate();
+    public IEnumerable<Coordinate> Prerequisites { get; }
+    event NotificationHandler<ICalculation>? ValueInvalidated;
+    event CollectionChangedHandler<ICalculation, Coordinate>? PrerequisitesChanged;
 }

@@ -6,7 +6,8 @@
 
 namespace Moda.Core.Utility.Data;
 
-public delegate void CollectionChangedHandler<T>(Object? sender, CollectionChangedArgs<T> args);
+public delegate void CollectionChangedHandler<TSender, TItem>(TSender sender, 
+    CollectionChangedArgs<TItem> args);
 
 public class CollectionChangedArgs<T>
 {

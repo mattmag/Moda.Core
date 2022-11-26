@@ -25,23 +25,23 @@ public class CellTests
         const Single yTare = 7.1f;
         const Single yLength = 19;
 
-        Mock<ICalculable> xAlphaLength = new();
+        Mock<ICalculation> xAlphaLength = new();
         xAlphaLength.Setup(a => a.Calculate()).Returns(xLength);
 
-        Mock<ICalculable> yAlphaLength = new();
+        Mock<ICalculation> yAlphaLength = new();
         yAlphaLength.Setup(a => a.Calculate()).Returns(yLength);
         
         Cell parent = new(
-            new(xAlphaLength.Object, Mock.Of<ICalculable>()),
-            new(yAlphaLength.Object, Mock.Of<ICalculable>()));
+            new(xAlphaLength.Object, Mock.Of<ICalculation>()),
+            new(yAlphaLength.Object, Mock.Of<ICalculation>()));
         parent.XBoundary.AlphaCoordinate.Tare = xTare.Some();
         parent.XBoundary.AlphaCoordinate.Calculate();
         
         parent.YBoundary.AlphaCoordinate.Tare = yTare.Some();
         parent.YBoundary.AlphaCoordinate.Calculate();
         
-        Cell child = new(new(Mock.Of<ICalculable>(),Mock.Of<ICalculable>()),
-            new(Mock.Of<ICalculable>(),Mock.Of<ICalculable>()));
+        Cell child = new(new(Mock.Of<ICalculation>(),Mock.Of<ICalculation>()),
+            new(Mock.Of<ICalculation>(),Mock.Of<ICalculation>()));
         
         parent.AppendChild(child);
         
@@ -65,23 +65,23 @@ public class CellTests
         const Single yTare = 7.1f;
         const Single yLength = 19;
 
-        Mock<ICalculable> xAlphaLength = new();
+        Mock<ICalculation> xAlphaLength = new();
         xAlphaLength.Setup(a => a.Calculate()).Returns(xLength);
 
-        Mock<ICalculable> yAlphaLength = new();
+        Mock<ICalculation> yAlphaLength = new();
         yAlphaLength.Setup(a => a.Calculate()).Returns(yLength);
         
         Cell parent = new(
-            new(xAlphaLength.Object, Mock.Of<ICalculable>()),
-            new(yAlphaLength.Object, Mock.Of<ICalculable>()));
+            new(xAlphaLength.Object, Mock.Of<ICalculation>()),
+            new(yAlphaLength.Object, Mock.Of<ICalculation>()));
         parent.XBoundary.AlphaCoordinate.Tare = xTare.Some();
         parent.XBoundary.AlphaCoordinate.Calculate();
         
         parent.YBoundary.AlphaCoordinate.Tare = yTare.Some();
         parent.YBoundary.AlphaCoordinate.Calculate();
         
-        Cell child = new(new(Mock.Of<ICalculable>(),Mock.Of<ICalculable>()),
-            new(Mock.Of<ICalculable>(),Mock.Of<ICalculable>()));
+        Cell child = new(new(Mock.Of<ICalculation>(),Mock.Of<ICalculation>()),
+            new(Mock.Of<ICalculation>(),Mock.Of<ICalculation>()));
         
         parent.AppendChild(child);
         
@@ -99,8 +99,8 @@ public class CellTests
     public void GetCoordinatesShouldReturnAllCoordinates()
     {
         Cell cell = new(
-            new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>()),
-            new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>()));
+            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()),
+            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()));
         cell.GetCoordinates().Should()
             .BeEquivalentTo(new[]
                     {
@@ -117,8 +117,8 @@ public class CellTests
     public void SetDebugNameShouldSetCoordinateDebugNames()
     {
         Cell cell = new(
-            new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>()),
-            new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>()));
+            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()),
+            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()));
         cell.DebugName = "TestCell";
         cell.DebugName.Should().Be("TestCell");
         cell.XBoundary.AlphaCoordinate.DebugName.Should().Be("TestCell.X.Alpha");

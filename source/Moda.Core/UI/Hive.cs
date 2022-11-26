@@ -163,34 +163,26 @@ public class Hive
     }
 
 
-    private void CoordinateValueInvalidated(Object? sender, EventArgs args)
+    private void CoordinateValueInvalidated(Coordinate sender)
     {
-        if (sender == null)
-        {
-            return;
-        }
-        requestingMeasure.Add((Coordinate)sender);
+        requestingMeasure.Add(sender);
     }
 
 
-    private void CoordinatePrerequisitesChanged(Object? sender,
+    private void CoordinatePrerequisitesChanged(Coordinate sender,
         CollectionChangedArgs<Coordinate> changes)
     {
-        Coordinate coordinate = sender as Coordinate;
-        if (coordinate == null)
-        {
-            return;
-        }
-        
         foreach (Coordinate removed in changes.ItemsRemoved)
         {
-            this.coordinateGraph.RevokePrerequisite(prereq:removed, from:coordinate);
+            this.coordinateGraph.RevokePrerequisite(prereq:removed, from:sender);
         }
         
         foreach (Coordinate added in changes.ItemsAdded)
         {
-            this.coordinateGraph.DeclarePrerequisite(prereq:added, of:coordinate);
+            this.coordinateGraph.DeclarePrerequisite(prereq:added, of:sender);
         }
+
+        this.requestingMeasure.Add(sender);
     }
     
     private void CellChildrenChanged(Object? sender, CollectionChangedArgs<Cell> changes)

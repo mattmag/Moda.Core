@@ -15,14 +15,14 @@ namespace Moda.Core.UI;
 ///     a <see cref="Cell"/>. 
 /// </summary>
 [DebuggerDisplay("{DebugName}")]
-public class Coordinate : IDependentValue
+public class Coordinate
 {
     //##############################################################################################
     //
     //  Constructors
     //
     //##############################################################################################
-    public Coordinate(ICalculable calculation)
+    public Coordinate(ICalculation calculation)
     {
         this._calculation = calculation;
         InitializeCalculation(this._calculation);
@@ -35,18 +35,17 @@ public class Coordinate : IDependentValue
     //
     //##############################################################################################
 
-    // TODO: default EventHandler allows for null sender...do we want strongly typed again too?
     /// <summary>
     ///     Fired to indicate that the results of the previous calculation are no longer valid and
     ///     must be re-evaluated.
     /// </summary>
-    public event EventHandler? ValueInvalidated;
+    public event NotificationHandler<Coordinate>? ValueInvalidated;
     
     /// <summary>
     ///     Fired to indicate that the prerequisites of the <see cref="Calculation"/> (coordinates that
     ///     must be calculated before this one) have changed.
     /// </summary>
-    public event EventHandler<CollectionChangedArgs<Coordinate>>? PrerequisitesChanged;
+    public event CollectionChangedHandler<Coordinate, Coordinate>? PrerequisitesChanged;
     
     
     
@@ -57,11 +56,11 @@ public class Coordinate : IDependentValue
     //##############################################################################################
 
 
-    private ICalculable _calculation;
+    private ICalculation _calculation;
     /// <summary>
     ///     The calculation to use when calling <see cref="Calculate"/>.
     /// </summary>
-    public ICalculable Calculation
+    public ICalculation Calculation
     {
         get
         {
@@ -71,7 +70,7 @@ public class Coordinate : IDependentValue
         {
             if (this._calculation != value)
             {
-                ICalculable old = this._calculation;
+                ICalculation old = this._calculation;
                 old.ValueInvalidated -= OnCalculationOnValueInvalidated;
                 old.PrerequisitesChanged -= OnCalculationOnPrerequisitesChanged;
 
@@ -86,7 +85,7 @@ public class Coordinate : IDependentValue
     /// <summary>
     ///     Fired when the value of <see cref="Calculation"/> has changed.
     /// </summary>
-    public event EventHandler<ValueChangedArgs<ICalculable>>? CalculationChanged;
+    public event ValueChangedHandler<Coordinate, ICalculation>? CalculationChanged;
     
     
     
@@ -112,7 +111,7 @@ public class Coordinate : IDependentValue
     /// <summary>
     ///     Fired when the value of <see cref="RelativeValue"/> has changed.
     /// </summary>
-    public event EventHandler<ValueChangedArgs<Option<Single>>>? RelativeValueChanged;
+    public event ValueChangedHandler<Coordinate, Option<Single>>? RelativeValueChanged;
 
     
     
@@ -145,7 +144,7 @@ public class Coordinate : IDependentValue
     /// <summary>
     ///     Fired when the value of <see cref="Tare"/> has changed.
     /// </summary>
-    public event EventHandler<ValueChangedArgs<Option<Single>>>? TareChanged;
+    public event ValueChangedHandler<Coordinate, Option<Single>>? TareChanged;
 
     
     
@@ -174,14 +173,20 @@ public class Coordinate : IDependentValue
     /// <summary>
     ///     Fired when the value of <see cref="AbsoluteValue"/> has changed.
     /// </summary>
-    public event EventHandler<ValueChangedArgs<Option<Single>>>? AbsoluteValueChanged;
+    public event ValueChangedHandler<Coordinate, Option<Single>>? AbsoluteValueChanged;
 
     
     
-    // TODO: this
+    // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+    /// <summary>
+    ///     The coordinates that must be calculated before this one.
+    /// </summary>
     public IEnumerable<Coordinate> Prerequisites => this._calculation.Prerequisites
         ?? Enumerable.Empty<Coordinate>();
     
+    /// <summary>
+    ///     A name that can be assigned to help identify the coordinate during debugging.
+    /// </summary>
     public string DebugName { get; set; } = String.Empty;
     
 
@@ -211,7 +216,7 @@ public class Coordinate : IDependentValue
     //##############################################################################################
 
 
-    private void InitializeCalculation(ICalculable calculable)
+    private void InitializeCalculation(ICalculation calculable)
     {
         calculable.ValueInvalidated += OnCalculationOnValueInvalidated;
         calculable.PrerequisitesChanged += OnCalculationOnPrerequisitesChanged;
@@ -224,15 +229,16 @@ public class Coordinate : IDependentValue
     }
 
     
-    private void OnCalculationOnPrerequisitesChanged(Object? s, CollectionChangedArgs<Coordinate> e)
+    private void OnCalculationOnPrerequisitesChanged(ICalculation sender,
+        CollectionChangedArgs<Coordinate> changes)
     {
-        this.PrerequisitesChanged?.Invoke(this, e);
+        this.PrerequisitesChanged?.Invoke(this, changes);
     }
 
 
-    private void OnCalculationOnValueInvalidated(Object? s, EventArgs e)
+    private void OnCalculationOnValueInvalidated(ICalculation sender)
     {
-        this.ValueInvalidated?.Invoke(this, e);
+        this.ValueInvalidated?.Invoke(this);
     }
 
     

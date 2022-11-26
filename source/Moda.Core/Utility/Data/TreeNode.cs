@@ -38,14 +38,14 @@ public abstract class TreeNode<T> : IEnumerable<T>
             {
                 Option<T> oldValue = this._parent;
                 this._parent = value;
-                this.ParentChanged?.Invoke(this, new(oldValue, value));
+                this.ParentChanged?.Invoke((T)this, new(oldValue, value));
             }
         }
     }
     /// <summary>
     ///     Fired when the value of <see cref="Parent"/> has changed.
     /// </summary>
-    public event ValueChangedHandler<Option<T>>? ParentChanged;
+    public event ValueChangedHandler<T, Option<T>>? ParentChanged;
     
     
     private readonly List<T> _children = new();
@@ -57,7 +57,7 @@ public abstract class TreeNode<T> : IEnumerable<T>
     /// <summary>
     ///     Fired when children are added to or removed from <see cref="Children"/>.
     /// </summary>
-    public event CollectionChangedHandler<T>? ChildrenChanged;
+    public event CollectionChangedHandler<T, T>? ChildrenChanged;
 
     
 
@@ -195,7 +195,7 @@ public abstract class TreeNode<T> : IEnumerable<T>
         child.Parent = ((T)this).Some();
         this._children.Insert(index, child);
         OnChildAdded(child);
-        this.ChildrenChanged?.Invoke(this, new(new[] { child }, Enumerable.Empty<T>()));
+        this.ChildrenChanged?.Invoke((T)this, new(new[] { child }, Enumerable.Empty<T>()));
     }
     
 
@@ -204,7 +204,7 @@ public abstract class TreeNode<T> : IEnumerable<T>
         if (this._children.Remove(child))
         {
             OnChildRemoved(child);
-            this.ChildrenChanged?.Invoke(this, new(Enumerable.Empty<T>(), new[] { child }));
+            this.ChildrenChanged?.Invoke((T)this, new(Enumerable.Empty<T>(), new[] { child }));
         }
         else
         {

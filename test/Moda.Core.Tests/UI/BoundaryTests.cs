@@ -20,17 +20,17 @@ public class BoundaryTests
     [Test]
     public void RelativeRangeShouldReturnNoneIfBothAbsoluteCoordinatesAreNone()
     {
-        Boundary boundary = new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>());
+        Boundary boundary = new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         boundary.RelativeRange.Should().Be(Option.None<RangeF>());
     }
     
     [Test]
     public void RelativeRangeShouldReturnNoneIfAlphaAbsoluteIsNone()
     {
-        Mock<ICalculable> lengthB = new();
+        Mock<ICalculation> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new(Mock.Of<ICalculable>(), lengthB.Object);
+        Boundary boundary = new(Mock.Of<ICalculation>(), lengthB.Object);
         
         boundary.BetaCoordinate.Calculate();
         
@@ -40,10 +40,10 @@ public class BoundaryTests
     [Test]
     public void RelativeRangeShouldReturnNoneIfBetaAbsoluteIsNone()
     {
-        Mock<ICalculable> lengthA = new();
+        Mock<ICalculation> lengthA = new();
         lengthA.Setup(a => a.Calculate()).Returns(3.5f);
 
-        Boundary boundary = new(lengthA.Object, Mock.Of<ICalculable>());
+        Boundary boundary = new(lengthA.Object, Mock.Of<ICalculation>());
         
         boundary.AlphaCoordinate.Calculate();
         
@@ -53,10 +53,10 @@ public class BoundaryTests
     [Test]
     public void RelativeRangeShouldReturnAlphaAndBeta()
     {
-        Mock<ICalculable> lengthA = new();
+        Mock<ICalculation> lengthA = new();
         lengthA.Setup(a => a.Calculate()).Returns(3.5f);
 
-        Mock<ICalculable> lengthB = new();
+        Mock<ICalculation> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(10.5f);
 
         Boundary boundary = new(lengthA.Object, lengthB.Object);
@@ -74,17 +74,17 @@ public class BoundaryTests
     [Test]
     public void AbsoluteRangeShouldReturnNoneIfBothAbsoluteCoordinatesAreNone()
     {
-        Boundary boundary = new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>());
+        Boundary boundary = new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         boundary.AbsoluteRange.Should().Be(Option.None<RangeF>());
     }
     
     [Test]
     public void AbsoluteRangeShouldReturnNoneIfAlphaAbsoluteIsNone()
     {
-        Mock<ICalculable> lengthB = new();
+        Mock<ICalculation> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new(Mock.Of<ICalculable>(), lengthB.Object)
+        Boundary boundary = new(Mock.Of<ICalculation>(), lengthB.Object)
         {
             BetaCoordinate =
             {
@@ -100,10 +100,10 @@ public class BoundaryTests
     [Test]
     public void AbsoluteRangeShouldReturnNoneIfBetaAbsoluteIsNone()
     {
-        Mock<ICalculable> lengthA = new();
+        Mock<ICalculation> lengthA = new();
         lengthA.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new(lengthA.Object, Mock.Of<ICalculable>())
+        Boundary boundary = new(lengthA.Object, Mock.Of<ICalculation>())
         {
             AlphaCoordinate =
             {
@@ -119,10 +119,10 @@ public class BoundaryTests
     [Test]
     public void AbsoluteRangeShouldReturnAlphaAndBeta()
     {
-        Mock<ICalculable> lengthA = new();
+        Mock<ICalculation> lengthA = new();
         lengthA.Setup(a => a.Calculate()).Returns(3.5f);
 
-        Mock<ICalculable> lengthB = new();
+        Mock<ICalculation> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(10.5f);
         
         Boundary boundary = new(lengthA.Object, lengthB.Object)
@@ -150,7 +150,7 @@ public class BoundaryTests
     [Test]
     public void GetCoordinatesShouldReturnAlphaAndBeta()
     {
-        Boundary boundary = new(Mock.Of<ICalculable>(), Mock.Of<ICalculable>());
+        Boundary boundary = new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         boundary.GetCoordinates().Should()
             .BeEquivalentTo(new[] { boundary.AlphaCoordinate, boundary.BetaCoordinate },
                 a => a.WithStrictOrdering());
