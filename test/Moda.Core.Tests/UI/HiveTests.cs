@@ -10,15 +10,16 @@ using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
 using Moda.Core.Entity;
+using Moda.Core.UI;
 using Moda.Core.UI.Builders;
 using Moda.Core.Utility.Data;
 using Moda.Core.Utility.Geometry;
 using Moq;
 using NUnit.Framework;
 using Optional;
-using AssertionHelper = Moda.Core.Support.AssertionHelper;
+using AssertionHelper = Moda.Core.Tests.Support.AssertionHelper;
 
-namespace Moda.Core.UI;
+namespace Moda.Core.Tests.UI;
 
 public class HiveTests
 {
@@ -773,7 +774,7 @@ public class HiveTests
         
         public Single Calculate()
         {
-            calculateCallCount++;
+            this.calculateCallCount++;
             this.calculateCallOrders.Add(this.getCallOrder());
             
             return this.LengthToReturn;
@@ -784,7 +785,7 @@ public class HiveTests
         {
             this.calculateCallCount.Should().Be(1);
             this.calculateCallCount = 0;
-            calculateCallOrders.Clear();
+            this.calculateCallOrders.Clear();
         }
         
         public void VerifyNoLayoutPass()
@@ -801,7 +802,7 @@ public class HiveTests
         public void ClearInvocations()
         {
             this.calculateCallCount = 0;
-            calculateCallOrders.Clear();
+            this.calculateCallOrders.Clear();
         }
     }
     

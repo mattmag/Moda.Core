@@ -10,7 +10,7 @@ using FluentAssertions;
 using FluentAssertions.Events;
 using FluentAssertions.Execution;
 
-namespace Moda.Core.Support;
+namespace Moda.Core.Tests.Support;
 
 public static class AssertionHelper
 {

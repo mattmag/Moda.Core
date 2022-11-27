@@ -4,7 +4,7 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
-namespace Moda.Core.Entity.Tests.Support;
+namespace Moda.Core.Tests.Entity.Tests.Support;
 
 /// <summary>
 ///     Empty object for testing component operations in type-sensitive tests.

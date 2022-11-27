@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Immutable;
 
-namespace Moda.Core.Entity.Tests.Support;
+namespace Moda.Core.Tests.Entity.Tests.Support;
 
 /// <summary>
 ///     Declares how a system (defined by the components that it <see cref="ActsOn"/> should be

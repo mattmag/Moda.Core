@@ -8,7 +8,7 @@ using System;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Moda.Core.Support;
+namespace Moda.Core.Tests.Support;
 
 /// <summary>
 ///     Provides helper methods for testing value equality.

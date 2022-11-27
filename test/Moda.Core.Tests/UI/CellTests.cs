@@ -7,12 +7,13 @@
 using System;
 using FluentAssertions;
 using Moda.Core.Entity;
+using Moda.Core.UI;
 using Moda.Core.UI.Builders;
 using Moq;
 using NUnit.Framework;
 using Optional;
 
-namespace Moda.Core.UI;
+namespace Moda.Core.Tests.UI;
 
 public class CellTests
 {

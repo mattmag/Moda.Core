@@ -5,8 +5,9 @@
 // https://mozilla.org/MPL/2.0/
 
 using System;
+using Moda.Core.Entity;
 
-namespace Moda.Core.Entity.Tests.Support;
+namespace Moda.Core.Tests.Entity.Tests.Support;
 
 /// <summary>
 ///     Provides methods to construct an <see cref="EntityManagerSequence"/>.

@@ -7,10 +7,11 @@
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
-using Moda.Core.Support;
+using Moda.Core.Tests.Support;
+using Moda.Core.Utility.Maths;
 using NUnit.Framework;
 
-namespace Moda.Core.Utility.Maths.Tests;
+namespace Moda.Core.Tests.Utility.Maths;
 
 [TestFixture]
 public class RangeFTests

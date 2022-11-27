@@ -7,9 +7,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
+using Moda.Core.Utility.Data;
 using NUnit.Framework;
 
-namespace Moda.Core.Utility.Data.Tests;
+namespace Moda.Core.Tests.Utility.Data;
 
 [TestFixture]
 public class EqualityTests

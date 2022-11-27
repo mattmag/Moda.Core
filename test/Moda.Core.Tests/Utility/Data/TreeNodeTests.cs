@@ -10,12 +10,13 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Events;
-using Moda.Core.Support;
+using Moda.Core.Tests.Support;
+using Moda.Core.Utility.Data;
 using Moq;
 using NUnit.Framework;
 using Optional;
 
-namespace Moda.Core.Utility.Data.Tests;
+namespace Moda.Core.Tests.Utility.Data;
 
 public class TreeNodeTests
 {

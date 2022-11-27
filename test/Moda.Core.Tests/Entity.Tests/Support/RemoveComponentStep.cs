@@ -7,8 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Moda.Core.Entity;
 
-namespace Moda.Core.Entity.Tests.Support;
+namespace Moda.Core.Tests.Entity.Tests.Support;
 
 /// <summary>
 ///     Remove components from the active entity.

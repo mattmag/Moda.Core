@@ -7,12 +7,13 @@
 using System;
 using FluentAssertions;
 using FluentAssertions.Events;
+using Moda.Core.UI;
 using Moda.Core.Utility.Data;
 using Moq;
 using NUnit.Framework;
 using Optional;
 
-namespace Moda.Core.UI;
+namespace Moda.Core.Tests.UI;
 
 public class CoordinateTests
 {

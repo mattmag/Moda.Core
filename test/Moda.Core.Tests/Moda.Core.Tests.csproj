@@ -5,8 +5,6 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
-
-        <RootNamespace>Moda.Core</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

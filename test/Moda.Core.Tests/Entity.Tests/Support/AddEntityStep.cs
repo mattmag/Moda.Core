@@ -7,8 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Moda.Core.Entity;
 
-namespace Moda.Core.Entity.Tests.Support;
+namespace Moda.Core.Tests.Entity.Tests.Support;
 
 /// <summary>
 ///     Add a new entity to the <see cref="EntityManager"/> and set it's ID to the active

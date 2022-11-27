@@ -6,8 +6,9 @@
 
 using System;
 using System.Collections.Immutable;
+using Moda.Core.Entity;
 
-namespace Moda.Core.Entity.Tests.Support;
+namespace Moda.Core.Tests.Entity.Tests.Support;
 
 
 public class SystemA : IComponentSystem

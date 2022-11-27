@@ -10,13 +10,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using FluentAssertions;
-using Moda.Core.Entity.Tests.Support;
+using Moda.Core.Entity;
+using Moda.Core.Tests.Entity.Tests.Support;
 using Moq;
 using NUnit.Framework;
 using Optional;
 using Optional.Unsafe;
 
-namespace Moda.Core.Entity.Tests;
+namespace Moda.Core.Tests.Entity.Tests;
 
 [TestFixture]
 public class EntityManagerTests

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Moda.Core.Entity.Tests.Support;
+namespace Moda.Core.Tests.Entity.Tests.Support;
 
 /// <summary>
 ///     Provides methods to construct an <see cref="EntityManagerStep"/>.

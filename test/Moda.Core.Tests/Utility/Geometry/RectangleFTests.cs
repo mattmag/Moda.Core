@@ -9,11 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using FluentAssertions;
-using Moda.Core.Support;
+using Moda.Core.Tests.Support;
 using Moda.Core.Utility.Data;
+using Moda.Core.Utility.Geometry;
 using NUnit.Framework;
 
-namespace Moda.Core.Utility.Geometry.Tests;
+namespace Moda.Core.Tests.Utility.Geometry;
 
 [TestFixture]
 public class RectangleFTests

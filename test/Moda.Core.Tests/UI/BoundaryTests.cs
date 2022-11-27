@@ -5,12 +5,13 @@
 // https://mozilla.org/MPL/2.0/
 
 using FluentAssertions;
+using Moda.Core.UI;
 using Moda.Core.Utility.Maths;
 using Moq;
 using NUnit.Framework;
 using Optional;
 
-namespace Moda.Core.UI;
+namespace Moda.Core.Tests.UI;
 
 public class BoundaryTests
 {

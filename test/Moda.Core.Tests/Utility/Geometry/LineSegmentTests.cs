@@ -8,12 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using FluentAssertions;
-using Moda.Core.Support;
+using Moda.Core.Tests.Support;
+using Moda.Core.Utility.Geometry;
 using Moda.Core.Utility.Maths;
 using NUnit.Framework;
 using Optional;
 
-namespace Moda.Core.Utility.Geometry.Tests;
+namespace Moda.Core.Tests.Utility.Geometry;
 
 public class LineSegmentTests
 {

@@ -9,9 +9,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using FluentAssertions;
+using Moda.Core.Utility.Data;
 using NUnit.Framework;
 
-namespace Moda.Core.Utility.Data.Tests;
+namespace Moda.Core.Tests.Utility.Data;
 
 public class PrerequisiteGraphTests
 {

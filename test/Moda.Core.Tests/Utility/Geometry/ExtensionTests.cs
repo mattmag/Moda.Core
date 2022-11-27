@@ -8,9 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using FluentAssertions;
+using Moda.Core.Utility.Geometry;
 using NUnit.Framework;
 
-namespace Moda.Core.Utility.Geometry.Tests;
+namespace Moda.Core.Tests.Utility.Geometry;
 
 [TestFixture]
 public class ExtensionTests

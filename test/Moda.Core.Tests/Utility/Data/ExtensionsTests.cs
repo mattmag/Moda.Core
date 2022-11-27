@@ -7,10 +7,11 @@
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using Moda.Core.Utility.Data;
 using NUnit.Framework;
 using Optional;
 
-namespace Moda.Core.Utility.Data.Tests;
+namespace Moda.Core.Tests.Utility.Data;
 
 [TestFixture]
 public class ExtensionsTests

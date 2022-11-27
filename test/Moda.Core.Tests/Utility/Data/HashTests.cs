@@ -6,10 +6,11 @@
 
 using System;
 using FluentAssertions;
+using Moda.Core.Utility.Data;
 using Moq;
 using NUnit.Framework;
 
-namespace Moda.Core.Utility.Data.Tests;
+namespace Moda.Core.Tests.Utility.Data;
 
 [TestFixture]
 public class HashTests

@@ -8,9 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Moda.Core.Entity;
 using Moq;
 
-namespace Moda.Core.Entity.Tests.Support;
+namespace Moda.Core.Tests.Entity.Tests.Support;
 
 /// <summary>
 ///     Represents a step in an <see cref="EntityManagerSequence"/>.
