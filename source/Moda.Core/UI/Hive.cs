@@ -8,7 +8,13 @@ using Optional.Unsafe;
 
 namespace Moda.Core.UI;
 
-public class Hive
+public interface IHoneyComb
+{
+    Cell NewCell(Func<IParentAssigner, IReadyToBuild> builder);
+}
+
+
+public class Hive : IHoneyComb
 {
     //##############################################################################################
     //
@@ -68,9 +74,9 @@ public class Hive
     //
     //##############################################################################################
     
-    public Cell NewCell(Func<IInitializeCell, IReadyForConstruction> builder)
+    public Cell NewCell(Func<IParentAssigner, IReadyToBuild> builder)
     {
-        return BuildAndComposeCell(builder(new CellBuilder(new())).GetRecipe());
+        return BuildAndComposeCell(builder(new CellBuilder()).GetRecipe());
     }
 
 
@@ -120,7 +126,7 @@ public class Hive
             coordinate.Tare = 0.0f.Some();
         }
         
-        ComposeAndRegisterCell(root, new());
+        RegisterCell(root, Enumerable.Empty<Object>());
         SetupCell(root);
         return root;
     }
@@ -201,13 +207,13 @@ public class Hive
     private Cell BuildAndComposeCell(CellRecipe recipe)
     {
         Cell cell = BuildCell(recipe.Boundaries);
-        ComposeAndRegisterCell(cell, recipe.Composition);
+        ComposeCell(cell, recipe.Composition);
         return cell;
     }
     
     private Cell BuildCell(BoundariesRecipe recipe)
     {
-        Cell cell = new(
+        Cell cell = new(this,
             new(recipe.XBoundary.Alpha.ValueOrFailure(), recipe.XBoundary.Beta.ValueOrFailure()),
             new(recipe.YBoundary.Alpha.ValueOrFailure(), recipe.YBoundary.Beta.ValueOrFailure())
         );
@@ -215,19 +221,27 @@ public class Hive
     }
 
 
-    private void ComposeAndRegisterCell(Cell cell, CompositionRecipe recipe)
+    private void ComposeCell(Cell cell, CompositionRecipe recipe)
     {
-        recipe.Parent.MatchSome(parent =>
-            recipe.InsertionIndex.Match(index =>
-                    {
-                        parent.InsertChild(cell, index);
-                    },
-                () =>
-                    {
-                        parent.AppendChild(cell);
-                    }));
-        
-        UInt64 id = this.entityManager.AddEntity(recipe.CellComponents.Prepend(cell));
+        SetParent(cell, recipe.Parent.Get(), recipe.InsertionIndex.Get());
+        RegisterCell(cell, recipe.Components.Get());
+    }
+
+    private void SetParent(Cell cell, Cell parent, Option<Int32> insertionIndex)
+    {
+        insertionIndex.Match(index =>
+            {
+                parent.InsertChild(cell, index);
+            },
+            () =>
+            {
+                parent.AppendChild(cell);
+            });
+    }
+
+    private void RegisterCell(Cell cell, IEnumerable<Object> components)
+    {
+        UInt64 id = this.entityManager.AddEntity(components.Prepend(cell));
         cell.EntityID = id;
     }
     

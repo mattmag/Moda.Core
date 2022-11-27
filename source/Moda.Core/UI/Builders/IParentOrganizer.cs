@@ -6,7 +6,9 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IInitializeHorizontalAxis
+public interface IParentOrganizer
 {
-    AnchoredHorizontalBuilder AnchorAt(Horizontal anchor);
+    IInitializeHorizontalAxis InsertAt(Int32 index);
+    IInitializeHorizontalAxis InsertBefore(Cell peer);
+    IInitializeHorizontalAxis InsertAfter(Cell peer);
 }

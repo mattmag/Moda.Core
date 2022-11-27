@@ -5,6 +5,7 @@
 // https://mozilla.org/MPL/2.0/
 
 using System.Diagnostics;
+using Moda.Core.UI.Builders;
 using Moda.Core.Utility.Data;
 using Optional;
 
@@ -21,13 +22,16 @@ namespace Moda.Core.UI;
 [DebuggerDisplay("{DebugName}")]
 public class Cell : TreeNode<Cell>
 {
+    private IHoneyComb hive;
+    
     //##############################################################################################
     //
     //  Constructors
     //
     //##############################################################################################
-    public Cell(Boundary xBoundary, Boundary yBoundary)
+    public Cell(IHoneyComb hive, Boundary xBoundary, Boundary yBoundary)
     {
+        this.hive = hive;
         this.XBoundary = xBoundary;
         this.YBoundary = yBoundary;
     }
@@ -70,7 +74,7 @@ public class Cell : TreeNode<Cell>
             this.YBoundary.BetaCoordinate.DebugName = $"{this._debugName}.Y.Beta";
         }
     }
-
+    
 
     //##############################################################################################
     //
@@ -88,6 +92,18 @@ public class Cell : TreeNode<Cell>
     public IEnumerable<Coordinate> GetCoordinates()
     {
         return this.XBoundary.GetCoordinates().Concat(this.YBoundary.GetCoordinates());
+    }
+
+
+    // public void Kill()
+    // {
+    //     this.hive.KillCell(this);
+    // }
+
+
+    public Cell CreateChild(Func<IParentAssigned, IReadyToBuild> builder)
+    {
+        return this.hive.NewCell(a => builder(a.AssignParent(this)));
     }
 
     //##############################################################################################

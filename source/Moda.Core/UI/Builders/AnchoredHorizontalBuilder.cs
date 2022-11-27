@@ -2,23 +2,28 @@ using Moda.Core.Lengths;
 using Optional;
 
 namespace Moda.Core.UI.Builders;
+// This file is part of the Moda.Core project.
+// 
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+// If a copy of the MPL was not distributed with this file, You can obtain one at
+// https://mozilla.org/MPL/2.0/
 
-// TODO: interfaces and/or explicit implementation for abstraction during build?
+
 public class AnchoredHorizontalBuilder : AnchoredAxisBuilder
 {
-    public AnchoredHorizontalBuilder(BoundariesRecipe boundariesBoundariesRecipe, Horizontal anchor)
-        : base(boundariesBoundariesRecipe, Axis.X, ConvertAnchor(anchor))
+    public AnchoredHorizontalBuilder(CellBuilder cellBuilder, Horizontal anchor)
+        : base(cellBuilder, Axis.X, ConvertAnchor(anchor))
     {
         //  TODO: placeholder
-        this.MyAxisRecipe.Alpha = new Pixels(0).Some<ILength>();
-        this.MyAxisRecipe.Beta = new Pixels(0).Some<ILength>();
+        this.AxisRecipe.Alpha = new Pixels(0).Some<ILength>();
+        this.AxisRecipe.Beta = new Pixels(0).Some<ILength>();
     }
 
 
     public IInitializeVerticalAxis WithWidth(ILength width)
     {
         this.SetLength(width);
-        return new CellBuilder(this.BoundariesRecipe);
+        return this.CellBuilder;
     }
     
     private static Neutral ConvertAnchor(Horizontal anchor)

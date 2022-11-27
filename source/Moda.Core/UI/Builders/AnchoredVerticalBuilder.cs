@@ -1,3 +1,9 @@
+// This file is part of the Moda.Core project.
+// 
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+// If a copy of the MPL was not distributed with this file, You can obtain one at
+// https://mozilla.org/MPL/2.0/
+
 using Moda.Core.Lengths;
 using Optional;
 
@@ -5,18 +11,18 @@ namespace Moda.Core.UI.Builders;
 
 public class AnchoredVerticalBuilder : AnchoredAxisBuilder
 {
-    public AnchoredVerticalBuilder(BoundariesRecipe boundariesBoundariesRecipe, Vertical anchor)
-        : base(boundariesBoundariesRecipe, Axis.Y, ConvertAnchor(anchor))
+    public AnchoredVerticalBuilder(CellBuilder sourceBuilder, Vertical anchor)
+        : base(sourceBuilder, Axis.Y, ConvertAnchor(anchor))
     {
         //  TODO: placeholder, could probably do in base class
-        this.MyAxisRecipe.Alpha = new Pixels(0).Some<ILength>();
-        this.MyAxisRecipe.Beta = new Pixels(0).Some<ILength>();
+        this.AxisRecipe.Alpha = new Pixels(0).Some<ILength>();
+        this.AxisRecipe.Beta = new Pixels(0).Some<ILength>();
     }
     
-    public ICellComposer WithHeight(ILength width)
+    public IMinmimumViableCell WithHeight(ILength width)
     {
         this.SetLength(width);
-        return new CellComposer(this.BoundariesRecipe);
+        return this.CellBuilder;
     }
     
     private static Neutral ConvertAnchor(Vertical anchor)

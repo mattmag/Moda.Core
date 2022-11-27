@@ -1,24 +1,30 @@
-using Optional.Unsafe;
+// This file is part of the Moda.Core project.
+// 
+// This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+// If a copy of the MPL was not distributed with this file, You can obtain one at
+// https://mozilla.org/MPL/2.0/
 
 namespace Moda.Core.UI.Builders;
 
-public abstract class AnchoredAxisBuilder : ICellBuilder
+public abstract class AnchoredAxisBuilder
 {
-    public AnchoredAxisBuilder(BoundariesRecipe boundariesBoundariesRecipe, Axis axis, Neutral anchor)
+
+
+    public AnchoredAxisBuilder(CellBuilder cellBuilder, Axis axis, Neutral anchor)
     {
-        this.BoundariesRecipe = boundariesBoundariesRecipe;
+        this.CellBuilder = cellBuilder;
         this.Axis = axis;
-        this.MyAxisRecipe = boundariesBoundariesRecipe.GetAxisRecipe(axis);
+        this.AxisRecipe = cellBuilder.BoundariesRecipe.GetAxisRecipe(axis);
         this.Anchor = anchor;
         
         // TODO: set initial coordinates based on anchor
     }
     
     
+    public CellBuilder CellBuilder { get; }
     public Neutral Anchor { get; }
-    public BoundariesRecipe BoundariesRecipe { get; }
     public Axis Axis { get; }
-    public AxisRecipe MyAxisRecipe { get; }
+    public AxisRecipe AxisRecipe { get; }
     
     
     

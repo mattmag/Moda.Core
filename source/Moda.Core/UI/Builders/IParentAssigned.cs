@@ -6,7 +6,7 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IInitializeHorizontalAxis
+public interface IParentAssigned : IParentOrganizer, IInitializeHorizontalAxis
 {
-    AnchoredHorizontalBuilder AnchorAt(Horizontal anchor);
+    
 }
