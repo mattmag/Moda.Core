@@ -1,4 +1,4 @@
-using Moda.Core.Lengths;
+using Moda.Core.UI.Lengths;
 using Optional;
 
 namespace Moda.Core.UI.Builders;

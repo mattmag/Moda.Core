@@ -1,5 +1,5 @@
 using Moda.Core.Entity;
-using Moda.Core.Lengths;
+using Moda.Core.UI.Lengths;
 using Moda.Core.UI.Builders;
 using Moda.Core.Utility.Data;
 using Moda.Core.Utility.Geometry;

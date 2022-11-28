@@ -430,6 +430,13 @@ public static class Extensions
             collection.Add(item);
         }
     }
+    
+    public static IEnumerable<T> Except<T>(this IEnumerable<T> collection, T item)
+        where T : notnull
+    {
+        return collection.Where(a => !a.Equals(item));
+    }
+    
 
     // Stacks
     //----------------------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ public delegate void CollectionChangedHandler<TSender, TItem>(TSender sender,
 
 public class CollectionChangedArgs<T>
 {
+    // TODO: ugh, now I like itemsAdded second
     public CollectionChangedArgs(IEnumerable<T> itemsAdded, IEnumerable<T> itemsRemoved)
     {
         ItemsAdded = itemsAdded;
