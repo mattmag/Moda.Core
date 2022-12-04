@@ -19,11 +19,23 @@ public class Coordinate
 {
     //##############################################################################################
     //
+    //  Fields
+    //
+    //##############################################################################################
+    
+    private readonly Cell owningCell;
+    private readonly Axis axis;
+
+
+    //##############################################################################################
+    //
     //  Constructors
     //
     //##############################################################################################
-    public Coordinate(ICalculation calculation)
+    public Coordinate(Cell owningCell, Axis axis, ICalculation calculation)
     {
+        this.owningCell = owningCell;
+        this.axis = axis;
         this._calculation = calculation;
         InitializeCalculation(this._calculation);
     }
@@ -62,10 +74,7 @@ public class Coordinate
     /// </summary>
     public ICalculation Calculation
     {
-        get
-        {
-            return this._calculation;
-        }
+        get => this._calculation;
         set
         {
             if (this._calculation != value)
@@ -218,6 +227,7 @@ public class Coordinate
 
     private void InitializeCalculation(ICalculation calculable)
     {
+        calculable.Initialize(this.owningCell, this.axis);
         calculable.ValueInvalidated += OnCalculationOnValueInvalidated;
         calculable.PrerequisitesChanged += OnCalculationOnPrerequisitesChanged;
     }

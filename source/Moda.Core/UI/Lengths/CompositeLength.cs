@@ -5,12 +5,14 @@
 // https://mozilla.org/MPL/2.0/
 
 using Moda.Core.Utility.Data;
+using Optional;
 
 namespace Moda.Core.UI.Lengths;
 
 public abstract class CompositeLength  : Length
 {
 
+    
 
     //##############################################################################################
     //
@@ -20,11 +22,8 @@ public abstract class CompositeLength  : Length
     
     private HashSet<Length> _lengths = new();
     public IEnumerable<Length> Lengths => this._lengths;
+ 
     
-    
-    private HashSet<Coordinate> _prerequisites = new();
-    public override IEnumerable<Coordinate> Prerequisites => this._prerequisites;
-
 
     //##############################################################################################
     //
@@ -32,18 +31,7 @@ public abstract class CompositeLength  : Length
     //
     //##############################################################################################
     
-
-
-    protected void AddLength(Length length)
-    {
-        if (this._lengths.Add(length))
-        {
-            SyncPrerequisites();
-            length.ValueInvalidated += _ => RaiseValueInvalidated();
-            length.PrerequisitesChanged += LengthOnPrerequisitesChanged;
-        }
-    }
-
+    
 
     //##############################################################################################
     //
@@ -51,6 +39,26 @@ public abstract class CompositeLength  : Length
     //
     //##############################################################################################
     
+    protected override void OnInitialize(Cell owner, Axis axis)
+    {
+        foreach (Length length in this.Lengths)
+        {
+            length.Initialize(owner, axis);
+        }
+    }
+
+    protected void AddLength(Length length)
+    {
+        if (this._lengths.Add(length))
+        {
+            SyncPrerequisites();
+            this.Owner.MatchSome(owner => this.Axis.MatchSome(axis =>
+                length.Initialize(owner, axis)));
+            length.ValueInvalidated += _ => RaiseValueInvalidated();
+            length.PrerequisitesChanged += LengthOnPrerequisitesChanged;
+        }
+    }
+
 
     private void LengthOnPrerequisitesChanged(ICalculation sender,
         CollectionChangedArgs<Coordinate> args)
@@ -61,15 +69,11 @@ public abstract class CompositeLength  : Length
 
     private void SyncPrerequisites()
     {
-        Coordinate[] newPrereqs = this._lengths.SelectMany(a => a.Prerequisites).Distinct()
-            .ToArray();
-        Coordinate[] actuallyRemoved = this._prerequisites.Except(newPrereqs).ToArray();
-        Coordinate[] actuallyAdded = newPrereqs.Except(this._prerequisites).ToArray();
+        Coordinate[] newPrereqs = this._lengths.SelectMany(a => a.Prerequisites)
+            .Distinct().ToArray();
+        Coordinate[] actuallyRemoved = this.Prerequisites.Except(newPrereqs).ToArray();
+        Coordinate[] actuallyAdded = newPrereqs.Except(this.Prerequisites).ToArray();
 
-        if (actuallyRemoved.Any() || actuallyAdded.Any())
-        {
-            this._prerequisites = newPrereqs.ToHashSet();
-            RaisePrerequistesChanged(actuallyAdded, actuallyRemoved);
-        }
+        ModifyPrerequisites(actuallyAdded, actuallyRemoved);
     }
 }

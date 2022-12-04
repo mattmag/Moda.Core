@@ -4,6 +4,10 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
+using Moda.Core.UI.Lengths;
+using Optional;
+using Optional.Unsafe;
+
 namespace Moda.Core.UI.Builders;
 
 public abstract class AnchoredAxisBuilder
@@ -16,8 +20,6 @@ public abstract class AnchoredAxisBuilder
         this.Axis = axis;
         this.AxisRecipe = cellBuilder.BoundariesRecipe.GetAxisRecipe(axis);
         this.Anchor = anchor;
-        
-        // TODO: set initial coordinates based on anchor
     }
     
     
@@ -28,15 +30,18 @@ public abstract class AnchoredAxisBuilder
     
     
     
+    
+    
     protected void SetLength(Length length)
     {
         switch (this.Anchor)
         {
-            // TODO:
-            case Neutral.Alpha: 
-                // this.MyAxisRecipe.Beta = (this.MyAxisRecipe.Alpha.ValueOrFailure() + length).Some<Length>();
+            case Neutral.Alpha:
+                this.AxisRecipe.Alpha.Set(new Pixels(0));
+                this.AxisRecipe.Beta.Set(this.AxisRecipe.Alpha.Get() + length);
                 break;
             case Neutral.Center:
+                
                 // this.MyAxisRecipe.Alpha = (new CenterOfParent() - (length / 2)).Some<Length>();
                 // this.MyAxisRecipe.Beta = (new CenterOfParent() + (length / 2)).Some<Length>();
                 break;
@@ -48,9 +53,5 @@ public abstract class AnchoredAxisBuilder
         }
     }
 
-
-    // public CellBuilder FillRemaining()
-    // {
-    //     // TODO ...
-    // }
+    
 }

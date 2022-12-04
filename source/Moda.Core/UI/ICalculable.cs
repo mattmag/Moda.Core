@@ -10,6 +10,7 @@ namespace Moda.Core.UI;
 
 public interface ICalculation
 {
+    void Initialize(Cell owner, Axis axis);
     Single Calculate();
     public IEnumerable<Coordinate> Prerequisites { get; }
     event NotificationHandler<ICalculation>? ValueInvalidated;

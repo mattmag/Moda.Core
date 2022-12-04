@@ -29,11 +29,12 @@ public class Cell : TreeNode<Cell>
     //  Constructors
     //
     //##############################################################################################
-    public Cell(IHoneyComb hive, Boundary xBoundary, Boundary yBoundary)
+    public Cell(IHoneyComb hive, ICalculation xAlpha, ICalculation xBeta, ICalculation yAlpha,
+        ICalculation yBeta)
     {
         this.hive = hive;
-        this.XBoundary = xBoundary;
-        this.YBoundary = yBoundary;
+        this.XBoundary = new(this, Axis.X, xAlpha, xBeta);
+        this.YBoundary = new(this, Axis.Y, yAlpha, yBeta);
     }
     
     
@@ -94,6 +95,16 @@ public class Cell : TreeNode<Cell>
         return this.XBoundary.GetCoordinates().Concat(this.YBoundary.GetCoordinates());
     }
 
+
+    public Boundary GetBoundary(Axis axis)
+    {
+        return axis switch
+            {
+                Axis.X => this.XBoundary,
+                Axis.Y => this.YBoundary,
+                _ => throw new ArgumentException()
+            };
+    }
 
     // public void Kill()
     // {

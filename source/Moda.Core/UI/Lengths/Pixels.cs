@@ -30,8 +30,6 @@ public class Pixels : Length
         }
     }
 
-    public override IEnumerable<Coordinate> Prerequisites { get; } = Enumerable.Empty<Coordinate>();
-    
 
 
     public override Single Calculate()

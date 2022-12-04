@@ -52,16 +52,14 @@ public class CompositeLengthFixture<T> where T : CompositeLength
     [Test]
     public void PrerequisitesShouldBeAmalgamationOfComponentsPrerequisites()
     {
-        Coordinate prereqA1 = new(Mock.Of<ICalculation>());
-        Mock<Length> lengthA = new();
-        lengthA.Setup(a => a.Prerequisites).Returns(new[] { prereqA1 });
+        Coordinate prereqA1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        MockLength lengthA = new(new[] { prereqA1 });
             
-        Coordinate prereqB1 = new(Mock.Of<ICalculation>());
-        Coordinate prereqB2 = new(Mock.Of<ICalculation>());
-        Mock<Length> lengthB = new();
-        lengthB.Setup(a => a.Prerequisites).Returns(new[] { prereqB1, prereqB2 });
+        Coordinate prereqB1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        Coordinate prereqB2 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        MockLength lengthB = new(new[] { prereqB1, prereqB2 });
 
-        Length uut = this.factory(lengthA.Object, lengthB.Object);
+        Length uut = this.factory(lengthA, lengthB);
         uut.Prerequisites.Should().BeEquivalentTo(new[] { prereqA1, prereqB1, prereqB2 });
     }
     
@@ -69,16 +67,14 @@ public class CompositeLengthFixture<T> where T : CompositeLength
     [Test]
     public void PrerequisitesShouldBeDistinct()
     {
-        Coordinate prereqCommon = new(Mock.Of<ICalculation>());
-        Coordinate prereqA1 = new(Mock.Of<ICalculation>());
-        Mock<Length> lengthA = new();
-        lengthA.Setup(a => a.Prerequisites).Returns(new[] { prereqCommon, prereqA1 });
+        Coordinate prereqCommon = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        Coordinate prereqA1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        MockLength lengthA = new(new[] { prereqCommon, prereqA1 });
             
-        Coordinate prereqB1 = new(Mock.Of<ICalculation>());
-        Mock<Length> lengthB = new();
-        lengthB.Setup(a => a.Prerequisites).Returns(new[] { prereqCommon, prereqB1 });
+        Coordinate prereqB1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        MockLength lengthB = new(new[] { prereqCommon, prereqB1 });
 
-        Length uut = this.factory(lengthA.Object, lengthB.Object);
+        Length uut = this.factory(lengthA, lengthB);
         uut.Prerequisites.Should().BeEquivalentTo(new[] { prereqA1, prereqB1, prereqCommon });
     }
     
@@ -86,8 +82,8 @@ public class CompositeLengthFixture<T> where T : CompositeLength
     [Test]
     public void PrerequisitesChangedShouldBeForwardedWithArgs()
     {
-        Coordinate prereqA = new(Mock.Of<ICalculation>());
-        Coordinate prereqB = new(Mock.Of<ICalculation>());
+        Coordinate prereqA = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        Coordinate prereqB = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
 
         MockLength lengthA = new();
         MockLength lengthB = new(new [] { prereqB });
@@ -95,7 +91,7 @@ public class CompositeLengthFixture<T> where T : CompositeLength
         Length uut = this.factory(lengthA, lengthB);
         using IMonitor<Length> monitor = uut.Monitor();
         
-        lengthA.PrerequisitesList.Add(prereqA);
+        lengthA.AddPrerequisite(prereqA);
         lengthA.RaisePrerequisitesChanged(new[] { prereqA }, Enumerable.Empty<Coordinate>());
         
         monitor.Should().Raise(nameof(Length.PrerequisitesChanged))
@@ -106,7 +102,7 @@ public class CompositeLengthFixture<T> where T : CompositeLength
                     a.ItemsRemoved.Should().BeEmpty();
                 });
 
-        lengthB.PrerequisitesList.Remove(prereqB);
+        lengthB.RemovePrerequisite(prereqB);
         lengthB.RaisePrerequisitesChanged(Enumerable.Empty<Coordinate>(), new[] { prereqB });
         
         monitor.Should().Raise(nameof(Length.PrerequisitesChanged))
@@ -122,19 +118,19 @@ public class CompositeLengthFixture<T> where T : CompositeLength
     [Test]
     public void PrerequisitesShouldReflectComponentPrerequisiteChanged()
     {
-        Coordinate prereqA1 = new(Mock.Of<ICalculation>());
-        Coordinate prereqA2 = new(Mock.Of<ICalculation>());
+        Coordinate prereqA1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        Coordinate prereqA2 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         MockLength lengthA = new(new[] { prereqA1, prereqA2 });
             
-        Coordinate prereqB1 = new(Mock.Of<ICalculation>());
-        Coordinate prereqB2 = new(Mock.Of<ICalculation>());
+        Coordinate prereqB1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
+        Coordinate prereqB2 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         MockLength lengthB = new(new [] { prereqB1 });
 
         Length uut = this.factory(lengthA, lengthB);
 
-        lengthA.PrerequisitesList.Remove(prereqA2);
+        lengthA.RemovePrerequisite(prereqA2);
         lengthA.RaisePrerequisitesChanged(Enumerable.Empty<Coordinate>(), new [] { prereqA2 });
-        lengthB.PrerequisitesList.Add(prereqB2);
+        lengthB.AddPrerequisite(prereqB2);
         lengthB.RaisePrerequisitesChanged(new [] { prereqB2 }, Enumerable.Empty<Coordinate>());
         
         uut.Prerequisites.Should().BeEquivalentTo(new[] { prereqA1, prereqB1, prereqB2 });
@@ -144,23 +140,23 @@ public class CompositeLengthFixture<T> where T : CompositeLength
     [Test]
     public void PrerequisitesShouldAccountForChangesToCommonPrerequisites()
     {
-        Coordinate commonPrereq = new(Mock.Of<ICalculation>());
+        Coordinate commonPrereq = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         
-        Coordinate prereqA1 = new(Mock.Of<ICalculation>());
+        Coordinate prereqA1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         MockLength lengthA = new(new[] { commonPrereq, prereqA1 });
             
-        Coordinate prereqB1 = new(Mock.Of<ICalculation>());
+        Coordinate prereqB1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         MockLength lengthB = new(new[] { prereqB1 });
 
         Length uut = this.factory(lengthA, lengthB);
         using IMonitor<Length> monitor = uut.Monitor();
         
-        lengthB.PrerequisitesList.Add(commonPrereq);
+        lengthB.AddPrerequisite(commonPrereq);
         lengthB.RaisePrerequisitesChanged(new[] { commonPrereq }, Enumerable.Empty<Coordinate>());
         
         monitor.Should().NotRaise(nameof(Length.PrerequisitesChanged));
         
-        lengthA.PrerequisitesList.Remove(commonPrereq);
+        lengthA.RemovePrerequisite(commonPrereq);
         lengthA.RaisePrerequisitesChanged(Enumerable.Empty<Coordinate>(), new [] { commonPrereq });
         
         monitor.Should().NotRaise(nameof(Length.PrerequisitesChanged));
@@ -170,27 +166,32 @@ public class CompositeLengthFixture<T> where T : CompositeLength
     [Test]
     public void PrerequisitesChangedShouldAccountForChangesToCommonPrerequisites()
     {
-        Coordinate commonPrereq = new(Mock.Of<ICalculation>());
+        Coordinate commonPrereq = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         
-        Coordinate prereqA1 = new(Mock.Of<ICalculation>());
+        Coordinate prereqA1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         MockLength lengthA = new(new[] { prereqA1 });
             
-        Coordinate prereqB1 = new(Mock.Of<ICalculation>());
+        Coordinate prereqB1 = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         MockLength lengthB = new(new[] { prereqB1 });
 
         Length uut = this.factory(lengthA, lengthB);
         
-        lengthB.PrerequisitesList.Add(commonPrereq);
+        lengthB.AddPrerequisite(commonPrereq);
         lengthB.RaisePrerequisitesChanged(new [] { commonPrereq }, Enumerable.Empty<Coordinate>());
         
         uut.Prerequisites.Should().BeEquivalentTo(new[] { commonPrereq, prereqA1, prereqB1 });
         
-        lengthA.PrerequisitesList.Remove(commonPrereq);
+        lengthA.RemovePrerequisite(commonPrereq);
         lengthA.RaisePrerequisitesChanged(Enumerable.Empty<Coordinate>(), new [] { commonPrereq });
         
         uut.Prerequisites.Should().BeEquivalentTo(new[] { commonPrereq, prereqA1, prereqB1 });
     }
 
+    
+    // Support
+    //----------------------------------------------------------------------------------------------
+    private static Cell GetMockedCell() => new(Mock.Of<IHoneyComb>(), Mock.Of<ICalculation>(),
+        Mock.Of<ICalculation>(), Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
 
     public class MockLength : Length
     {
@@ -201,7 +202,7 @@ public class CompositeLengthFixture<T> where T : CompositeLength
         
         public MockLength(IEnumerable<Coordinate> prereqs)
         {
-            this.PrerequisitesList.AddRange(prereqs);
+            ModifyPrerequisites(prereqs, Enumerable.Empty<Coordinate>());
         }
 
 
@@ -217,9 +218,15 @@ public class CompositeLengthFixture<T> where T : CompositeLength
         }
 
 
-        public readonly List<Coordinate> PrerequisitesList = new();
-        public override IEnumerable<Coordinate> Prerequisites => this.PrerequisitesList;
-
+        public void AddPrerequisite(Coordinate coordinate)
+        {
+            ModifyPrerequisites(new[] { coordinate }, Enumerable.Empty<Coordinate>());
+        }
+        
+        public void RemovePrerequisite(Coordinate coordinate)
+        {
+            ModifyPrerequisites(Enumerable.Empty<Coordinate>(), new[] { coordinate });
+        }
 
         public void RaisePrerequisitesChanged(IEnumerable<Coordinate> added,
             IEnumerable<Coordinate> removed)

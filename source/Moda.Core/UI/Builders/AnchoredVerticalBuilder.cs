@@ -14,9 +14,7 @@ public class AnchoredVerticalBuilder : AnchoredAxisBuilder
     public AnchoredVerticalBuilder(CellBuilder sourceBuilder, Vertical anchor)
         : base(sourceBuilder, Axis.Y, ConvertAnchor(anchor))
     {
-        //  TODO: placeholder, could probably do in base class
-        this.AxisRecipe.Alpha = new Pixels(0).Some<Length>();
-        this.AxisRecipe.Beta = new Pixels(0).Some<Length>();
+        
     }
     
     public IMinmimumViableCell WithHeight(Length width)

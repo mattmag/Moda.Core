@@ -729,7 +729,6 @@ public class HiveTests
         private readonly Func<Int32> getCallOrder;
         private Int32 calculateCallCount;
         private readonly List<Int32> calculateCallOrders = new();
-        private readonly List<Coordinate> prerequisites = new();
 
 
         public MockLength() : this(String.Empty, () => -1)
@@ -749,23 +748,16 @@ public class HiveTests
         
         public IEnumerable<Int32> CalculateCallOrders => this.calculateCallOrders;
 
-
-        public override IEnumerable<Coordinate> Prerequisites => this.prerequisites;
-
+        
         
         public void AddPrerequisites(params Coordinate[] prereqs)
         {
-            this.prerequisites.AddRange(prereqs);
-            RaisePrerequistesChanged(prereqs, Enumerable.Empty<Coordinate>());
+            ModifyPrerequisites(prereqs, Enumerable.Empty<Coordinate>());;
         }
         
         public void RemovePrerequisite(params Coordinate[] prereqs)
         {
-            foreach (Coordinate prereq in prereqs)
-            {
-                this.prerequisites.Remove(prereq);
-            }
-            RaisePrerequistesChanged(Enumerable.Empty<Coordinate>(),  prereqs );
+            ModifyPrerequisites(Enumerable.Empty<Coordinate>(), prereqs);
         }
         
 
@@ -849,20 +841,12 @@ public class HiveTests
             this.XBeta = new($"{debugName}.X.Beta.", getCallOrder);
             this.YAlpha = new($"{debugName}.Y.Alpha", getCallOrder);
             this.YBeta = new($"{debugName}.Y.Beta.", getCallOrder);
-            
-            this.BoundariesRecipe = new()
-                {
-                    XBoundary =
-                        {
-                            Alpha = this.XAlpha.Some<Length>(),
-                            Beta = this.XBeta.Some<Length>(),
-                        },
-                    YBoundary =
-                        {
-                            Alpha = this.YAlpha.Some<Length>(),
-                            Beta = this.YBeta.Some<Length>(),
-                        },
-                };
+
+            this.BoundariesRecipe = new();
+            this.BoundariesRecipe.XBoundary.Alpha.Set(this.XAlpha);
+            this.BoundariesRecipe.XBoundary.Beta.Set(this.XBeta);
+            this.BoundariesRecipe.YBoundary.Alpha.Set(this.YAlpha);
+            this.BoundariesRecipe.YBoundary.Beta.Set(this.YBeta);
 
             this.CompositionRecipe = new();
             this.CompositionRecipe.Parent.Set(parent);

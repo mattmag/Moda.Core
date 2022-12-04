@@ -21,7 +21,8 @@ public class BoundaryTests
     [Test]
     public void RelativeRangeShouldReturnNoneIfBothAbsoluteCoordinatesAreNone()
     {
-        Boundary boundary = new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         boundary.RelativeRange.Should().Be(Option.None<RangeF>());
     }
     
@@ -31,7 +32,8 @@ public class BoundaryTests
         Mock<ICalculation> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new(Mock.Of<ICalculation>(), lengthB.Object);
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            Mock.Of<ICalculation>(), lengthB.Object);
         
         boundary.BetaCoordinate.Calculate();
         
@@ -44,7 +46,8 @@ public class BoundaryTests
         Mock<ICalculation> lengthA = new();
         lengthA.Setup(a => a.Calculate()).Returns(3.5f);
 
-        Boundary boundary = new(lengthA.Object, Mock.Of<ICalculation>());
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            lengthA.Object, Mock.Of<ICalculation>());
         
         boundary.AlphaCoordinate.Calculate();
         
@@ -60,7 +63,8 @@ public class BoundaryTests
         Mock<ICalculation> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(10.5f);
 
-        Boundary boundary = new(lengthA.Object, lengthB.Object);
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            lengthA.Object, lengthB.Object);
         
         boundary.AlphaCoordinate.Calculate();
         boundary.BetaCoordinate.Calculate();
@@ -75,7 +79,8 @@ public class BoundaryTests
     [Test]
     public void AbsoluteRangeShouldReturnNoneIfBothAbsoluteCoordinatesAreNone()
     {
-        Boundary boundary = new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         boundary.AbsoluteRange.Should().Be(Option.None<RangeF>());
     }
     
@@ -85,7 +90,8 @@ public class BoundaryTests
         Mock<ICalculation> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new(Mock.Of<ICalculation>(), lengthB.Object)
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            Mock.Of<ICalculation>(), lengthB.Object)
         {
             BetaCoordinate =
             {
@@ -104,7 +110,8 @@ public class BoundaryTests
         Mock<ICalculation> lengthA = new();
         lengthA.Setup(a => a.Calculate()).Returns(3.5f);
         
-        Boundary boundary = new(lengthA.Object, Mock.Of<ICalculation>())
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            lengthA.Object, Mock.Of<ICalculation>())
         {
             AlphaCoordinate =
             {
@@ -126,7 +133,8 @@ public class BoundaryTests
         Mock<ICalculation> lengthB = new();
         lengthB.Setup(a => a.Calculate()).Returns(10.5f);
         
-        Boundary boundary = new(lengthA.Object, lengthB.Object)
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            lengthA.Object, lengthB.Object)
         {
             AlphaCoordinate =
             {
@@ -151,11 +159,17 @@ public class BoundaryTests
     [Test]
     public void GetCoordinatesShouldReturnAlphaAndBeta()
     {
-        Boundary boundary = new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         boundary.GetCoordinates().Should()
             .BeEquivalentTo(new[] { boundary.AlphaCoordinate, boundary.BetaCoordinate },
                 a => a.WithStrictOrdering());
     }
     
+    // Support
+    //----------------------------------------------------------------------------------------------
+    private static Cell GetMockedCell() => new(Mock.Of<IHoneyComb>(), Mock.Of<ICalculation>(),
+        Mock.Of<ICalculation>(), Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+
     
 }

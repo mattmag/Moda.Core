@@ -6,6 +6,7 @@
 
 using Moda.Core.UI.Lengths;
 using Moda.Core.Utility.Data;
+using Optional;
 
 namespace Moda.Core.UI;
 
@@ -48,17 +49,62 @@ public abstract class Length : ICalculation
         Product.Divide(constant, length);
 
 
+    public void Initialize(Cell owner, Axis axis)
+    {
+        this.Owner = owner.Some();
+        this.Axis = axis.Some();
+        OnInitialize(owner, axis);
+    }
+
+
+    public Option<Axis> Axis { get; private set; }
     
+    public Option<Cell> Owner { get; private set; }
+
     public abstract Single Calculate();
 
-    public abstract IEnumerable<Coordinate> Prerequisites { get; }
+    private HashSet<Coordinate> _prerequisites = new();
+    public IEnumerable<Coordinate> Prerequisites => this._prerequisites;
     
     public event NotificationHandler<ICalculation>? ValueInvalidated;
 
 
+    protected virtual void OnInitialize(Cell owner, Axis axis)
+    {
+        
+    }
+    
     protected void RaiseValueInvalidated()
     {
         this.ValueInvalidated?.Invoke(this);
+    }
+
+
+    protected void ModifyPrerequisites(IEnumerable<Coordinate> add, IEnumerable<Coordinate> remove)
+    {
+        HashSet<Coordinate> actuallyAdded = new();
+        HashSet<Coordinate> actuallyRemoved = new();
+
+        foreach (Coordinate coordinate in remove.Except(add))
+        {
+            if (this._prerequisites.Remove(coordinate))
+            {
+                actuallyRemoved.Add(coordinate);
+            }
+        }
+        
+        foreach (Coordinate coordinate in add)
+        {
+            if (this._prerequisites.Add(coordinate))
+            {
+                actuallyAdded.Add(coordinate);
+            }
+        }
+        
+        if (actuallyRemoved.Any() || actuallyAdded.Any())
+        {
+            RaisePrerequistesChanged(actuallyAdded, actuallyRemoved);
+        }
     }
     
     public event CollectionChangedHandler<ICalculation, Coordinate>? PrerequisitesChanged;

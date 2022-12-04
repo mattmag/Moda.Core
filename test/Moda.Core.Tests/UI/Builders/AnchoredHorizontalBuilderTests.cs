@@ -29,7 +29,7 @@ public class AnchoredHorizontalBuilderTests
         AnchoredHorizontalBuilder axisBuilder = new(cellBuilder, anchor);
         return axisBuilder.Anchor;
     }
-
+    
 
     // WithWidth() Tests
     //----------------------------------------------------------------------------------------------
@@ -43,12 +43,10 @@ public class AnchoredHorizontalBuilderTests
         axisBuilder.WithWidth(new Pixels(200));
 
         AxisRecipe axisRecipe = cellBuilder.BoundariesRecipe.GetAxisRecipe(Axis.X);
-        Option<Length> alpha = axisRecipe.Alpha;
-        alpha.HasValue.Should().BeTrue();
-        alpha.ValueOrFailure().Calculate().Should().Be(0);
-        
-        Option<Length> beta = axisRecipe.Beta;
-        beta.HasValue.Should().BeTrue();
-        beta.ValueOrFailure().Calculate().Should().Be(200);
+        axisRecipe.Alpha.Get().Calculate().Should().Be(0);
+        axisRecipe.Beta.Get().Calculate().Should().Be(200);
     }
+
+
+  
 }

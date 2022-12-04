@@ -107,19 +107,13 @@ public class Hive : IHoneyComb
 
     private Cell CreateRoot()
     {
-        Cell root = BuildCell(new()
-            {
-                XBoundary =
-                {
-                    Alpha = new Pixels(0).Some<Length>(),
-                    Beta = this.rootWidth.Some<Length>(),
-                },
-                YBoundary =
-                {
-                    Alpha = new Pixels(0).Some<Length>(),
-                    Beta = this.rootHeight.Some<Length>(),
-                },
-            });
+        var boundaries = new BoundariesRecipe();
+        boundaries.XBoundary.Alpha.Set(new Pixels(0));
+        boundaries.XBoundary.Beta.Set(this.rootWidth);
+        boundaries.YBoundary.Alpha.Set(new Pixels(0));
+        boundaries.YBoundary.Beta.Set(this.rootHeight);
+        
+        Cell root = BuildCell(boundaries);
         root.DebugName = "root";
         foreach (Coordinate coordinate in root.GetCoordinates())
         {
@@ -214,9 +208,8 @@ public class Hive : IHoneyComb
     private Cell BuildCell(BoundariesRecipe recipe)
     {
         Cell cell = new(this,
-            new(recipe.XBoundary.Alpha.ValueOrFailure(), recipe.XBoundary.Beta.ValueOrFailure()),
-            new(recipe.YBoundary.Alpha.ValueOrFailure(), recipe.YBoundary.Beta.ValueOrFailure())
-        );
+            recipe.XBoundary.Alpha.Get(), recipe.XBoundary.Beta.Get(),
+            recipe.YBoundary.Alpha.Get(), recipe.YBoundary.Beta.Get());
         return cell;
     }
 

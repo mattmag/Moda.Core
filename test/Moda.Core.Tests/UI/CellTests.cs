@@ -35,8 +35,8 @@ public class CellTests
         yAlphaLength.Setup(a => a.Calculate()).Returns(yLength);
         
         Cell parent = new(Mock.Of<IHoneyComb>(),
-            new(xAlphaLength.Object, Mock.Of<ICalculation>()),
-            new(yAlphaLength.Object, Mock.Of<ICalculation>()));
+            xAlphaLength.Object, Mock.Of<ICalculation>(),
+            yAlphaLength.Object, Mock.Of<ICalculation>());
         parent.XBoundary.AlphaCoordinate.Tare = xTare.Some();
         parent.XBoundary.AlphaCoordinate.Calculate();
         
@@ -44,8 +44,8 @@ public class CellTests
         parent.YBoundary.AlphaCoordinate.Calculate();
         
         Cell child = new(Mock.Of<IHoneyComb>(),
-            new(Mock.Of<ICalculation>(),Mock.Of<ICalculation>()),
-            new(Mock.Of<ICalculation>(),Mock.Of<ICalculation>()));
+            Mock.Of<ICalculation>(),Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(),Mock.Of<ICalculation>());
         
         parent.AppendChild(child);
         
@@ -76,8 +76,8 @@ public class CellTests
         yAlphaLength.Setup(a => a.Calculate()).Returns(yLength);
         
         Cell parent = new(Mock.Of<IHoneyComb>(),
-            new(xAlphaLength.Object, Mock.Of<ICalculation>()),
-            new(yAlphaLength.Object, Mock.Of<ICalculation>()));
+            xAlphaLength.Object, Mock.Of<ICalculation>(),
+            yAlphaLength.Object, Mock.Of<ICalculation>());
         parent.XBoundary.AlphaCoordinate.Tare = xTare.Some();
         parent.XBoundary.AlphaCoordinate.Calculate();
         
@@ -85,8 +85,8 @@ public class CellTests
         parent.YBoundary.AlphaCoordinate.Calculate();
         
         Cell child = new(Mock.Of<IHoneyComb>(),
-            new(Mock.Of<ICalculation>(),Mock.Of<ICalculation>()),
-            new(Mock.Of<ICalculation>(),Mock.Of<ICalculation>()));
+            Mock.Of<ICalculation>(),Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(),Mock.Of<ICalculation>());
         
         parent.AppendChild(child);
         
@@ -105,8 +105,8 @@ public class CellTests
     public void CreateChildShouldAppendToChildren()
     {
         Cell cell = new(new Hive(Mock.Of<IEntityManager>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()));
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         Cell child = cell.CreateChild(a => a
             .AnchorAt(Horizontal.Left)
             .WithWidth(Mock.Of<Length>())
@@ -119,8 +119,8 @@ public class CellTests
     public void CreateChildShouldInsertChildrenAfterPeer()
     {
         Cell cell = new(new Hive(Mock.Of<IEntityManager>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()));
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         
         Cell childA = cell.CreateChild(a => a
             .AnchorAt(Horizontal.Left)
@@ -155,8 +155,8 @@ public class CellTests
     public void CreateChildShouldInsertChildrenBeforePeer()
     {
         Cell cell = new(new Hive(Mock.Of<IEntityManager>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()));
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         
         Cell childA = cell.CreateChild(a => a
             .AnchorAt(Horizontal.Left)
@@ -190,8 +190,8 @@ public class CellTests
     public void CreateChildShouldInsertChildrenAtIndex()
     {
         Cell cell = new(new Hive(Mock.Of<IEntityManager>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()));
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         
         Cell childA = cell.CreateChild(a => a
             .AnchorAt(Horizontal.Left)
@@ -228,8 +228,8 @@ public class CellTests
     public void GetCoordinatesShouldReturnAllCoordinates()
     {
         Cell cell = new(Mock.Of<IHoneyComb>(),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()));
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         cell.GetCoordinates().Should()
             .BeEquivalentTo(new[]
                     {
@@ -246,8 +246,8 @@ public class CellTests
     public void SetDebugNameShouldSetCoordinateDebugNames()
     {
         Cell cell = new(Mock.Of<IHoneyComb>(),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()),
-            new(Mock.Of<ICalculation>(), Mock.Of<ICalculation>()));
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         cell.DebugName = "TestCell";
         cell.DebugName.Should().Be("TestCell");
         cell.XBoundary.AlphaCoordinate.DebugName.Should().Be("TestCell.X.Alpha");

@@ -14,9 +14,7 @@ public class AnchoredHorizontalBuilder : AnchoredAxisBuilder
     public AnchoredHorizontalBuilder(CellBuilder cellBuilder, Horizontal anchor)
         : base(cellBuilder, Axis.X, ConvertAnchor(anchor))
     {
-        //  TODO: placeholder
-        this.AxisRecipe.Alpha = new Pixels(0).Some<Length>();
-        this.AxisRecipe.Beta = new Pixels(0).Some<Length>();
+        
     }
 
 

@@ -24,13 +24,14 @@ public class Boundary
     /// <summary>
     ///     Initializes a new <see cref="Boundary"/> instance.
     /// </summary>
-    public Boundary(ICalculation alphaCalculation, ICalculation betaCalculation)
+    public Boundary(Cell owningCell, Axis axis, ICalculation alphaCalculation,
+        ICalculation betaCalculation)
     {
-        this.AlphaCoordinate = new(alphaCalculation);
+        this.AlphaCoordinate = new(owningCell, axis, alphaCalculation);
         this.AlphaCoordinate.RelativeValueChanged += (_, _) => UpdateSecondaryRelativeValues();
         this.AlphaCoordinate.AbsoluteValueChanged += (_, _) => UpdateSecondaryAbsoluteValues();
 
-        this.BetaCoordinate = new(betaCalculation);
+        this.BetaCoordinate = new(owningCell, axis, betaCalculation);
         this.BetaCoordinate.RelativeValueChanged += (_, _) => UpdateSecondaryRelativeValues();
         this.BetaCoordinate.AbsoluteValueChanged += (_, _) => UpdateSecondaryAbsoluteValues();
     }

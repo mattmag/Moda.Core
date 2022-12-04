@@ -70,4 +70,5 @@ public class Product : Arithmetic
         sum.AddOperation(DIVIDE);
         return sum;
     }
+
 }

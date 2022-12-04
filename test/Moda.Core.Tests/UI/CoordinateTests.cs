@@ -17,6 +17,21 @@ namespace Moda.Core.Tests.UI;
 
 public class CoordinateTests
 {
+    // Constructor Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    [TestCase(Axis.X)]
+    [TestCase(Axis.Y)]
+    public void ConstructorShouldInitializeCalculation(Axis axis)
+    {
+        Mock<ICalculation> calculable = new();
+        Cell owner = GetMockedCell();
+        Coordinate coordinate = new(owner, axis, calculable.Object);
+        calculable.Verify(a => a.Initialize(It.Is<Cell>(b => b == owner),
+            It.Is<Axis>(b => b == axis)));
+    }
+    
     // RelativeValue Tests
     //----------------------------------------------------------------------------------------------
     
@@ -26,7 +41,7 @@ public class CoordinateTests
         Mock<ICalculation> calculable = new();
         calculable.Setup(a => a.Calculate()).Returns(4.3f);
 
-        Coordinate coordinate = new(calculable.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object);
         coordinate.Calculate();
 
         coordinate.RelativeValue.Should().Be(4.3f.Some());
@@ -39,7 +54,7 @@ public class CoordinateTests
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
         calculable.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new(calculable.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object);
         coordinate.Calculate();
         lengthValue = 7;
         
@@ -59,7 +74,7 @@ public class CoordinateTests
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
         calculable.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new(calculable.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object);
         coordinate.Calculate();
 
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
@@ -74,7 +89,7 @@ public class CoordinateTests
     [Test]
     public void AbsoluteValueShouldReturnNoneIfRelativeIsNone()
     {
-        Coordinate coordinate = new(Mock.Of<ICalculation>())
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>())
             {
                 Tare = 2.3f.Some(),
             };
@@ -87,7 +102,7 @@ public class CoordinateTests
         Mock<ICalculation> calculable = new();
         calculable.Setup(a => a.Calculate()).Returns(6.1f);
 
-        Coordinate coordinate = new(calculable.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object);
         coordinate.Calculate();
         coordinate.AbsoluteValue.Should().Be(Option.None<Single>());
     }
@@ -99,7 +114,7 @@ public class CoordinateTests
         Mock<ICalculation> calculable = new();
         calculable.Setup(a => a.Calculate()).Returns(6.1f);
         
-        Coordinate coordinate = new(calculable.Object)
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object)
             {
                 Tare = 2.5f.Some(),
             };
@@ -116,7 +131,7 @@ public class CoordinateTests
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
         calculable.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new(calculable.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object);
         coordinate.Tare = 2f.Some();
         coordinate.Calculate();
         lengthValue = 7;
@@ -136,7 +151,7 @@ public class CoordinateTests
         Single lengthValue = 4;
         // ReSharper disable once AccessToModifiedClosure
         calculable.Setup(a => a.Calculate()).Returns(() => lengthValue);
-        Coordinate coordinate = new(calculable.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object);
         coordinate.Tare = 2f.Some();
         coordinate.Calculate();
 
@@ -155,7 +170,7 @@ public class CoordinateTests
         Mock<ICalculation> calculable = new();
         calculable.Setup(a => a.Calculate()).Returns(6.1f);
         
-        Coordinate coordinate = new(calculable.Object)
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object)
             {
                 Tare = 2.5f.Some(),
             };
@@ -170,7 +185,7 @@ public class CoordinateTests
     [Test]
     public void ChangeToTareShouldFireEvent()
     {
-        Coordinate coordinate = new(Mock.Of<ICalculation>());
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, Mock.Of<ICalculation>());
         
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
         coordinate.Tare = 8f.Some();
@@ -188,7 +203,7 @@ public class CoordinateTests
     public void ValueInvalidatedFromCalculationShouldForward()
     {
         Mock<ICalculation> calculable = new();
-        Coordinate coordinate = new(calculable.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object);
         
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
         
@@ -202,18 +217,19 @@ public class CoordinateTests
     public void PrerequisitesChangedFromCalculationShouldForward()
     {
         Mock<ICalculation> calculable = new();
-        Coordinate coordinate = new(calculable.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable.Object);
         
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
 
         CollectionChangedArgs<Coordinate> args = new(
             new []
             {
-                new Coordinate(Mock.Of<ICalculation>())
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>())
             },
             new []
             {
-                new Coordinate(Mock.Of<ICalculation>()), new Coordinate(Mock.Of<ICalculation>())
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>()),
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>())
             });
     
         calculable.Raise(a => a.PrerequisitesChanged += null, calculable.Object, args);
@@ -232,7 +248,7 @@ public class CoordinateTests
     {
         ICalculation calculable1 = Mock.Of<ICalculation>();
         ICalculation calculable2 = Mock.Of<ICalculation>();
-        Coordinate coordinate = new(calculable1);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable1);
         
         coordinate.Calculation = calculable2;
 
@@ -244,7 +260,7 @@ public class CoordinateTests
     {
         ICalculation calculable1 = Mock.Of<ICalculation>();
         ICalculation calculable2 = Mock.Of<ICalculation>();
-        Coordinate coordinate = new(calculable1);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable1);
         
         
         using IMonitor<Coordinate>? monitor = coordinate.Monitor();
@@ -265,7 +281,7 @@ public class CoordinateTests
     {
         ICalculation calculable1 = Mock.Of<ICalculation>();
         Mock<ICalculation> calculable2 = new();
-        Coordinate coordinate = new(calculable1);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable1);
         
         coordinate.Calculation = calculable2.Object;
 
@@ -284,7 +300,7 @@ public class CoordinateTests
     {
         ICalculation calculable1 = Mock.Of<ICalculation>();
         Mock<ICalculation> calculable2 = new();
-        Coordinate coordinate = new(calculable1);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable1);
         
         coordinate.Calculation = calculable2.Object;
         
@@ -293,11 +309,12 @@ public class CoordinateTests
         CollectionChangedArgs<Coordinate> args = new(
             new []
             {
-                new Coordinate(Mock.Of<ICalculation>())
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>())
             },
             new []
             {
-                new Coordinate(Mock.Of<ICalculation>()), new Coordinate(Mock.Of<ICalculation>())
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>()),
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>())
             });
     
         calculable2.Raise(a => a.PrerequisitesChanged += null, calculable2.Object, args);
@@ -312,7 +329,7 @@ public class CoordinateTests
     {
         Mock<ICalculation> calculable1 = new();
         Mock<ICalculation> calculable2 = new();
-        Coordinate coordinate = new(calculable1.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable1.Object);
         
         coordinate.Calculation = calculable2.Object;
 
@@ -330,7 +347,7 @@ public class CoordinateTests
     {
         Mock<ICalculation> calculable1 = new();
         Mock<ICalculation> calculable2 = new();
-        Coordinate coordinate = new(calculable1.Object);
+        Coordinate coordinate = new(GetMockedCell(), Axis.X, calculable1.Object);
         
         coordinate.Calculation = calculable2.Object;
         
@@ -339,16 +356,40 @@ public class CoordinateTests
         CollectionChangedArgs<Coordinate> args = new(
             new []
             {
-                new Coordinate(Mock.Of<ICalculation>())
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>())
             },
             new []
             {
-                new Coordinate(Mock.Of<ICalculation>()), new Coordinate(Mock.Of<ICalculation>())
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>()),
+                new Coordinate(GetMockedCell(), Axis.X, Mock.Of<ICalculation>())
             });
     
         calculable1.Raise(a => a.PrerequisitesChanged += null, calculable1, args);
 
         monitor.Should().NotRaise(nameof(Coordinate.PrerequisitesChanged));
     }
+
+    
+    [Test]
+    [TestCase(Axis.X)]
+    [TestCase(Axis.Y)]
+    public void SetCalculationShouldInitializeNewValue(Axis axis)
+    {
+        Cell owner = GetMockedCell();
+        Coordinate coordinate = new(owner, axis, Mock.Of<ICalculation>());
+        
+        Mock<ICalculation> calculable = new();
+        coordinate.Calculation = calculable.Object;
+        calculable.Verify(a => a.Initialize(It.Is<Cell>(b => b == owner),
+            It.Is<Axis>(b => b == axis)));
+    }
+
+    
+
+
+    // Support
+    //----------------------------------------------------------------------------------------------
+    private static Cell GetMockedCell() => new(Mock.Of<IHoneyComb>(), Mock.Of<ICalculation>(),
+        Mock.Of<ICalculation>(), Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
     
 }
