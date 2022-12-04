@@ -17,7 +17,7 @@ public record OperationSet3(Single A, Single B, Single C, Single Result)
 
 
 public abstract class ArithmeticSecondaryOpParams<TArithmetic, TArg3>
-    : ArithmeticBaseParams<TArithmetic, ILength, ILength>
+    : ArithmeticBaseParams<TArithmetic, Length, Length>
 {
     private readonly OperationSet3 updatedSet;
 
@@ -33,7 +33,7 @@ public abstract class ArithmeticSecondaryOpParams<TArithmetic, TArg3>
     public new void ChangeLengths()
     {
         base.ChangeLengths();
-        if (Arg3 is ILength mockC)
+        if (Arg3 is Length mockC)
         {
             Mock.Get(mockC).Setup(a => a.Calculate()).Returns(this.updatedSet.C);
         }

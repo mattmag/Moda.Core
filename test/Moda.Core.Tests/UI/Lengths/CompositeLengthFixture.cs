@@ -21,89 +21,84 @@ namespace Moda.Core.Tests.UI.Lengths;
 
 [TestFixture(typeof(Sum), nameof(Sum.Add))]
 [TestFixture(typeof(Sum), nameof(Sum.Subtract))]
+[TestFixture(typeof(Product), nameof(Product.Multiply))]
+[TestFixture(typeof(Product), nameof(Product.Divide))]
 public class CompositeLengthFixture<T> where T : CompositeLength
 {
-    private Func<ILength, ILength, T> factory;
+    private Func<Length, Length, T> factory;
     public CompositeLengthFixture(String nameOfFactoryMethod)
     {
         this.factory = (typeof(T).GetMethod(nameOfFactoryMethod,
-                    new[] { typeof(ILength), typeof(ILength) })
+                    new[] { typeof(Length), typeof(Length) })
                 ?? throw new MissingMethodException())
-            .CreateDelegate<Func<ILength, ILength, T>>();
+            .CreateDelegate<Func<Length, Length, T>>();
     }
         
     [Test]
     public void ValueInvalidatedShouldForwarded()
     {
-        Mock<ILength> lengthA = new();
-        Mock<ILength> lengthB = new();
-        ILength uut = this.factory(lengthA.Object, lengthB.Object);
-        using IMonitor<ILength> monitor = uut.Monitor();
+        MockLength lengthA = new();
+        Mock<Length> lengthB = new();
+        Length uut = this.factory(lengthA, lengthB.Object);
+        using IMonitor<Length> monitor = uut.Monitor();
         
-        lengthA.Raise(a => a.ValueInvalidated += null, lengthA.Object);
+        lengthA.RaiseInvalidate();
         
-        monitor.Should().Raise(nameof(ILength.ValueInvalidated))
+        monitor.Should().Raise(nameof(Length.ValueInvalidated))
             .WithSender(uut);
     }
     
-   
 
     [Test]
     public void PrerequisitesShouldBeAmalgamationOfComponentsPrerequisites()
     {
         Coordinate prereqA1 = new(Mock.Of<ICalculation>());
-        Mock<ILength> lengthA = new();
+        Mock<Length> lengthA = new();
         lengthA.Setup(a => a.Prerequisites).Returns(new[] { prereqA1 });
             
         Coordinate prereqB1 = new(Mock.Of<ICalculation>());
         Coordinate prereqB2 = new(Mock.Of<ICalculation>());
-        Mock<ILength> lengthB = new();
+        Mock<Length> lengthB = new();
         lengthB.Setup(a => a.Prerequisites).Returns(new[] { prereqB1, prereqB2 });
 
-        ILength uut = this.factory(lengthA.Object, lengthB.Object);
+        Length uut = this.factory(lengthA.Object, lengthB.Object);
         uut.Prerequisites.Should().BeEquivalentTo(new[] { prereqA1, prereqB1, prereqB2 });
     }
+    
     
     [Test]
     public void PrerequisitesShouldBeDistinct()
     {
         Coordinate prereqCommon = new(Mock.Of<ICalculation>());
         Coordinate prereqA1 = new(Mock.Of<ICalculation>());
-        Mock<ILength> lengthA = new();
+        Mock<Length> lengthA = new();
         lengthA.Setup(a => a.Prerequisites).Returns(new[] { prereqCommon, prereqA1 });
             
         Coordinate prereqB1 = new(Mock.Of<ICalculation>());
-        Mock<ILength> lengthB = new();
+        Mock<Length> lengthB = new();
         lengthB.Setup(a => a.Prerequisites).Returns(new[] { prereqCommon, prereqB1 });
 
-        ILength uut = this.factory(lengthA.Object, lengthB.Object);
+        Length uut = this.factory(lengthA.Object, lengthB.Object);
         uut.Prerequisites.Should().BeEquivalentTo(new[] { prereqA1, prereqB1, prereqCommon });
     }
+    
     
     [Test]
     public void PrerequisitesChangedShouldBeForwardedWithArgs()
     {
         Coordinate prereqA = new(Mock.Of<ICalculation>());
         Coordinate prereqB = new(Mock.Of<ICalculation>());
-        List<Coordinate> prereqsA = new() {  };
-        Mock<ILength> lengthA = new();
-        lengthA.Setup(a => a.Prerequisites).Returns(() => prereqsA);
+
+        MockLength lengthA = new();
+        MockLength lengthB = new(new [] { prereqB });
         
-        Mock<ILength> lengthB = new();
-        List<Coordinate> prereqsB = new() { prereqB };
-        lengthB.Setup(a => a.Prerequisites).Returns(() => prereqsB);
+        Length uut = this.factory(lengthA, lengthB);
+        using IMonitor<Length> monitor = uut.Monitor();
         
-        ILength uut = this.factory(lengthA.Object, lengthB.Object);
-        using IMonitor<ILength> monitor = uut.Monitor();
+        lengthA.PrerequisitesList.Add(prereqA);
+        lengthA.RaisePrerequisitesChanged(new[] { prereqA }, Enumerable.Empty<Coordinate>());
         
-        prereqsA.Add(prereqA);
-        lengthA.Raise(a => a.PrerequisitesChanged += null, lengthA.Object,
-            new CollectionChangedArgs<Coordinate>(
-                new[] { prereqA },
-                Enumerable.Empty<Coordinate>())
-            );
-        
-        monitor.Should().Raise(nameof(ILength.PrerequisitesChanged))
+        monitor.Should().Raise(nameof(Length.PrerequisitesChanged))
             .WithSender(uut)
             .WithAssertedArgs<CollectionChangedArgs<Coordinate>>(a =>
                 {
@@ -111,14 +106,10 @@ public class CompositeLengthFixture<T> where T : CompositeLength
                     a.ItemsRemoved.Should().BeEmpty();
                 });
 
-        prereqsB.Remove(prereqB);
-        lengthB.Raise(a => a.PrerequisitesChanged += null, lengthA.Object,
-            new CollectionChangedArgs<Coordinate>(
-                Enumerable.Empty<Coordinate>(),
-                new[] { prereqB })
-            );
+        lengthB.PrerequisitesList.Remove(prereqB);
+        lengthB.RaisePrerequisitesChanged(Enumerable.Empty<Coordinate>(), new[] { prereqB });
         
-        monitor.Should().Raise(nameof(ILength.PrerequisitesChanged))
+        monitor.Should().Raise(nameof(Length.PrerequisitesChanged))
             .WithSender(uut)
             .WithAssertedArgs<CollectionChangedArgs<Coordinate>>(a =>
                 {
@@ -127,31 +118,24 @@ public class CompositeLengthFixture<T> where T : CompositeLength
                 });
     }
     
+    
     [Test]
     public void PrerequisitesShouldReflectComponentPrerequisiteChanged()
     {
         Coordinate prereqA1 = new(Mock.Of<ICalculation>());
         Coordinate prereqA2 = new(Mock.Of<ICalculation>());
-        List<Coordinate> prereqsA = new() { prereqA1, prereqA2 };
-        Mock<ILength> lengthA = new();
-        lengthA.Setup(a => a.Prerequisites).Returns(() => prereqsA);
+        MockLength lengthA = new(new[] { prereqA1, prereqA2 });
             
         Coordinate prereqB1 = new(Mock.Of<ICalculation>());
         Coordinate prereqB2 = new(Mock.Of<ICalculation>());
-        List<Coordinate> prereqsB = new() { prereqB1 };
-        Mock<ILength> lengthB = new();
-        lengthB.Setup(a => a.Prerequisites).Returns(() => prereqsB);
+        MockLength lengthB = new(new [] { prereqB1 });
 
-        ILength uut = this.factory(lengthA.Object, lengthB.Object);
+        Length uut = this.factory(lengthA, lengthB);
 
-        prereqsA.Remove(prereqA2);
-        lengthA.Raise(a => a.PrerequisitesChanged += null, lengthA.Object,
-            new CollectionChangedArgs<Coordinate>(
-                Enumerable.Empty<Coordinate>(), new [] { prereqA2 }));
-        prereqsB.Add(prereqB2);
-        lengthB.Raise(a => a.PrerequisitesChanged += null, lengthB.Object,
-            new CollectionChangedArgs<Coordinate>(
-                new [] { prereqB2 }, Enumerable.Empty<Coordinate>()));
+        lengthA.PrerequisitesList.Remove(prereqA2);
+        lengthA.RaisePrerequisitesChanged(Enumerable.Empty<Coordinate>(), new [] { prereqA2 });
+        lengthB.PrerequisitesList.Add(prereqB2);
+        lengthB.RaisePrerequisitesChanged(new [] { prereqB2 }, Enumerable.Empty<Coordinate>());
         
         uut.Prerequisites.Should().BeEquivalentTo(new[] { prereqA1, prereqB1, prereqB2 });
     }
@@ -163,31 +147,23 @@ public class CompositeLengthFixture<T> where T : CompositeLength
         Coordinate commonPrereq = new(Mock.Of<ICalculation>());
         
         Coordinate prereqA1 = new(Mock.Of<ICalculation>());
-        List<Coordinate> prereqsA = new() { commonPrereq, prereqA1 };
-        Mock<ILength> lengthA = new();
-        lengthA.Setup(a => a.Prerequisites).Returns(() => prereqsA);
+        MockLength lengthA = new(new[] { commonPrereq, prereqA1 });
             
         Coordinate prereqB1 = new(Mock.Of<ICalculation>());
-        List<Coordinate> prereqsB = new() { prereqB1 };
-        Mock<ILength> lengthB = new();
-        lengthB.Setup(a => a.Prerequisites).Returns(() => prereqsB);
+        MockLength lengthB = new(new[] { prereqB1 });
 
-        ILength uut = this.factory(lengthA.Object, lengthB.Object);
-        using IMonitor<ILength> monitor = uut.Monitor();
+        Length uut = this.factory(lengthA, lengthB);
+        using IMonitor<Length> monitor = uut.Monitor();
         
-        prereqsB.Add(commonPrereq);
-        lengthB.Raise(a => a.PrerequisitesChanged += null, lengthB.Object,
-            new CollectionChangedArgs<Coordinate>(
-                new [] { commonPrereq }, Enumerable.Empty<Coordinate>()));
+        lengthB.PrerequisitesList.Add(commonPrereq);
+        lengthB.RaisePrerequisitesChanged(new[] { commonPrereq }, Enumerable.Empty<Coordinate>());
         
-        monitor.Should().NotRaise(nameof(ILength.PrerequisitesChanged));
+        monitor.Should().NotRaise(nameof(Length.PrerequisitesChanged));
         
-        prereqsA.Remove(commonPrereq);
-        lengthA.Raise(a => a.PrerequisitesChanged += null, lengthA.Object,
-            new CollectionChangedArgs<Coordinate>(
-                Enumerable.Empty<Coordinate>(), new [] { commonPrereq }));
+        lengthA.PrerequisitesList.Remove(commonPrereq);
+        lengthA.RaisePrerequisitesChanged(Enumerable.Empty<Coordinate>(), new [] { commonPrereq });
         
-        monitor.Should().NotRaise(nameof(ILength.PrerequisitesChanged));
+        monitor.Should().NotRaise(nameof(Length.PrerequisitesChanged));
     }
     
     
@@ -197,29 +173,58 @@ public class CompositeLengthFixture<T> where T : CompositeLength
         Coordinate commonPrereq = new(Mock.Of<ICalculation>());
         
         Coordinate prereqA1 = new(Mock.Of<ICalculation>());
-        List<Coordinate> prereqsA = new() { commonPrereq, prereqA1 };
-        Mock<ILength> lengthA = new();
-        lengthA.Setup(a => a.Prerequisites).Returns(() => prereqsA);
+        MockLength lengthA = new(new[] { prereqA1 });
             
         Coordinate prereqB1 = new(Mock.Of<ICalculation>());
-        List<Coordinate> prereqsB = new() { prereqB1 };
-        Mock<ILength> lengthB = new();
-        lengthB.Setup(a => a.Prerequisites).Returns(() => prereqsB);
+        MockLength lengthB = new(new[] { prereqB1 });
 
-        ILength uut = this.factory(lengthA.Object, lengthB.Object);
+        Length uut = this.factory(lengthA, lengthB);
         
-        prereqsB.Add(commonPrereq);
-        lengthB.Raise(a => a.PrerequisitesChanged += null, lengthB.Object,
-            new CollectionChangedArgs<Coordinate>(
-                new [] { commonPrereq }, Enumerable.Empty<Coordinate>()));
+        lengthB.PrerequisitesList.Add(commonPrereq);
+        lengthB.RaisePrerequisitesChanged(new [] { commonPrereq }, Enumerable.Empty<Coordinate>());
         
         uut.Prerequisites.Should().BeEquivalentTo(new[] { commonPrereq, prereqA1, prereqB1 });
         
-        prereqsA.Remove(commonPrereq);
-        lengthA.Raise(a => a.PrerequisitesChanged += null, lengthA.Object,
-            new CollectionChangedArgs<Coordinate>(
-                Enumerable.Empty<Coordinate>(), new [] { commonPrereq }));
+        lengthA.PrerequisitesList.Remove(commonPrereq);
+        lengthA.RaisePrerequisitesChanged(Enumerable.Empty<Coordinate>(), new [] { commonPrereq });
         
         uut.Prerequisites.Should().BeEquivalentTo(new[] { commonPrereq, prereqA1, prereqB1 });
+    }
+
+
+    public class MockLength : Length
+    {
+        public MockLength()
+        {
+            
+        }
+        
+        public MockLength(IEnumerable<Coordinate> prereqs)
+        {
+            this.PrerequisitesList.AddRange(prereqs);
+        }
+
+
+        public override Single Calculate()
+        {
+            return 0;
+        }
+
+
+        public void RaiseInvalidate()
+        {
+            RaiseValueInvalidated();
+        }
+
+
+        public readonly List<Coordinate> PrerequisitesList = new();
+        public override IEnumerable<Coordinate> Prerequisites => this.PrerequisitesList;
+
+
+        public void RaisePrerequisitesChanged(IEnumerable<Coordinate> added,
+            IEnumerable<Coordinate> removed)
+        {
+            base.RaisePrerequistesChanged(added, removed);
+        }
     }
 }

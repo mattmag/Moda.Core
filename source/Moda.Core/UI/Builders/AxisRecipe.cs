@@ -10,8 +10,8 @@ namespace Moda.Core.UI.Builders;
 
 public class AxisRecipe
 {
-    private Option<ILength> _alpha;
-    public Option<ILength> Alpha
+    private Option<Length> _alpha;
+    public Option<Length> Alpha
     {
         get => this._alpha;
         set
@@ -24,8 +24,8 @@ public class AxisRecipe
         }
     }
 
-    private Option<ILength> _beta;
-    public Option<ILength> Beta
+    private Option<Length> _beta;
+    public Option<Length> Beta
     {
         get => this._beta;
         set

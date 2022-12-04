@@ -8,7 +8,7 @@ using Moda.Core.Utility.Data;
 
 namespace Moda.Core.UI.Lengths;
 
-public class Pixels : ILength
+public class Pixels : Length
 {
     public Pixels(Int32 value)
     {
@@ -25,18 +25,16 @@ public class Pixels : ILength
             if (this._value != value)
             {
                 this._value = value;
-                this.ValueInvalidated?.Invoke(this);
+                RaiseValueInvalidated();
             }
         }
     }
 
-    public IEnumerable<Coordinate> Prerequisites { get; } = Enumerable.Empty<Coordinate>();
+    public override IEnumerable<Coordinate> Prerequisites { get; } = Enumerable.Empty<Coordinate>();
     
-    public event NotificationHandler<ICalculation>? ValueInvalidated;
-    public event CollectionChangedHandler<ICalculation, Coordinate>? PrerequisitesChanged;
 
 
-    public Single Calculate()
+    public override Single Calculate()
     {
         return this.Value;
     }

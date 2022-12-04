@@ -44,11 +44,11 @@ public abstract class ArithmeticBaseParams<TArithmetic, TArg1, TArg2>
 
     public void ChangeLengths()
     {
-        if (Arg1 is ILength mockA)
+        if (Arg1 is Length mockA)
         {
             Mock.Get(mockA).Setup(a => a.Calculate()).Returns(this.updatedSet.A);
         }
-        if (Arg2 is ILength mockB)
+        if (Arg2 is Length mockB)
         {
             Mock.Get(mockB).Setup(a => a.Calculate()).Returns(this.updatedSet.B);
         }
@@ -57,11 +57,11 @@ public abstract class ArithmeticBaseParams<TArithmetic, TArg1, TArg2>
     
     protected static T CreateArg<T>(Single val)
     {
-        if (typeof(T) == typeof(ILength))
+        if (typeof(T) == typeof(Length))
         {
-            Mock<ILength> lengthA = new();
+            Mock<Length> lengthA = new();
             lengthA.Setup(a => a.Calculate()).Returns(val);
-            return (T)lengthA.Object;
+            return (T)(object)lengthA.Object;
         }
         if (typeof(T) == typeof(Single))
         {

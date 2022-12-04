@@ -28,7 +28,7 @@ public abstract class AnchoredAxisBuilder
     
     
     
-    protected void SetLength(ILength length)
+    protected void SetLength(Length length)
     {
         switch (this.Anchor)
         {

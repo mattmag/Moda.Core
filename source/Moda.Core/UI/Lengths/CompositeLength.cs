@@ -8,16 +8,9 @@ using Moda.Core.Utility.Data;
 
 namespace Moda.Core.UI.Lengths;
 
-public abstract class CompositeLength  : ILength
+public abstract class CompositeLength  : Length
 {
-    //##############################################################################################
-    //
-    //  Events
-    //
-    //##############################################################################################
-    
-    public event NotificationHandler<ICalculation>? ValueInvalidated;
-    public event CollectionChangedHandler<ICalculation, Coordinate>? PrerequisitesChanged;
+
 
     //##############################################################################################
     //
@@ -25,12 +18,12 @@ public abstract class CompositeLength  : ILength
     //
     //##############################################################################################
     
-    private HashSet<ILength> _lengths = new();
-    public IEnumerable<ILength> Lengths => this._lengths;
+    private HashSet<Length> _lengths = new();
+    public IEnumerable<Length> Lengths => this._lengths;
     
     
     private HashSet<Coordinate> _prerequisites = new();
-    public IEnumerable<Coordinate> Prerequisites => this._prerequisites;
+    public override IEnumerable<Coordinate> Prerequisites => this._prerequisites;
 
 
     //##############################################################################################
@@ -39,17 +32,14 @@ public abstract class CompositeLength  : ILength
     //
     //##############################################################################################
     
-    
-    
-    public abstract Single Calculate();
 
 
-    protected void AddLength(ILength length)
+    protected void AddLength(Length length)
     {
         if (this._lengths.Add(length))
         {
             SyncPrerequisites();
-            length.ValueInvalidated += _ => this.ValueInvalidated?.Invoke(this);
+            length.ValueInvalidated += _ => RaiseValueInvalidated();
             length.PrerequisitesChanged += LengthOnPrerequisitesChanged;
         }
     }
@@ -79,7 +69,7 @@ public abstract class CompositeLength  : ILength
         if (actuallyRemoved.Any() || actuallyAdded.Any())
         {
             this._prerequisites = newPrereqs.ToHashSet();
-            this.PrerequisitesChanged?.Invoke(this, new(actuallyAdded, actuallyRemoved));
+            RaisePrerequistesChanged(actuallyAdded, actuallyRemoved);
         }
     }
 }

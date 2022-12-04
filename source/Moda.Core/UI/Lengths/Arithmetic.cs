@@ -12,95 +12,33 @@ public abstract class Arithmetic : CompositeLength
     private List<Operation> operations = new();
 
 
-    // #warning opportunities for code reuse throughout
-    // protected static T ReuseOrCreate<T>(ILength lengthA, ILength lengthB, Operation operation)
-    //     where T : Arithmetic, new()
-    // {
-    //     if (lengthA is T reuse)
-    //     {
-    //         if (lengthB is T other)
-    //         {
-    //             reuse.Absorb(other, operation);
-    //         }
-    //         else
-    //         {
-    //             reuse.components.Add(lengthB.Calculate);
-    //             reuse.operations.Add(operation);
-    //             reuse.AddLength(lengthB);
-    //         }
-    //
-    //         return reuse;
-    //     }
-    //
-    //     if (lengthB is T arithmeticB)
-    //     {
-    //         arithmeticB.components.Add(lengthA.Calculate);
-    //         arithmeticB.operations.Add(operation);
-    //         arithmeticB.AddLength(lengthA);
-    //         return arithmeticB;
-    //     }
-    //
-    //     T arithmetic = new();
-    //     arithmetic.components.Add(lengthA.Calculate);
-    //     arithmetic.components.Add(lengthB.Calculate);
-    //     arithmetic.operations.Add(operation);
-    //     arithmetic.AddLength(lengthA);
-    //     arithmetic.AddLength(lengthB);
-    //     return arithmetic;
-    // }
-    //
-    //
-    // protected static T ReuseOrCreate<T>(ILength length, Single constant, Operation operation)
-    //     where T : Arithmetic, new()
-    // {
-    //     if (length is T reuse)
-    //     {
-    //         reuse.components.Add(() => constant);
-    //         reuse.operations.Add(operation);
-    //         return reuse;
-    //     }
-    //     
-    //     T arithmetic = new();
-    //     arithmetic.components.Add(length.Calculate);
-    //     arithmetic.components.Add(() => constant);
-    //     arithmetic.operations.Add(operation);
-    //     arithmetic.AddLength(length);
-    //     return arithmetic;
-    // }
-    //
-    //
-    // protected static T ReuseOrCreate<T>(Single constant, ILength length, Operation operation)
-    //     where T : Arithmetic, new()
-    // {
-    //     if (length is T reuse)
-    //     {
-    //         reuse.components.Insert(0, () => constant);
-    //         reuse.operations.Insert(0, operation);
-    //         return reuse;
-    //     }
-    //     
-    //     T arithmetic = new();
-    //     arithmetic.components.Insert(0, () => constant);
-    //     arithmetic.components.Insert(1, length.Calculate);
-    //     arithmetic.operations.Insert(0, operation);
-    //     arithmetic.AddLength(length);
-    //     return arithmetic;
-    // }
-    //
-    //
-    // protected void Absorb(Arithmetic other, Operation joiningOperation)
-    // {
-    //     foreach (ILength length in other.Lengths)
-    //     {
-    //         AddLength(length);
-    //     }
-    //     
-    //     this.components.AddRange(other.components);
-    //     this.operations.Add(joiningOperation);
-    //     this.operations.AddRange(other.operations);
-    // }
+    public Arithmetic()
+    {
+        
+    }
+
+    protected Arithmetic(Length lengthA, Length lengthB, Operation operation)
+    {
+        this.AddLength(lengthA);
+        this.AddLength(lengthB);
+        this.AddOperation(operation);
+    }
+
+    protected Arithmetic(Length length, Single constant, Operation operation)
+    {
+        this.AddLength(length);
+        this.AddConstant(constant);
+        this.AddOperation(operation);
+    }
     
-    protected new void AddLength(ILength length)
+    protected Arithmetic(Single constant, Length length, Operation operation)
+    {
+        this.AddConstant(constant);
+        this.AddLength(length);
+        this.AddOperation(operation);
+    }
+    
+    protected new void AddLength(Length length)
     {
         base.AddLength(length);
         this.components.Add(length.Calculate);

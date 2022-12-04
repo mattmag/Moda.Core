@@ -111,13 +111,13 @@ public class Hive : IHoneyComb
             {
                 XBoundary =
                 {
-                    Alpha = new Pixels(0).Some<ILength>(),
-                    Beta = this.rootWidth.Some<ILength>(),
+                    Alpha = new Pixels(0).Some<Length>(),
+                    Beta = this.rootWidth.Some<Length>(),
                 },
                 YBoundary =
                 {
-                    Alpha = new Pixels(0).Some<ILength>(),
-                    Beta = this.rootHeight.Some<ILength>(),
+                    Alpha = new Pixels(0).Some<Length>(),
+                    Beta = this.rootHeight.Some<Length>(),
                 },
             });
         root.DebugName = "root";
