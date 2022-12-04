@@ -5,36 +5,28 @@
 // https://mozilla.org/MPL/2.0/
 
 using Moda.Core.UI.Lengths;
-using Moda.Core.Utility.Data;
 
 namespace Moda.Core.UI;
 
 public interface ILength : ICalculation
 {
-    static Add operator +(ILength lengthA, ILength lengthB) =>
-        new Add(lengthA, lengthB);
+    public static Sum operator +(ILength length, ILength lengthB) =>
+        Sum.Add(length, lengthB);
+    
+    public static Sum operator +(ILength length, Single constant) =>
+        Sum.Add(length, constant);
+    
+    public static Sum operator +(Single constant, ILength length) =>
+        Sum.Add(length, constant);
+    
+    public static Sum operator -(ILength lengthA, ILength lengthB) =>
+        Sum.Subtract(lengthA, lengthB);
+    
+     public static Sum operator -(ILength length, Single constant) =>
+        Sum.Subtract(length, constant);
+    
+    public static Sum operator -(Single constant, ILength length) =>
+        Sum.Subtract(constant, length);
 
-    // public static Subtract operator -(Length lengthA, Length lengthB) =>
-    //     new Subtract(lengthA, lengthB);
-    //
-    // public static Subtract operator -(Length length) => // eh? can add and subtract be combined and we add a Sign to Length
-    //     new Subtract(new Pixels(0), length);
-    //
-    // public static DivideByConstant operator /(Length lengthA, Single constant) =>
-    //     new DivideByConstant(lengthA, constant);
-
-
-
-    // protected void RaiseValueInvalidated()
-    // {
-    //     this.ValueInvalidated?.Invoke(this, EventArgs.Empty);
-    // }
-    //
-    //
-    //
-    // protected void RaisePrerequisitesChanged(CollectionChangedArgs<Coordinate> args)
-    // {
-    //     this.PrerequisitesChanged?.Invoke(this, args);
-    // }
 }
 

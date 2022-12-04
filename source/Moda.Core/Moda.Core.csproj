@@ -17,6 +17,8 @@
 
     <ItemGroup>
         <Compile Remove="Class1.cs" />
+        <Compile Remove="UI\Lengths\Add.cs" />
+        <Compile Remove="UI\Lengths\Subtract.cs" />
     </ItemGroup>
 
     <ItemGroup>

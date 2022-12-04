@@ -5,7 +5,6 @@
 // https://mozilla.org/MPL/2.0/
 
 using Optional;
-using Optional.Unsafe;
 
 namespace Moda.Core.Utility.Data;
 

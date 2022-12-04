@@ -20,4 +20,9 @@
       <ProjectReference Include="..\..\source\Moda.Core\Moda.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="UI\Lengths\AddTests.cs" />
+      <Compile Remove="UI\Lengths\SubtractTests.cs" />
+    </ItemGroup>
+
 </Project>

@@ -18,16 +18,26 @@ using NUnit.Framework;
 
 namespace Moda.Core.Tests.UI.Lengths;
 
-[TestFixture(typeof(Add))]
-[TestFixture(typeof(Subtract))]
-public class CompositeLengthFixture<T> where T : ILength
+
+[TestFixture(typeof(Sum), nameof(Sum.Add))]
+[TestFixture(typeof(Sum), nameof(Sum.Subtract))]
+public class CompositeLengthFixture<T> where T : CompositeLength
 {
+    private Func<ILength, ILength, T> factory;
+    public CompositeLengthFixture(String nameOfFactoryMethod)
+    {
+        this.factory = (typeof(T).GetMethod(nameOfFactoryMethod,
+                    new[] { typeof(ILength), typeof(ILength) })
+                ?? throw new MissingMethodException())
+            .CreateDelegate<Func<ILength, ILength, T>>();
+    }
+        
     [Test]
     public void ValueInvalidatedShouldForwarded()
     {
         Mock<ILength> lengthA = new();
         Mock<ILength> lengthB = new();
-        ILength uut = GetInstance(lengthA.Object, lengthB.Object);
+        ILength uut = this.factory(lengthA.Object, lengthB.Object);
         using IMonitor<ILength> monitor = uut.Monitor();
         
         lengthA.Raise(a => a.ValueInvalidated += null, lengthA.Object);
@@ -50,7 +60,7 @@ public class CompositeLengthFixture<T> where T : ILength
         Mock<ILength> lengthB = new();
         lengthB.Setup(a => a.Prerequisites).Returns(new[] { prereqB1, prereqB2 });
 
-        ILength uut = GetInstance(lengthA.Object, lengthB.Object);
+        ILength uut = this.factory(lengthA.Object, lengthB.Object);
         uut.Prerequisites.Should().BeEquivalentTo(new[] { prereqA1, prereqB1, prereqB2 });
     }
     
@@ -66,7 +76,7 @@ public class CompositeLengthFixture<T> where T : ILength
         Mock<ILength> lengthB = new();
         lengthB.Setup(a => a.Prerequisites).Returns(new[] { prereqCommon, prereqB1 });
 
-        ILength uut = GetInstance(lengthA.Object, lengthB.Object);
+        ILength uut = this.factory(lengthA.Object, lengthB.Object);
         uut.Prerequisites.Should().BeEquivalentTo(new[] { prereqA1, prereqB1, prereqCommon });
     }
     
@@ -83,7 +93,7 @@ public class CompositeLengthFixture<T> where T : ILength
         List<Coordinate> prereqsB = new() { prereqB };
         lengthB.Setup(a => a.Prerequisites).Returns(() => prereqsB);
         
-        ILength uut = GetInstance(lengthA.Object, lengthB.Object);
+        ILength uut = this.factory(lengthA.Object, lengthB.Object);
         using IMonitor<ILength> monitor = uut.Monitor();
         
         prereqsA.Add(prereqA);
@@ -132,7 +142,7 @@ public class CompositeLengthFixture<T> where T : ILength
         Mock<ILength> lengthB = new();
         lengthB.Setup(a => a.Prerequisites).Returns(() => prereqsB);
 
-        ILength uut = GetInstance(lengthA.Object, lengthB.Object);
+        ILength uut = this.factory(lengthA.Object, lengthB.Object);
 
         prereqsA.Remove(prereqA2);
         lengthA.Raise(a => a.PrerequisitesChanged += null, lengthA.Object,
@@ -162,7 +172,7 @@ public class CompositeLengthFixture<T> where T : ILength
         Mock<ILength> lengthB = new();
         lengthB.Setup(a => a.Prerequisites).Returns(() => prereqsB);
 
-        ILength uut = GetInstance(lengthA.Object, lengthB.Object);
+        ILength uut = this.factory(lengthA.Object, lengthB.Object);
         using IMonitor<ILength> monitor = uut.Monitor();
         
         prereqsB.Add(commonPrereq);
@@ -196,7 +206,7 @@ public class CompositeLengthFixture<T> where T : ILength
         Mock<ILength> lengthB = new();
         lengthB.Setup(a => a.Prerequisites).Returns(() => prereqsB);
 
-        ILength uut = GetInstance(lengthA.Object, lengthB.Object);
+        ILength uut = this.factory(lengthA.Object, lengthB.Object);
         
         prereqsB.Add(commonPrereq);
         lengthB.Raise(a => a.PrerequisitesChanged += null, lengthB.Object,
@@ -212,10 +222,4 @@ public class CompositeLengthFixture<T> where T : ILength
         
         uut.Prerequisites.Should().BeEquivalentTo(new[] { commonPrereq, prereqA1, prereqB1 });
     }
-    
-    
-    private T GetInstance(ILength lengthA, ILength lengthB) => 
-        (T)(Activator.CreateInstance(typeof(T), lengthA, lengthB)
-            ?? throw new NullReferenceException());
-
 }
