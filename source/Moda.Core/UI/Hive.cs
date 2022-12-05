@@ -4,7 +4,6 @@ using Moda.Core.UI.Builders;
 using Moda.Core.Utility.Data;
 using Moda.Core.Utility.Geometry;
 using Optional;
-using Optional.Unsafe;
 
 namespace Moda.Core.UI;
 

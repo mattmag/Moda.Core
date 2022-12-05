@@ -102,7 +102,7 @@ public class Cell : TreeNode<Cell>
             {
                 Axis.X => this.XBoundary,
                 Axis.Y => this.YBoundary,
-                _ => throw new ArgumentException()
+                _ => throw new ArgumentOutOfRangeException()
             };
     }
 

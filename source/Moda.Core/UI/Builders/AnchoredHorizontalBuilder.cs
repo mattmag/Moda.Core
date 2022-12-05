@@ -1,23 +1,26 @@
-using Moda.Core.UI.Lengths;
-using Optional;
-
-namespace Moda.Core.UI.Builders;
 // This file is part of the Moda.Core project.
 // 
 // This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
+namespace Moda.Core.UI.Builders;
 
-public class AnchoredHorizontalBuilder : AnchoredAxisBuilder
+
+public class AnchoredHorizontalBuilder : AnchoredAxisBuilder, IReadyForWidth
 {
     public AnchoredHorizontalBuilder(CellBuilder cellBuilder, Horizontal anchor)
         : base(cellBuilder, Axis.X, ConvertAnchor(anchor))
     {
         
     }
-
-
+    
+    public IReadyForWidth OffsetBy(Length offset)
+    {
+        this.SetOffset(offset);
+        return this;
+    }
+    
     public IInitializeVerticalAxis WithWidth(Length width)
     {
         this.SetLength(width);

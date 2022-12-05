@@ -6,13 +6,14 @@
 
 using Moda.Core.UI.Lengths;
 using Optional;
-using Optional.Unsafe;
 
 namespace Moda.Core.UI.Builders;
 
+
+
 public abstract class AnchoredAxisBuilder
 {
-
+    private Option<Length> offset;
 
     public AnchoredAxisBuilder(CellBuilder cellBuilder, Axis axis, Neutral anchor)
     {
@@ -27,9 +28,13 @@ public abstract class AnchoredAxisBuilder
     public Neutral Anchor { get; }
     public Axis Axis { get; }
     public AxisRecipe AxisRecipe { get; }
-    
-    
-    
+
+
+
+    protected void SetOffset(Length length)
+    {
+        this.offset = length.Some();
+    }
     
     
     protected void SetLength(Length length)
@@ -37,16 +42,19 @@ public abstract class AnchoredAxisBuilder
         switch (this.Anchor)
         {
             case Neutral.Alpha:
-                this.AxisRecipe.Alpha.Set(new Pixels(0));
+                this.AxisRecipe.Alpha.Set(this.offset.ValueOr(new Pixels(0)));
                 this.AxisRecipe.Beta.Set(this.AxisRecipe.Alpha.Get() + length);
                 break;
             case Neutral.Center:
-                
-                // this.MyAxisRecipe.Alpha = (new CenterOfParent() - (length / 2)).Some<Length>();
-                // this.MyAxisRecipe.Beta = (new CenterOfParent() + (length / 2)).Some<Length>();
+                Length center = new SizeOfParent() / 2;
+                Length target = this.offset.Match(off => center + off, () => center);
+                this.AxisRecipe.Alpha.Set(target - (length / 2));
+                this.AxisRecipe.Beta.Set(target + (length / 2));
                 break;
             case Neutral.Beta:
-                // this.MyAxisRecipe.Alpha = (this.MyAxisRecipe.Beta.ValueOrFailure() - length).Some<Length>();
+                Length beta = new SizeOfParent();
+                this.AxisRecipe.Beta.Set(this.offset.Match(off => beta + off, () => beta));
+                this.AxisRecipe.Alpha.Set(this.AxisRecipe.Beta.Get() - length);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

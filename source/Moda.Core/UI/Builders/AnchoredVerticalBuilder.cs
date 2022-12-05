@@ -4,17 +4,20 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
-using Moda.Core.UI.Lengths;
-using Optional;
-
 namespace Moda.Core.UI.Builders;
 
-public class AnchoredVerticalBuilder : AnchoredAxisBuilder
+public class AnchoredVerticalBuilder : AnchoredAxisBuilder, IReadyForHeight
 {
     public AnchoredVerticalBuilder(CellBuilder sourceBuilder, Vertical anchor)
         : base(sourceBuilder, Axis.Y, ConvertAnchor(anchor))
     {
         
+    }
+    
+    public IReadyForHeight OffsetBy(Length offset)
+    {
+        this.SetOffset(offset);
+        return this;
     }
     
     public IMinmimumViableCell WithHeight(Length width)
