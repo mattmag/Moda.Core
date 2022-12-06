@@ -58,7 +58,7 @@ public class SizeOfParentTests
     }
 
 
-    // Prerequisites TEsts
+    // Prerequisites Tests
     //----------------------------------------------------------------------------------------------
 
 

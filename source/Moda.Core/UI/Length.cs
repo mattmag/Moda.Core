@@ -7,6 +7,7 @@
 using Moda.Core.UI.Lengths;
 using Moda.Core.Utility.Data;
 using Optional;
+using Optional.Unsafe;
 
 namespace Moda.Core.UI;
 
@@ -57,10 +58,10 @@ public abstract class Length : ICalculation
     }
 
 
-    public Option<Axis> Axis { get; private set; }
+    protected Option<Axis> Axis;
     
-    public Option<Cell> Owner { get; private set; }
-
+    protected Option<Cell> Owner;
+    
     public abstract Single Calculate();
 
     private HashSet<Coordinate> _prerequisites = new();

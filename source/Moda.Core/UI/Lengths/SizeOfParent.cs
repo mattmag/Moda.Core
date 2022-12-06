@@ -6,26 +6,27 @@
 
 using Moda.Core.Utility.Data;
 using Optional;
+using Optional.Linq;
 using Optional.Unsafe;
 
 namespace Moda.Core.UI.Lengths;
 
 public class SizeOfParent : Length
 {
-    private Option<Boundary> parentBoundary;
-    
     public override Single Calculate()
     {
-        return this.parentBoundary
-            .FlatMap(a => a.RelativeRange.Map(b => b.Delta))
+        return (from owner in this.Owner
+            from parent in owner.Parent
+            from axis in this.Axis
+            from range in  parent.GetBoundary(axis).RelativeRange
+            select range.Delta)
             .ValueOrFailure();
     }
     
     
     protected override void OnInitialize(Cell owner, Axis axis)
     {
-        UpdateParentBoundary();
-        ModifyPrerequisites(GetCoordinates(owner.Parent), Enumerable.Empty<Coordinate>());
+        ModifyPrerequisites(GetAxisCoordinates(owner.Parent), Enumerable.Empty<Coordinate>());
         
         owner.ParentChanged += OwnerOnParentChanged;
     }
@@ -33,22 +34,14 @@ public class SizeOfParent : Length
     
     private void OwnerOnParentChanged(Cell sender, ValueChangedArgs<Option<Cell>> args)
     {
-        UpdateParentBoundary();
-        ModifyPrerequisites(GetCoordinates(args.NewValue), GetCoordinates(args.OldValue));
+        ModifyPrerequisites(GetAxisCoordinates(args.NewValue), GetAxisCoordinates(args.OldValue));
     }
 
 
-    private void UpdateParentBoundary()
-    {
-        this.parentBoundary = this.Axis.FlatMap(axis =>
-            this.Owner.FlatMap(owner =>
-                owner.Parent.Map(parent =>
-                    parent.GetBoundary(axis))));
-    }
 
-    
-    private IEnumerable<Coordinate> GetCoordinates(Option<Cell> cell) => cell.Match(
-        a => a.GetBoundary(this.Axis.ValueOrFailure()).GetCoordinates(),
-        Enumerable.Empty<Coordinate>);
-    
+    private IEnumerable<Coordinate> GetAxisCoordinates(Option<Cell> cell) => (from c in cell
+            from axis in this.Axis
+            select c.GetBoundary(axis).GetCoordinates())
+        .ValueOr(Enumerable.Empty<Coordinate>());
+
 }
