@@ -11,15 +11,37 @@ using Optional.Unsafe;
 
 namespace Moda.Core.UI.Lengths;
 
-public class SizeOfParent : Length
+public class PercentOfParent : Length
 {
+
+    public PercentOfParent(Single percent)
+    {
+        this.Percent = percent;
+    }
+    
+    
+    private Single _percent;
+    public Single Percent
+    {
+        get => this._percent;
+        set
+        {
+            if (this._percent != value)
+            {
+                this._percent = value;
+                RaiseValueInvalidated();
+            }
+        }
+    }
+    
+    
     public override Single Calculate()
     {
         return (from owner in this.Owner
             from parent in owner.Parent
             from axis in this.Axis
             from range in  parent.GetBoundary(axis).RelativeRange
-            select range.Delta)
+            select range.Delta * (this.Percent * 0.01f))
             .ValueOrFailure();
     }
     

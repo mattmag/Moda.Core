@@ -46,13 +46,13 @@ public abstract class AnchoredAxisBuilder
                 this.AxisRecipe.Beta.Set(this.AxisRecipe.Alpha.Get() + length);
                 break;
             case Neutral.Center:
-                Length center = new SizeOfParent() / 2;
+                Length center = new PercentOfParent(50);
                 Length target = this.offset.Match(off => center + off, () => center);
                 this.AxisRecipe.Alpha.Set(target - (length / 2));
                 this.AxisRecipe.Beta.Set(target + (length / 2));
                 break;
             case Neutral.Beta:
-                Length beta = new SizeOfParent();
+                Length beta = new PercentOfParent(100);
                 this.AxisRecipe.Beta.Set(this.offset.Match(off => beta + off, () => beta));
                 this.AxisRecipe.Alpha.Set(this.AxisRecipe.Beta.Get() - length);
                 break;
