@@ -6,7 +6,7 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IReadyForWidth
+public interface ISetLengthProcessor
 {
-    IVAxisInitializer WithWidth(Length width);
+    void SetLength(AxisRecipe axisRecipe, Placement<Length> placement, Length length);
 }

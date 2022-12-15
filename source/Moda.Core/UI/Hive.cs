@@ -75,7 +75,7 @@ public class Hive : IHoneyComb
     
     public Cell NewCell(Func<IParentAssigner, IReadyToBuild> builder)
     {
-        return BuildAndComposeCell(builder(new CellBuilder()).GetRecipe());
+        return BuildAndComposeCell(builder(new ParentAppointer()).GetCellRecipe());
     }
 
 
@@ -197,7 +197,7 @@ public class Hive : IHoneyComb
         }
     }
     
-    private Cell BuildAndComposeCell(CellRecipe recipe)
+    private Cell BuildAndComposeCell(CellBuilderState recipe)
     {
         Cell cell = BuildCell(recipe.Boundaries);
         ComposeCell(cell, recipe.Composition);

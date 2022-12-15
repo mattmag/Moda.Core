@@ -8,7 +8,8 @@ using Moda.Core.Utility.Data;
 
 namespace Moda.Core.UI.Lengths;
 
-public abstract class CompositeLength  : Length
+// TODO: composition over inheritance? CompositeLengthManager or something
+public abstract class CompositeLength : Length
 {
 
     
@@ -51,8 +52,10 @@ public abstract class CompositeLength  : Length
         if (this._lengths.Add(length))
         {
             SyncPrerequisites();
-            this.Owner.MatchSome(owner => this.Axis.MatchSome(axis =>
-                length.Initialize(owner, axis)));
+            if (this.IsInitialized)
+            {
+                length.Initialize(this.Owner, this.Axis);
+            }
             length.ValueInvalidated += _ => RaiseValueInvalidated();
             length.PrerequisitesChanged += LengthOnPrerequisitesChanged;
         }

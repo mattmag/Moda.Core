@@ -6,23 +6,59 @@
 
 namespace Moda.Core.UI.Builders;
 
-public enum Horizontal
+public enum HAnchor
 {
     Left = 1,
     Center = 2,
     Right = 3,
 }
 
-public enum Vertical
+public enum VAnchor
 {
-    Top = 1,
+    Up = 1,
     Middle = 2,
-    Bottom = 3,
+    Down = 3,
 }
 
-public enum Neutral
+public enum NAnchor
 {
     Alpha = 1,
     Center = 2,
     Beta = 3,
+}
+
+
+public static class AnchorExtensions
+{
+    public static NAnchor ToNeutral(this HAnchor anchor) => anchor switch
+        {
+            HAnchor.Left => NAnchor.Alpha,
+            HAnchor.Center => NAnchor.Center,
+            HAnchor.Right => NAnchor.Beta,
+            _ => throw new ArgumentOutOfRangeException(nameof(anchor), anchor, null)
+        };
+    
+    public static NAnchor ToNeutral(this VAnchor anchor) => anchor switch
+        {
+            VAnchor.Up => NAnchor.Alpha,
+            VAnchor.Middle => NAnchor.Center,
+            VAnchor.Down => NAnchor.Beta,
+            _ => throw new ArgumentOutOfRangeException(nameof(anchor), anchor, null)
+        };
+    
+    public static HAnchor ToHorizontal(this NAnchor anchor) => anchor switch
+        {
+            NAnchor.Alpha => HAnchor.Left,
+            NAnchor.Center => HAnchor.Center,
+            NAnchor.Beta => HAnchor.Right,
+            _ => throw new ArgumentOutOfRangeException(nameof(anchor), anchor, null)
+        };
+    
+    public static VAnchor ToVertical(this NAnchor anchor) => anchor switch
+        {
+            NAnchor.Alpha => VAnchor.Up,
+            NAnchor.Center => VAnchor.Middle,
+            NAnchor.Beta => VAnchor.Down,
+            _ => throw new ArgumentOutOfRangeException(nameof(anchor), anchor, null)
+        };
 }

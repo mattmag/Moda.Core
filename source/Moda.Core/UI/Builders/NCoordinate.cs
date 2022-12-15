@@ -6,7 +6,23 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IInitializeVerticalAxis
+
+public enum HCoordinate
 {
-    AnchoredVerticalBuilder AnchorAt(Vertical anchor);
+    Left,
+    Right
+}
+
+
+public enum VCoordinate
+{
+    Top,
+    Bottom,
+}
+
+
+public enum NCoordinate
+{
+    Alpha,
+    Beta
 }

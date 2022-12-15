@@ -6,15 +6,12 @@
 
 namespace Moda.Core.UI.Builders;
 
-public class CellRecipe
+public class StandardLengthProcessor : ISetLengthProcessor
 {
-    public CellRecipe(BoundariesRecipe boundaries, CompositionRecipe composition)
+    public void SetLength(AxisRecipe axisRecipe, Placement<Length> placement, Length length)
     {
-        Boundaries = boundaries;
-        Composition = composition;
+        placement.Calculate(length, out Length alpha, out Length beta);
+        axisRecipe.Alpha.Set(alpha);
+        axisRecipe.Alpha.Set(beta);
     }
-
-
-    public BoundariesRecipe Boundaries { get; }
-    public CompositionRecipe Composition { get; }
 }

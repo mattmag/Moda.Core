@@ -4,9 +4,11 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
-namespace Moda.Core.UI.Builders;
+using Optional;
 
-public interface IReadyForWidth
+namespace Moda.Core.UI.Lengths;
+
+public abstract class OptionalLength : Length
 {
-    IVAxisInitializer WithWidth(Length width);
+    public abstract Option<Single> TryCalculate();
 }

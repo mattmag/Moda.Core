@@ -317,13 +317,13 @@ public class RectangleFTests
 
     public static IEnumerable<TestCaseData> GetOutsidePoints() => new[]
         {
-            new TestCaseData(new Vector2(0, 0)).SetName("Top Left"),
-            new TestCaseData(new Vector2(0, 50)).SetName("Top"),
-            new TestCaseData(new Vector2(0, 120)).SetName("Top Right"),
+            new TestCaseData(new Vector2(0, 0)).SetName("Up Left"),
+            new TestCaseData(new Vector2(0, 50)).SetName("Up"),
+            new TestCaseData(new Vector2(0, 120)).SetName("Up Right"),
             new TestCaseData(new Vector2(120, 50)).SetName("Right"),
-            new TestCaseData(new Vector2(120, 120)).SetName("Bottom Right"),
-            new TestCaseData(new Vector2(50, 120)).SetName("Bottom"),
-            new TestCaseData(new Vector2(0, 120)).SetName("Bottom Left"),
+            new TestCaseData(new Vector2(120, 120)).SetName("Down Right"),
+            new TestCaseData(new Vector2(50, 120)).SetName("Down"),
+            new TestCaseData(new Vector2(0, 120)).SetName("Down Left"),
             new TestCaseData(new Vector2(0, 50)).SetName("Left"),
         };
 

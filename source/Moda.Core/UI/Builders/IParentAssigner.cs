@@ -9,8 +9,8 @@ namespace Moda.Core.UI.Builders;
 public interface IParentAssigner
 {
     IParentAssigned AssignParent(Cell parent);
-    IInitializeHorizontalAxis AppendTo(Cell parent);
-    IInitializeHorizontalAxis InsertAt(Cell parent, Int32 index);
-    IInitializeHorizontalAxis InsertBefore(Cell peer);
-    IInitializeHorizontalAxis InsertAfter(Cell peer);
+    BoundariesInitializer AppendTo(Cell parent);
+    BoundariesInitializer InsertAt(Cell parent, Int32 index);
+    BoundariesInitializer InsertBefore(Cell peer);
+    BoundariesInitializer InsertAfter(Cell peer);
 }

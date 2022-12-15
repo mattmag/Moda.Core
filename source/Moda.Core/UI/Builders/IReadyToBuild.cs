@@ -8,5 +8,5 @@ namespace Moda.Core.UI.Builders;
 
 public interface IReadyToBuild
 {
-    CellRecipe GetRecipe();
+    CellBuilderState GetCellRecipe();
 }

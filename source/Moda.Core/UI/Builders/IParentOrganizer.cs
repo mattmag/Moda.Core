@@ -8,7 +8,8 @@ namespace Moda.Core.UI.Builders;
 
 public interface IParentOrganizer
 {
-    IInitializeHorizontalAxis InsertAt(Int32 index);
-    IInitializeHorizontalAxis InsertBefore(Cell peer);
-    IInitializeHorizontalAxis InsertAfter(Cell peer);
+    BoundariesInitializer Append();
+    BoundariesInitializer InsertAt(Int32 index);
+    BoundariesInitializer InsertBefore(Cell peer);
+    BoundariesInitializer InsertAfter(Cell peer);
 }

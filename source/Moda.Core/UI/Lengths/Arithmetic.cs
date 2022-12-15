@@ -4,11 +4,17 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
+using Optional;
+using Optional.Unsafe;
+
 namespace Moda.Core.UI.Lengths;
 
-public abstract class Arithmetic : CompositeLength
+
+
+public abstract class Arithmetic : OptionalLength
 {
-    private List<Func<Single>> components = new();
+    // private List<Func<Single>> components = new();
+    private List<Func<Option<Single>>> tryComponents = new();
     private List<Operation> operations = new();
 
 
@@ -41,12 +47,18 @@ public abstract class Arithmetic : CompositeLength
     protected new void AddLength(Length length)
     {
         base.AddLength(length);
-        this.components.Add(length.Calculate);
+        this.tryComponents.Add(() => length.Calculate().Some());
+    }
+    
+    protected void AddLength(OptionalLength length)
+    {
+        base.AddLength(length);
+        this.tryComponents.Add(length.TryCalculate);
     }
 
     protected void AddConstant(Single constant)
     {
-        this.components.Add(() => constant);
+        this.tryComponents.Add(() => constant.Some());
     }
 
     protected void AddOperation(Operation operation)
@@ -57,22 +69,42 @@ public abstract class Arithmetic : CompositeLength
 
     public override Single Calculate()
     {
-        if (!this.components.Any())
+        // if (!this.components.Any())
+        // {
+        //     return 0;
+        // }
+        //
+        // if ( this.components.Count !=  this.operations.Count + 1)
+        // {
+        //     throw new InvalidOperationException();
+        // }
+        //
+        // Single running = this.components.First().Invoke();
+        // for (int i = 0; i < this.operations.Count; i++)
+        // {
+        //     running = this.operations[i](running, this.components[i+1].Invoke());
+        // }
+        //
+        // return running;
+        return TryCalculate().ValueOrFailure();
+    }
+
+
+    public override Option<Single> TryCalculate()
+    {
+        // TODO: ? do better ? idk
+        Option<Single> running = this.tryComponents.First().Invoke();
+        while (running.HasValue)
         {
-            return 0;
+            for (int i = 0; i < this.tryComponents.Count; i++)
+            {
+                Option<Single> next = this.tryComponents[i + 1].Invoke();
+                Int32 index = i;
+                Option<Single> running1 = running;
+                running = next.Map(a => this.operations[index](running1.ValueOrFailure(), a));
+            }
         }
-        
-        if ( this.components.Count !=  this.operations.Count + 1)
-        {
-            throw new InvalidOperationException();
-        }
-        
-        Single running = this.components.First().Invoke();
-        for (int i = 0; i < this.operations.Count; i++)
-        {
-            running = this.operations[i](running, this.components[i+1].Invoke());
-        }
-        
+
         return running;
     }
 }

@@ -8,7 +8,6 @@ using System;
 using FluentAssertions;
 using Moda.Core.Entity;
 using Moda.Core.UI;
-using Moda.Core.UI.Builders;
 using Moq;
 using NUnit.Framework;
 using Optional;
@@ -108,10 +107,9 @@ public class CellTests
             Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
             Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         Cell child = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         cell.Children.Should().BeEquivalentTo(new[] { child });
     }
     
@@ -123,29 +121,24 @@ public class CellTests
             Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         
         Cell childA = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childB = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childC = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childD = cell.CreateChild(a => a
             .InsertAfter(childB)
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         cell.Children.Should().BeEquivalentTo(new[] { childA, childB, childD, childC });
     }
@@ -159,29 +152,24 @@ public class CellTests
             Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         
         Cell childA = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childB = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childC = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childD = cell.CreateChild(a => a
             .InsertBefore(childB)
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         cell.Children.Should().BeEquivalentTo(new[] { childA, childD, childB, childC });
     }
@@ -194,29 +182,24 @@ public class CellTests
             Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         
         Cell childA = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childB = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childC = cell.CreateChild(a => a
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .Append()
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         Cell childD = cell.CreateChild(a => a
             .InsertAt(1)
-            .AnchorAt(Horizontal.Left)
-            .WithWidth(Mock.Of<Length>())
-            .AnchorAt(Vertical.Top)
-            .WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<Length>())
+            .AnchorUp().WithHeight(Mock.Of<Length>()));
         
         cell.Children.Should().BeEquivalentTo(new[] { childA, childD, childB, childC });
     }

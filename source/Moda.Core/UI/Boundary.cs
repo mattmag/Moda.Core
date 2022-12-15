@@ -44,12 +44,12 @@ public class Boundary
     //##############################################################################################
     
     /// <summary>
-    ///     The minimum value of the boundary along it's axis (Left if X, Top if Y).
+    ///     The minimum value of the boundary along it's axis (Left if X, Up if Y).
     /// </summary>
     public Coordinate AlphaCoordinate { get; }
     
     /// <summary>
-    ///     The maximum value of the boundary along it's axis  (Right if X, Bottom if Y).
+    ///     The maximum value of the boundary along it's axis  (Right if X, Down if Y).
     /// </summary>
     public Coordinate BetaCoordinate { get; }
     

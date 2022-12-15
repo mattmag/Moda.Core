@@ -6,7 +6,7 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IInitializeHorizontalAxis
+public interface IComponentAssignerOrReadyToBuild : IComponentAssigner, IReadyToBuild
 {
-    AnchoredHorizontalBuilder AnchorAt(Horizontal anchor);
+    
 }

@@ -16,9 +16,9 @@ using NUnit.Framework;
 
 namespace Moda.Core.Tests.UI.Builders;
 
-[TestFixture(typeof(AnchoredHorizontalBuilder), typeof(Horizontal),
+[TestFixture(typeof(AnchoredHorizontalBuilder), typeof(HAnchor),
     nameof(AnchoredHorizontalBuilder.WithWidth))]
-[TestFixture(typeof(AnchoredVerticalBuilder), typeof(Vertical),
+[TestFixture(typeof(AnchoredVerticalBuilder), typeof(VAnchor),
     nameof(AnchoredVerticalBuilder.WithHeight))]
 public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     where TBuilder : AnchoredAxisBuilder
@@ -44,7 +44,7 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     //----------------------------------------------------------------------------------------------
     
     [TestCaseSource(nameof(AnchorConversionData))]
-    public Neutral ConstructorShouldSetAndConvertAnchor(Horizontal anchor)
+    public NAnchor ConstructorShouldSetAndConvertAnchor(HAnchor anchor)
     {
         CellBuilder cellBuilder = new();
         AnchoredHorizontalBuilder axisBuilder = new(cellBuilder, anchor);
@@ -53,23 +53,23 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     
     public static IEnumerable<TestCaseData> AnchorConversionData()
     {
-        if (typeof(TAnchor) == typeof(Horizontal))
+        if (typeof(TAnchor) == typeof(HAnchor))
         {
             return new[]
             {
-                new TestCaseData(Horizontal.Left).Returns(Neutral.Alpha),
-                new TestCaseData(Horizontal.Center).Returns(Neutral.Center),
-                new TestCaseData(Horizontal.Right).Returns(Neutral.Beta),
+                new TestCaseData(HAnchor.Left).Returns(NAnchor.Alpha),
+                new TestCaseData(HAnchor.Center).Returns(NAnchor.Center),
+                new TestCaseData(HAnchor.Right).Returns(NAnchor.Beta),
             };
         }
 
-        if (typeof(TAnchor) == typeof(Vertical))
+        if (typeof(TAnchor) == typeof(VAnchor))
         {
             return new[]
                 {
-                    new TestCaseData(Vertical.Top).Returns(Neutral.Alpha),
-                    new TestCaseData(Vertical.Middle).Returns(Neutral.Center),
-                    new TestCaseData(Vertical.Bottom).Returns(Neutral.Beta),
+                    new TestCaseData(VAnchor.Up).Returns(NAnchor.Alpha),
+                    new TestCaseData(VAnchor.Middle).Returns(NAnchor.Center),
+                    new TestCaseData(VAnchor.Down).Returns(NAnchor.Beta),
                 };
         }
 
@@ -102,23 +102,23 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     
     public static IEnumerable<TestCaseData> SetBoundaryData()
     {
-        if (typeof(TAnchor) == typeof(Horizontal))
+        if (typeof(TAnchor) == typeof(HAnchor))
         {
             return new[]
             {
-                new TestCaseData(Horizontal.Left, 0, 60),
-                new TestCaseData(Horizontal.Center, 45, 105),
-                new TestCaseData(Horizontal.Right, 90, 150),
+                new TestCaseData(HAnchor.Left, 0, 60),
+                new TestCaseData(HAnchor.Center, 45, 105),
+                new TestCaseData(HAnchor.Right, 90, 150),
             };
         }
 
-        if (typeof(TAnchor) == typeof(Vertical))
+        if (typeof(TAnchor) == typeof(VAnchor))
         {
             return new[]
                 {
-                    new TestCaseData(Vertical.Top, 0, 60),
-                    new TestCaseData(Vertical.Middle, 45, 105),
-                    new TestCaseData(Vertical.Bottom, 90, 150),
+                    new TestCaseData(VAnchor.Up, 0, 60),
+                    new TestCaseData(VAnchor.Middle, 45, 105),
+                    new TestCaseData(VAnchor.Down, 90, 150),
                 };
         }
 
@@ -153,23 +153,23 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     
     public static IEnumerable<TestCaseData> SetBoundaryDataWithOffset()
     {
-        if (typeof(TAnchor) == typeof(Horizontal))
+        if (typeof(TAnchor) == typeof(HAnchor))
         {
             return new[]
             {
-                new TestCaseData(Horizontal.Left, 5, 5, 65),
-                new TestCaseData(Horizontal.Center, 5, 50, 110),
-                new TestCaseData(Horizontal.Right, 5, 95, 155),
+                new TestCaseData(HAnchor.Left, 5, 5, 65),
+                new TestCaseData(HAnchor.Center, 5, 50, 110),
+                new TestCaseData(HAnchor.Right, 5, 95, 155),
             };
         }
 
-        if (typeof(TAnchor) == typeof(Vertical))
+        if (typeof(TAnchor) == typeof(VAnchor))
         {
             return new[]
                 {
-                    new TestCaseData(Vertical.Top, 5, 5, 65),
-                    new TestCaseData(Vertical.Middle, 5, 50, 110),
-                    new TestCaseData(Vertical.Bottom, 5, 95, 155),
+                    new TestCaseData(VAnchor.Up, 5, 5, 65),
+                    new TestCaseData(VAnchor.Middle, 5, 50, 110),
+                    new TestCaseData(VAnchor.Down, 5, 95, 155),
                 };
         }
 
@@ -180,7 +180,7 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     // Support
     //----------------------------------------------------------------------------------------------
     
-    private Axis GetAxis() => typeof(TAnchor) == typeof(Horizontal) ? Axis.X : Axis.Y;
+    private Axis GetAxis() => typeof(TAnchor) == typeof(HAnchor) ? Axis.X : Axis.Y;
 
     private Cell GetParent() => GetAxis() switch
         {

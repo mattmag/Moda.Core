@@ -6,7 +6,7 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IParentAssigned : IParentOrganizer, IInitializeHorizontalAxis
+public interface IParentAssigned : IParentOrganizer
 {
     
 }

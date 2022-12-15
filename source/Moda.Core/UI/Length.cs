@@ -52,18 +52,27 @@ public abstract class Length : ICalculation
 
     public void Initialize(Cell owner, Axis axis)
     {
-        this.Owner = owner.Some();
-        this.Axis = axis.Some();
+        this.IsInitialized = true;
+        this._owner = owner.Some();
+        this._axis = axis.Some();
         OnInitialize(owner, axis);
     }
 
+    // TODO: unit test these
 
-    protected Option<Axis> Axis;
+    public Boolean IsInitialized { get; private set; }
     
-    protected Option<Cell> Owner;
+    protected Option<Axis> _axis { get; private set; }
+    protected Axis Axis => this._axis.ValueOrFailure();
+    
+    protected Option<Cell> _owner { get; private set; }
+    protected Cell Owner => this._owner.ValueOrFailure();
+    
     
     public abstract Single Calculate();
 
+    // public abstract Option<Single> TryCalculate();
+    
     private HashSet<Coordinate> _prerequisites = new();
     public IEnumerable<Coordinate> Prerequisites => this._prerequisites;
     

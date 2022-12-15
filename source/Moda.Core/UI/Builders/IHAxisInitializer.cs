@@ -6,7 +6,12 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IReadyForWidth
+public interface IHAxisInitializer
 {
-    IVAxisInitializer WithWidth(Length width);
+    HAdjacencyBuilder LeftOfPrevious();
+    HAdjacencyBuilder RightOfPrevious();
+
+    public HAnchorBuilder AnchorLeft();
+    public HAnchorBuilder AnchorCenter();
+    public HAnchorBuilder AnchorRight();
 }

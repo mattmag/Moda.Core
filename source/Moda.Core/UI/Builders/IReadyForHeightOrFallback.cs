@@ -6,7 +6,7 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IReadyForWidth
+public interface IReadyForHeightOrFallback : IReadyForHeight
 {
-    IVAxisInitializer WithWidth(Length width);
+    VFallbackBuilder Or();
 }

@@ -4,9 +4,9 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
-namespace Moda.Core.UI.Builders;
+namespace Moda.Core.UI.Lengths;
 
-public interface IReadyForWidth
+public class LargestPeer : Length
 {
-    IVAxisInitializer WithWidth(Length width);
+    
 }

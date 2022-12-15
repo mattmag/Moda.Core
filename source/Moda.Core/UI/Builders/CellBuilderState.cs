@@ -6,7 +6,8 @@
 
 namespace Moda.Core.UI.Builders;
 
-public interface IReadyForWidth
+public class CellBuilderState
 {
-    IVAxisInitializer WithWidth(Length width);
+    public BoundariesRecipe Boundaries { get; } = new();
+    public CompositionRecipe Composition { get; } = new();
 }

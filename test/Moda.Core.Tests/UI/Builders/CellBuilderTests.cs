@@ -48,9 +48,9 @@
 //     }
 //     
 //     [Test]
-//     [TestCase(Vertical.Top, ExpectedResult = Neutral.Alpha)]
+//     [TestCase(Vertical.Up, ExpectedResult = Neutral.Alpha)]
 //     [TestCase(Vertical.Middle, ExpectedResult = Neutral.Center)]
-//     [TestCase(Vertical.Bottom, ExpectedResult = Neutral.Beta)]
+//     [TestCase(Vertical.Down, ExpectedResult = Neutral.Beta)]
 //     public Neutral AnchorAtVerticalShouldPassAnchor(Vertical anchor)
 //     {
 //         BoundariesRecipe recipe = new();
