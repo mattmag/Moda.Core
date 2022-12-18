@@ -12,10 +12,10 @@ using Optional.Unsafe;
 
 namespace Moda.Core.UI.Lengths;
 
-public class AdjacentToPrevious : OptionalLength
+public class AdjacentToPrevious : Length, IOptionalLength
 {
     private NAdjacent side;
-    private readonly Option<Length> offset;
+    private readonly Option<ILength> offset;
 
 
     public AdjacentToPrevious(NAdjacent side)
@@ -23,7 +23,7 @@ public class AdjacentToPrevious : OptionalLength
         this.side = side;
     }
     
-    public AdjacentToPrevious(NAdjacent side, Option<Length> offset)
+    public AdjacentToPrevious(NAdjacent side, Option<ILength> offset)
     {
         this.side = side;
         this.offset = offset;
@@ -37,7 +37,7 @@ public class AdjacentToPrevious : OptionalLength
     }
 
 
-    public override Option<Single> TryCalculate()
+    public Option<Single> TryCalculate()
     {
         return (from peer in this.GetPeer()
             select GetRelevantCoordinate(peer));

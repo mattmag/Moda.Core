@@ -6,7 +6,7 @@
 
 namespace Moda.Core.UI.Lengths;
 
-public class YetNotMoreThan : Length
-{
-    
-}
+// public class YetNotMoreThan : Length
+// {
+//     
+// }

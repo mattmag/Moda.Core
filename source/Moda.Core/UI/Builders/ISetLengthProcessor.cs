@@ -8,5 +8,5 @@ namespace Moda.Core.UI.Builders;
 
 public interface ISetLengthProcessor
 {
-    void SetLength(AxisRecipe axisRecipe, Placement<Length> placement, Length length);
+    void SetLength(AxisRecipe axisRecipe, Placement<ILength> placement, ILength length);
 }

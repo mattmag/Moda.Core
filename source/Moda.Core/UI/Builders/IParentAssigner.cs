@@ -8,7 +8,7 @@ namespace Moda.Core.UI.Builders;
 
 public interface IParentAssigner
 {
-    IParentAssigned AssignParent(Cell parent);
+    IParentOrganizer AssignParent(Cell parent);
     BoundariesInitializer AppendTo(Cell parent);
     BoundariesInitializer InsertAt(Cell parent, Int32 index);
     BoundariesInitializer InsertBefore(Cell peer);

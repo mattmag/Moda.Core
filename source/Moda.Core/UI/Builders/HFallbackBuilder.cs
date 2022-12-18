@@ -10,11 +10,11 @@ namespace Moda.Core.UI.Builders;
 
 public class HFallbackBuilder : IHAxisInitializer
 {
-    private readonly Placement<OptionalLength> preferred;
+    private readonly Placement<IOptionalLength> preferred;
     private readonly CellBuilderState runningState;
 
 
-    public HFallbackBuilder(CellBuilderState runningState, Placement<OptionalLength> preferred)
+    public HFallbackBuilder(CellBuilderState runningState, Placement<IOptionalLength> preferred)
     {
         this.preferred = preferred;
         this.runningState = runningState;

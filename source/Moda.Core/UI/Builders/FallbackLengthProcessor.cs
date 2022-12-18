@@ -11,26 +11,26 @@ namespace Moda.Core.UI.Builders;
 
 public class FallbackLengthProcessor : ISetLengthProcessor
 {
-    private readonly Placement<OptionalLength> placement;
-    private Placement<OptionalLength> preferred;
+    private readonly Placement<IOptionalLength> placement;
+    private Placement<IOptionalLength> preferred;
 
 
-    public FallbackLengthProcessor(Placement<OptionalLength> placement)
+    public FallbackLengthProcessor(Placement<IOptionalLength> placement)
     {
         this.placement = placement;
     }
 
 
-    public void SetLength(AxisRecipe axisRecipe, Placement<Length> fallback, Length length)
+    public void SetLength(AxisRecipe axisRecipe, Placement<ILength> fallback, ILength length)
     {
-        this.preferred.Calculate(length, out Length preferredAlpha, out Length preferredBeta);
+        this.preferred.Calculate(length, out ILength preferredAlpha, out ILength preferredBeta);
         
-        fallback.Calculate(length, out Length fallbackAlpha, out Length fallbackBeta);
+        fallback.Calculate(length, out ILength fallbackAlpha, out ILength fallbackBeta);
         
         axisRecipe.Alpha.Set(
-            new LengthOrFallback((OptionalLength)preferredAlpha, fallbackAlpha));
+            new LengthOrFallback((IOptionalLength)preferredAlpha, fallbackAlpha));
         axisRecipe.Beta.Set(
-            new LengthOrFallback((OptionalLength)preferredBeta, fallbackBeta));
+            new LengthOrFallback((IOptionalLength)preferredBeta, fallbackBeta));
         
     }
 }

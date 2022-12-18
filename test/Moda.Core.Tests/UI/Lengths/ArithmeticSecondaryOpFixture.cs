@@ -34,14 +34,14 @@ public partial class ArithmeticSecondaryOpFixture<TArithmetic, TArg>
     {
         ArithmeticSecondaryOpParams<TArithmetic, TArg> parameters = GetParameters();
         
-        Length length1 = Mock.Of<Length>();
-        Length length2 = Mock.Of<Length>();
+        ILength length1 = Mock.Of<ILength>();
+        ILength length2 = Mock.Of<ILength>();
 
         TArithmetic arithmetic = parameters.Factory(length1, length2);
         parameters.SecondOperation(arithmetic, parameters.Arg3);
         
         arithmetic.Lengths.Should().BeEquivalentTo(
-            new Object[] { length1, length1, parameters.Arg3 }.OfType<Length>()
+            new Object[] { length1, length1, parameters.Arg3 }.OfType<ILength>()
         );
     }
 
@@ -50,8 +50,8 @@ public partial class ArithmeticSecondaryOpFixture<TArithmetic, TArg>
     {
         ArithmeticSecondaryOpParams<TArithmetic, TArg> parameters = GetParameters();
         
-        Length length1 = parameters.Arg1;
-        Length length2 = parameters.Arg2;
+        ILength length1 = parameters.Arg1;
+        ILength length2 = parameters.Arg2;
         
         TArithmetic arithmetic = parameters.Factory(length1, length2);
         parameters.SecondOperation(arithmetic, parameters.Arg3);
@@ -65,8 +65,8 @@ public partial class ArithmeticSecondaryOpFixture<TArithmetic, TArg>
     {
         ArithmeticSecondaryOpParams<TArithmetic, TArg> parameters = GetParameters();
         
-        Length length1 = parameters.Arg1;
-        Length length2 = parameters.Arg2;
+        ILength length1 = parameters.Arg1;
+        ILength length2 = parameters.Arg2;
         
         TArithmetic arithmetic = parameters.Factory(length1, length2);
         parameters.SecondOperation(arithmetic, parameters.Arg3);

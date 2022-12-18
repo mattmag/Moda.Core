@@ -30,10 +30,10 @@ public class BoundariesInitializer : IHAxisInitializer
     
     
     private HAdjacencyBuilder ToAdjacency(HAdjacent adjacency) =>
-        new(new(), new StandardLengthProcessor(), adjacency);
+        new(this.runningState, new StandardLengthProcessor(), adjacency);
     
     private HAnchorBuilder ToAnchorBuilder(HAnchor anchor) => 
-        new(new(), new StandardLengthProcessor(), anchor);
+        new(this.runningState, new StandardLengthProcessor(), anchor);
 }
 
 

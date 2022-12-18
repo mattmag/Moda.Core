@@ -12,19 +12,19 @@ public class HAnchorBuilder : NAnchorBuilder, IReadyForWidth
 {
 
     public HAnchorBuilder(CellBuilderState runningState, ISetLengthProcessor lengthProcessor,
-        HAnchor anchor) : base(runningState, lengthProcessor, anchor.ToNeutral())
+        HAnchor anchor) : base(runningState, lengthProcessor, anchor.ToNeutral(), Axis.X)
     {
 
     }
 
-    public IReadyForWidth OffsetBy(Length length)
+    public IReadyForWidth OffsetBy(ILength length)
     {
         base.SetOffset(length);
         return this;
     }
 
 
-    public IVAxisInitializer WithWidth(Length width)
+    public IVAxisInitializer WithWidth(ILength width)
     {
         // apply and exit
         SetLength(width);

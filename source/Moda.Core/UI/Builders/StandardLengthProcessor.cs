@@ -8,10 +8,10 @@ namespace Moda.Core.UI.Builders;
 
 public class StandardLengthProcessor : ISetLengthProcessor
 {
-    public void SetLength(AxisRecipe axisRecipe, Placement<Length> placement, Length length)
+    public void SetLength(AxisRecipe axisRecipe, Placement<ILength> placement, ILength length)
     {
-        placement.Calculate(length, out Length alpha, out Length beta);
+        placement.Calculate(length, out ILength alpha, out ILength beta);
         axisRecipe.Alpha.Set(alpha);
-        axisRecipe.Alpha.Set(beta);
+        axisRecipe.Beta.Set(beta);
     }
 }

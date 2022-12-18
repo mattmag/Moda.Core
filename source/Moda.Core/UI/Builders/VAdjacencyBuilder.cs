@@ -13,17 +13,17 @@ public class VAdjacencyBuilder : NAdjacencyBuilder, IReadyForHeightOrFallback
     {
     }
       
-    public IReadyForHeightOrFallback OffsetBy(Length offset)
+    public IReadyForHeightOrFallback OffsetBy(ILength offset)
     {
         base.OffsetBy(offset);
         return this;
     }
     
     
-    public IComponentAssignerOrReadyToBuild WithHeight(Length width)
+    public IComponentAssignerOrReadyToBuild WithHeight(ILength height)
     {
         // apply and exit
-        base.Setlength(width);
+        base.Setlength(height);
         return new ComponentAssigner(this.RunningState);
     }
     

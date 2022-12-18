@@ -8,5 +8,5 @@ namespace Moda.Core.UI.Builders;
 
 public interface IReadyForWidth
 {
-    IVAxisInitializer WithWidth(Length width);
+    IVAxisInitializer WithWidth(ILength width);
 }

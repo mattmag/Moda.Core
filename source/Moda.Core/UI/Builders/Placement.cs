@@ -6,9 +6,9 @@
 
 namespace Moda.Core.UI.Builders;
 
-public delegate T CalculatePlacement<T>(Length length) where T : Length;
+public delegate T CalculatePlacement<T>(ILength length) where T : ILength;
 
-public class Placement<T> where T : Length
+public class Placement<T> where T : ILength
 {
     public Placement(NCoordinate solves, CalculatePlacement<T> getLocation)
     {
@@ -21,9 +21,9 @@ public class Placement<T> where T : Length
     public CalculatePlacement<T> GetLocation { get; }
 
 
-    public void Calculate(Length length, out Length alpha, out Length beta)
+    public void Calculate(ILength length, out ILength alpha, out ILength beta)
     {
-        Length location = GetLocation(length);
+        ILength location = GetLocation(length);
         switch (this.Solves)
         {
             case NCoordinate.Alpha:
@@ -40,7 +40,7 @@ public class Placement<T> where T : Length
     }
 
 
-    public Placement<Length> ToBase()
+    public Placement<ILength> ToBase()
     {
         return new(this.Solves, len => this.GetLocation(len));
     }

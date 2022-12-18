@@ -10,10 +10,10 @@ namespace Moda.Core.UI.Builders;
 
 public class VFallbackBuilder : IVAxisInitializer
 {
-    private readonly Placement<OptionalLength> preferred;
+    private readonly Placement<IOptionalLength> preferred;
     private readonly CellBuilderState runningState;
     
-    public VFallbackBuilder(CellBuilderState runningState, Placement<OptionalLength> preferred)
+    public VFallbackBuilder(CellBuilderState runningState, Placement<IOptionalLength> preferred)
     {
         this.preferred = preferred;
         this.runningState = runningState;

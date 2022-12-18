@@ -14,32 +14,32 @@ public class Sum : Arithmetic
     private static readonly Operation SUBTRACT = (a, b) => a - b;
 
 
-    private Sum(Length lengthA, Length lengthB, Operation operation)
+    private Sum(ILength lengthA, ILength lengthB, Operation operation)
         : base(lengthA, lengthB, operation)
     {
         
     }
     
-    private Sum(Length length, Single constant, Operation operation)
+    private Sum(ILength length, Single constant, Operation operation)
         : base(length, constant, operation)
     {
         
     }
     
-    private Sum(Single constant, Length length, Operation operation)
+    private Sum(Single constant, ILength length, Operation operation)
         : base(constant, length, operation)
     {
         
     }
 
-    public static Sum Add(Length lengthA, Length lengthB) => new(lengthA, lengthB, ADD);
-    public static Sum Add(Length lengthA, Single constant) => new(lengthA, constant, ADD);
-    public static Sum Subtract(Length lengthA, Length lengthB) => new(lengthA, lengthB, SUBTRACT);
-    public static Sum Subtract(Length length, Single constant) => new(length, constant, SUBTRACT);
-    public static Sum Subtract(Single constant, Length length) => new(constant, length, SUBTRACT);
+    public static Sum Add(ILength lengthA, ILength lengthB) => new(lengthA, lengthB, ADD);
+    public static Sum Add(ILength lengthA, Single constant) => new(lengthA, constant, ADD);
+    public static Sum Subtract(ILength lengthA, ILength lengthB) => new(lengthA, lengthB, SUBTRACT);
+    public static Sum Subtract(ILength length, Single constant) => new(length, constant, SUBTRACT);
+    public static Sum Subtract(Single constant, ILength length) => new(constant, length, SUBTRACT);
     
     
-    public static Sum operator +(Sum sum, Length length)
+    public static Sum operator +(Sum sum, ILength length)
     {
         sum.AddLength(length);
         sum.AddOperation(ADD);
@@ -53,7 +53,7 @@ public class Sum : Arithmetic
         return sum;
     }
     
-    public static Sum operator -(Sum sum, Length length)
+    public static Sum operator -(Sum sum, ILength length)
     {
         sum.AddLength(length);
         sum.AddOperation(SUBTRACT);

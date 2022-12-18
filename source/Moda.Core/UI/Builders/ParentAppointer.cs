@@ -10,7 +10,7 @@ using Optional.Unsafe;
 
 namespace Moda.Core.UI.Builders;
 
-public class ParentAppointer : IParentAssigner, IParentAssigned, IParentOrganizer
+public class ParentAppointer : IParentAssigner, IParentOrganizer
 {
     private readonly CellBuilderState runningState = new();
     
@@ -22,7 +22,7 @@ public class ParentAppointer : IParentAssigner, IParentAssigned, IParentOrganize
     //##############################################################################################
 
 
-    public IParentAssigned AssignParent(Cell parent)
+    public IParentOrganizer AssignParent(Cell parent)
     {
         this.runningState.Composition.Parent.Set(parent);
         return this;

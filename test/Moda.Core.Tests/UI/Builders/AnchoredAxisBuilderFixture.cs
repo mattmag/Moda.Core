@@ -16,26 +16,25 @@ using NUnit.Framework;
 
 namespace Moda.Core.Tests.UI.Builders;
 
-[TestFixture(typeof(AnchoredHorizontalBuilder), typeof(HAnchor),
-    nameof(AnchoredHorizontalBuilder.WithWidth))]
-[TestFixture(typeof(AnchoredVerticalBuilder), typeof(VAnchor),
-    nameof(AnchoredVerticalBuilder.WithHeight))]
+[TestFixture(typeof(HAnchorBuilder), typeof(HAnchor), nameof(HAnchorBuilder.WithWidth))]
+[TestFixture(typeof(VAnchorBuilder), typeof(VAnchor), nameof(VAnchorBuilder.WithHeight))]
 public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
-    where TBuilder : AnchoredAxisBuilder
+    where TBuilder : NAnchorBuilder
 {
-    private static Func<TAnchor, TBuilder> factory => anchor =>
-        (TBuilder)(Activator.CreateInstance(typeof(TBuilder), new CellBuilder(), anchor)
+    private static Func<CellBuilderState, TAnchor, TBuilder> factory => (state, anchor) =>
+        (TBuilder)(Activator.CreateInstance(typeof(TBuilder), state,
+                new StandardLengthProcessor(), anchor)
             ?? throw new());
 
-    private MethodInfo SetLengthMethod;
-    private MethodInfo OffsetByMethod;
+    private readonly MethodInfo setLengthMethod;
+    private readonly MethodInfo offsetByMethod;
 
     
     public AnchoredAxisBuilderFixture(string nameOfSetLengthMethod)
     {
-        this.SetLengthMethod = (typeof(TBuilder)
+        this.setLengthMethod = (typeof(TBuilder)
             .GetMethod(nameOfSetLengthMethod, new[] { typeof(Length) }) ?? throw new());
-        this.OffsetByMethod = (typeof(TBuilder)
+        this.offsetByMethod = (typeof(TBuilder)
             .GetMethod("OffsetBy", new[] { typeof(Length) }) ?? throw new());
     }
         
@@ -43,38 +42,38 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     // Constructor Tests
     //----------------------------------------------------------------------------------------------
     
-    [TestCaseSource(nameof(AnchorConversionData))]
-    public NAnchor ConstructorShouldSetAndConvertAnchor(HAnchor anchor)
-    {
-        CellBuilder cellBuilder = new();
-        AnchoredHorizontalBuilder axisBuilder = new(cellBuilder, anchor);
-        return axisBuilder.Anchor;
-    }
+    // [TestCaseSource(nameof(AnchorConversionData))]
+    // public NAnchor ConstructorShouldSetAndConvertAnchor(HAnchor anchor)
+    // {
+    //     CellBuilder cellBuilder = new();
+    //     AnchoredHorizontalBuilder axisBuilder = new(cellBuilder, anchor);
+    //     return axisBuilder.Anchor;
+    // }
     
-    public static IEnumerable<TestCaseData> AnchorConversionData()
-    {
-        if (typeof(TAnchor) == typeof(HAnchor))
-        {
-            return new[]
-            {
-                new TestCaseData(HAnchor.Left).Returns(NAnchor.Alpha),
-                new TestCaseData(HAnchor.Center).Returns(NAnchor.Center),
-                new TestCaseData(HAnchor.Right).Returns(NAnchor.Beta),
-            };
-        }
-
-        if (typeof(TAnchor) == typeof(VAnchor))
-        {
-            return new[]
-                {
-                    new TestCaseData(VAnchor.Up).Returns(NAnchor.Alpha),
-                    new TestCaseData(VAnchor.Middle).Returns(NAnchor.Center),
-                    new TestCaseData(VAnchor.Down).Returns(NAnchor.Beta),
-                };
-        }
-
-        throw new ArgumentException();
-    }
+    // public static IEnumerable<TestCaseData> AnchorConversionData()
+    // {
+    //     if (typeof(TAnchor) == typeof(HAnchor))
+    //     {
+    //         return new[]
+    //         {
+    //             new TestCaseData(HAnchor.Left).Returns(NAnchor.Alpha),
+    //             new TestCaseData(HAnchor.Center).Returns(NAnchor.Center),
+    //             new TestCaseData(HAnchor.Right).Returns(NAnchor.Beta),
+    //         };
+    //     }
+    //
+    //     if (typeof(TAnchor) == typeof(VAnchor))
+    //     {
+    //         return new[]
+    //             {
+    //                 new TestCaseData(VAnchor.Up).Returns(NAnchor.Alpha),
+    //                 new TestCaseData(VAnchor.Middle).Returns(NAnchor.Center),
+    //                 new TestCaseData(VAnchor.Down).Returns(NAnchor.Beta),
+    //             };
+    //     }
+    //
+    //     throw new ArgumentException();
+    // }
 
 
     // With{Length}() Tests
@@ -86,11 +85,12 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     {
         Cell parent = GetParent();
         
-        TBuilder axisBuilder = factory(anchor);
-        this.SetLengthMethod.Invoke(axisBuilder, new Object?[] { new Pixels(60) });
+        CellBuilderState state = new();
+        TBuilder axisBuilder = factory(state, anchor);
+        this.setLengthMethod.Invoke(axisBuilder, new Object?[] { new Pixels(60) });
 
-        Cell child = GetChild(axisBuilder.AxisRecipe.Alpha.Get(),
-            axisBuilder.AxisRecipe.Beta.Get());
+        AxisRecipe axisRecipe = state.Boundaries.GetAxisRecipe(GetAxis());
+        Cell child = GetChild(axisRecipe.Alpha.Get(), axisRecipe.Beta.Get());
         parent.AppendChild(child);
         LayoutAllCoordinates(parent);
 
@@ -136,12 +136,13 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     {
         Cell parent = GetParent();
         
-        TBuilder axisBuilder = factory(anchor);
-        this.OffsetByMethod.Invoke(axisBuilder, new Object?[] { Len(offset) });
-        this.SetLengthMethod.Invoke(axisBuilder, new Object?[] { Len(60) });
+        CellBuilderState state = new();
+        TBuilder axisBuilder = factory(state, anchor);
+        this.offsetByMethod.Invoke(axisBuilder, new Object?[] { Len(offset) });
+        this.setLengthMethod.Invoke(axisBuilder, new Object?[] { Len(60) });
 
-        Cell child = GetChild(axisBuilder.AxisRecipe.Alpha.Get(),
-            axisBuilder.AxisRecipe.Beta.Get());
+        AxisRecipe axisRecipe = state.Boundaries.GetAxisRecipe(GetAxis());
+        Cell child = GetChild(axisRecipe.Alpha.Get(), axisRecipe.Beta.Get());
         parent.AppendChild(child);
         LayoutAllCoordinates(parent);
 
@@ -190,7 +191,7 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
         };
 
 
-    private Cell GetChild(Length alpha, Length beta) => GetAxis() switch
+    private Cell GetChild(ILength alpha, ILength beta) => GetAxis() switch
         {
             Axis.X => new(Mock.Of<IHoneyComb>(), alpha, beta, Len(0), Len(0)),
             Axis.Y => new(Mock.Of<IHoneyComb>(), Len(0), Len(0), alpha, beta),

@@ -8,7 +8,7 @@ namespace Moda.Core.UI.Builders;
 
 public class AxisRecipe
 {
-    public Ingredient<Length> Alpha { get; } = new();
+    public Ingredient<ILength> Alpha { get; } = new();
     
-    public Ingredient<Length> Beta { get; } = new();
+    public Ingredient<ILength> Beta { get; } = new();
 }

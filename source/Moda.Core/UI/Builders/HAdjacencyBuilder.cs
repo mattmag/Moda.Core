@@ -13,14 +13,14 @@ public class HAdjacencyBuilder : NAdjacencyBuilder, IReadyForWidthOrFallback
     {
     }
       
-    public IReadyForWidthOrFallback OffsetBy(Length offset)
+    public IReadyForWidthOrFallback OffsetBy(ILength offset)
     {
         base.OffsetBy(offset);
         return this;
     }
     
     
-    public IVAxisInitializer WithWidth(Length width)
+    public IVAxisInitializer WithWidth(ILength width)
     {
         // apply and exit
         base.Setlength(width);

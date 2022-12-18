@@ -8,11 +8,11 @@ namespace Moda.Core.UI.Lengths;
 
 public class LengthOrFallback : CompositeLength
 {
-    private OptionalLength preferred;
-    private Length fallback;
+    private IOptionalLength preferred;
+    private ILength fallback;
 
 
-    public LengthOrFallback(OptionalLength preferred, Length fallback)
+    public LengthOrFallback(IOptionalLength preferred, ILength fallback)
     {
         this.preferred = preferred;
         this.fallback = fallback;

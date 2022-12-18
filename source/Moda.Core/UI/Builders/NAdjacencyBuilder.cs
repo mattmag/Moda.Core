@@ -14,7 +14,7 @@ public abstract class NAdjacencyBuilder
     private readonly AxisRecipe axisRecipe;
     private readonly ISetLengthProcessor lengthProcessor;
     private readonly NAdjacent adjacent;
-    private Option<Length> offset;
+    private Option<ILength> offset;
     
     public NAdjacencyBuilder(CellBuilderState runningState, ISetLengthProcessor lengthProcessor,
         NAdjacent adjacent, Axis axis)
@@ -28,20 +28,20 @@ public abstract class NAdjacencyBuilder
     protected CellBuilderState RunningState { get; }
 
     
-    protected void OffsetBy(Length length)
+    protected void OffsetBy(ILength length)
     {
         this.offset = length.Some();
     }
 
 
-    protected void Setlength(Length length)
+    protected void Setlength(ILength length)
     {
         this.lengthProcessor.SetLength(this.axisRecipe, GetPlacement().ToBase(), length);
     }
 
 
     
-    protected Placement<OptionalLength> GetPlacement()
+    protected Placement<IOptionalLength> GetPlacement()
     {
         return this.adjacent switch
             {

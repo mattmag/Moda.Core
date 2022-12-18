@@ -8,7 +8,7 @@ using Optional;
 
 namespace Moda.Core.UI.Lengths;
 
-public abstract class OptionalLength : Length
+public interface IOptionalLength : ILength
 {
-    public abstract Option<Single> TryCalculate();
+    public Option<Single> TryCalculate();
 }

@@ -9,22 +9,22 @@ namespace Moda.Core.UI.Builders;
 public class VAnchorBuilder : NAnchorBuilder, IReadyForHeight
 {
     public VAnchorBuilder(CellBuilderState runningState, ISetLengthProcessor lengthProcessor,
-        VAnchor anchor) : base(runningState, lengthProcessor, anchor.ToNeutral())
+        VAnchor anchor) : base(runningState, lengthProcessor, anchor.ToNeutral(), Axis.Y)
     {
     }
 
 
-    public IReadyForHeight OffsetBy(Length length)
+    public IReadyForHeight OffsetBy(ILength length)
     {
         base.SetOffset(length);
         return this;
     }
 
 
-    public IComponentAssignerOrReadyToBuild WithHeight(Length width)
+    public IComponentAssignerOrReadyToBuild WithHeight(ILength height)
     {
         // apply and exit
-        SetLength(width);
+        SetLength(height);
         return new ComponentAssigner(this.RunningState);
     }
 }

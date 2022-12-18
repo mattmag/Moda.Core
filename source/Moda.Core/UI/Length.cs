@@ -11,44 +11,80 @@ using Optional.Unsafe;
 
 namespace Moda.Core.UI;
 
-public abstract class Length : ICalculation
+public interface ILength : ICalculation
 {
-    public static Sum operator +(Length length, Length lengthB) =>
-        Sum.Add(length, lengthB);
+    public static Sum operator +(ILength lengthA, ILength lengthB) =>
+        Sum.Add(lengthA, lengthB);
     
-    public static Sum operator +(Length length, Single constant) =>
+    public static Sum operator +(ILength length, Single constant) =>
         Sum.Add(length, constant);
     
-    public static Sum operator +(Single constant, Length length) =>
+    public static Sum operator +(Single constant, ILength length) =>
         Sum.Add(length, constant);
     
-    public static Sum operator -(Length lengthA, Length lengthB) =>
+    public static Sum operator -(ILength lengthA, ILength lengthB) =>
         Sum.Subtract(lengthA, lengthB);
     
-     public static Sum operator -(Length length, Single constant) =>
+     public static Sum operator -(ILength length, Single constant) =>
         Sum.Subtract(length, constant);
     
-    public static Sum operator -(Single constant, Length length) =>
+    public static Sum operator -(Single constant, ILength length) =>
         Sum.Subtract(constant, length);
     
-    public static Product operator *(Length length, Length lengthB) =>
-        Product.Multiply(length, lengthB);
+    public static Product operator *(ILength lengthA, ILength lengthB) =>
+        Product.Multiply(lengthA, lengthB);
     
-    public static Product operator *(Length length, Single constant) =>
+    public static Product operator *(ILength lengthA, Single constant) =>
+        Product.Multiply(lengthA, constant);
+    
+    public static Product operator *(Single constant, ILength length) =>
         Product.Multiply(length, constant);
     
-    public static Product operator *(Single constant, Length length) =>
-        Product.Multiply(length, constant);
-    
-    public static Product operator /(Length lengthA, Length lengthB) =>
+    public static Product operator /(ILength lengthA, ILength lengthB) =>
         Product.Divide(lengthA, lengthB);
     
-     public static Product operator /(Length length, Single constant) =>
+     public static Product operator /(ILength length, Single constant) =>
         Product.Divide(length, constant);
     
-    public static Product operator /(Single constant, Length length) =>
+    public static Product operator /(Single constant, ILength length) =>
         Product.Divide(constant, length);
+    
+}
 
+public abstract class Length : ILength, ICalculation
+{
+    
+    // explicitly relay to ILength operators as the compiler won't do it for us in some cases
+    // because "classes that implement an interface do not inherit it's members"
+    // other base classes may need to do the same, or cast to ILength as required during arithmetic
+    
+    public static Sum operator +(Length lengthA, ILength lengthB) => (ILength)lengthA + lengthB;
+    
+    public static Sum operator +(Length length, Single constant) => (ILength)length + constant;
+
+    public static Sum operator +(Single constant, Length length) => constant + (ILength)length;
+
+    
+    public static Sum operator -(Length lengthA, ILength lengthB) => (ILength)lengthA - lengthB;
+    
+    public static Sum operator -(Length length, Single constant) => (ILength)length - constant;
+    
+    public static Sum operator -(Single constant, Length length) => constant - (ILength)length;
+
+
+    public static Product operator *(Length lengthA, ILength lengthB) => (ILength)lengthA * lengthB;
+
+    public static Product operator *(Length length, Single constant) => (ILength)length * constant;
+
+    public static Product operator *(Single constant, Length length) => constant * (ILength)length;
+
+    public static Product operator /(Length lengthA, ILength lengthB) => (ILength)lengthA / lengthB;
+
+    public static Product operator /(Length length, Single constant) => (ILength)length / constant;
+
+    public static Product operator /(Single constant, Length length) => constant / (ILength)length;
+
+    
 
     public void Initialize(Cell owner, Axis axis)
     {
@@ -59,6 +95,7 @@ public abstract class Length : ICalculation
     }
 
     // TODO: unit test these
+    // TODO: move to ILength
 
     public Boolean IsInitialized { get; private set; }
     

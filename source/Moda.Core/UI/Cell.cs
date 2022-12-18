@@ -112,7 +112,7 @@ public class Cell : TreeNode<Cell>
     // }
 
 
-    public Cell CreateChild(Func<IParentAssigned, IReadyToBuild> builder)
+    public Cell CreateChild(Func<IParentOrganizer, IReadyToBuild> builder)
     {
         return this.hive.NewCell(a => builder(a.AssignParent(this)));
     }

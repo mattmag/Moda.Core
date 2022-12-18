@@ -841,17 +841,15 @@ public class HiveTests
             this.XBeta = new($"{debugName}.X.Beta.", getCallOrder);
             this.YAlpha = new($"{debugName}.Y.Alpha", getCallOrder);
             this.YBeta = new($"{debugName}.Y.Beta.", getCallOrder);
-
-            this.BoundariesRecipe = new();
-            this.BoundariesRecipe.XBoundary.Alpha.Set(this.XAlpha);
-            this.BoundariesRecipe.XBoundary.Beta.Set(this.XBeta);
-            this.BoundariesRecipe.YBoundary.Alpha.Set(this.YAlpha);
-            this.BoundariesRecipe.YBoundary.Beta.Set(this.YBeta);
-
-            this.CompositionRecipe = new();
-            this.CompositionRecipe.Parent.Set(parent);
-            this.CompositionRecipe.InsertionIndex.Set(Option.None<Int32>());
-            this.CompositionRecipe.Components.Set(Enumerable.Empty<Object>());
+            
+            this.state.Boundaries.XBoundary.Alpha.Set(this.XAlpha);
+            this.state.Boundaries.XBoundary.Beta.Set(this.XBeta);
+            this.state.Boundaries.YBoundary.Alpha.Set(this.YAlpha);
+            this.state.Boundaries.YBoundary.Beta.Set(this.YBeta);
+            
+            this.state.Composition.Parent.Set(parent);
+            this.state.Composition.InsertionIndex.Set(Option.None<Int32>());
+            this.state.Composition.Components.Set(Enumerable.Empty<Object>());
         }
         
 
@@ -859,12 +857,11 @@ public class HiveTests
         public MockLength XBeta { get; }
         public MockLength YAlpha { get; }
         public MockLength YBeta { get; }
-        
-        
 
-        private BoundariesRecipe BoundariesRecipe { get; }
-        
-        private CompositionRecipe CompositionRecipe { get; }
+
+        private CellBuilderState state = new();
+
+
 
         public void ResetAllInvocations()
         {
@@ -876,7 +873,7 @@ public class HiveTests
         
         public CellBuilderState GetCellRecipe()
         {
-            return new(this.BoundariesRecipe, this.CompositionRecipe);
+            return this.state;
         }
 
 

@@ -15,51 +15,52 @@ public abstract class NAnchorBuilder
     private readonly AxisRecipe axisRecipe;
     private readonly ISetLengthProcessor lengthProcessor;
     private readonly NAnchor anchor;
-    private Option<Length> offset;
-    
-    public NAnchorBuilder(CellBuilderState runningState, ISetLengthProcessor lengthProcessor,
-        NAnchor anchor)
+    private Option<ILength> offset;
+
+
+    protected NAnchorBuilder(CellBuilderState runningState, ISetLengthProcessor lengthProcessor,
+        NAnchor anchor, Axis axis)
     {
         this.RunningState = runningState;
-        this.axisRecipe = this.RunningState.Boundaries.GetAxisRecipe(Axis.X);
+        this.axisRecipe = this.RunningState.Boundaries.GetAxisRecipe(axis);
         this.lengthProcessor = lengthProcessor;
         this.anchor = anchor;
     }
     
     protected CellBuilderState RunningState { get; }
     
-    protected void SetOffset(Length length)
+    protected void SetOffset(ILength length)
     {
         this.offset = length.Some();
     }
 
 
-    public void SetLength(Length width)
+    protected void SetLength(ILength width)
     {
         this.lengthProcessor.SetLength(this.axisRecipe, GetPlacement().ToBase(), width);
     }
     
     
-    private Placement<Length> GetPlacement()
+    private Placement<ILength> GetPlacement()
     {
-        Placement<Length> GetBetaPlacement()
+        Placement<ILength> getBetaPlacement()
         {
-            Length beta = new PercentOfParent(100);
+            ILength beta = new PercentOfParent(100);
             return new(NCoordinate.Beta, _ => this.offset.Match(off => beta + off, () => beta));
         }
         
-        Placement<Length> GetCenterPlacement()
+        Placement<ILength> getCenterPlacement()
         {
-            Length center = new PercentOfParent(50);
-            Length target = this.offset.Match(off => center + off, () => center);
+            ILength center = new PercentOfParent(50);
+            ILength target = this.offset.Match(off => center + off, () => center);
             return new(NCoordinate.Alpha, len => target - (len / 2));
         }
         
         return this.anchor switch
             {
                 NAnchor.Alpha => new(NCoordinate.Alpha, _ => this.offset.ValueOr(new Pixels(0))),
-                NAnchor.Center => GetCenterPlacement(),
-                NAnchor.Beta => GetBetaPlacement(),
+                NAnchor.Center => getCenterPlacement(),
+                NAnchor.Beta => getBetaPlacement(),
                 _ => throw new ArgumentOutOfRangeException()
             };
     }

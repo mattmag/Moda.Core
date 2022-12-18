@@ -12,38 +12,38 @@ public class Product : Arithmetic
     private static readonly Operation DIVIDE = (a, b) => a * (1/b);
     
     
-    private Product(Length lengthA, Length lengthB, Operation operation)
+    private Product(ILength lengthA, ILength lengthB, Operation operation)
         : base(lengthA, lengthB, operation)
     {
         
     }
     
-    private Product(Length length, Single constant, Operation operation)
+    private Product(ILength length, Single constant, Operation operation)
         : base(length, constant, operation)
     {
         
     }
     
-    private Product(Single constant, Length length, Operation operation)
+    private Product(Single constant, ILength length, Operation operation)
         : base(constant, length, operation)
     {
         
     }
    
 
-    public static Product Multiply(Length lengthA, Length lengthB) => 
+    public static Product Multiply(ILength lengthA, ILength lengthB) => 
         new(lengthA, lengthB, MULTIPLY);
-    public static Product Multiply(Length lengthA, Single constant) => 
+    public static Product Multiply(ILength lengthA, Single constant) => 
         new(lengthA, constant, MULTIPLY);
-    public static Product Divide(Length lengthA, Length lengthB) => 
+    public static Product Divide(ILength lengthA, ILength lengthB) => 
         new(lengthA, lengthB, DIVIDE);
-    public static Product Divide(Length length, Single constant) => 
+    public static Product Divide(ILength length, Single constant) => 
         new(length, constant, DIVIDE);
-    public static Product Divide(Single constant, Length length) => 
+    public static Product Divide(Single constant, ILength length) => 
         new(constant, length, DIVIDE);
     
     
-    public static Product operator *(Product sum, Length length)
+    public static Product operator *(Product sum, ILength length)
     {
         sum.AddLength(length);
         sum.AddOperation(MULTIPLY);
@@ -57,7 +57,7 @@ public class Product : Arithmetic
         return sum;
     }
     
-    public static Product operator /(Product sum, Length length)
+    public static Product operator /(Product sum, ILength length)
     {
         sum.AddLength(length);
         sum.AddOperation(DIVIDE);

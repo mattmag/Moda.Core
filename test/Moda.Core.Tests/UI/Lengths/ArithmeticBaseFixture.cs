@@ -38,7 +38,7 @@ public partial class ArithmeticBaseFixture<TArithmetic, TArg1, TArg2>
         TArithmetic arithmetic = parameters.Factory(arg1, arg2);
         
         arithmetic.Lengths.Should().BeEquivalentTo(
-            new Object[] { arg1, arg2 }.OfType<Length>()
+            new Object[] { arg1, arg2 }.OfType<ILength>()
         );
     }
 

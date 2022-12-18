@@ -8,5 +8,5 @@ namespace Moda.Core.UI.Builders;
 
 public interface IReadyForHeight
 {
-    IComponentAssignerOrReadyToBuild WithHeight(Length width);
+    IComponentAssignerOrReadyToBuild WithHeight(ILength height);
 }

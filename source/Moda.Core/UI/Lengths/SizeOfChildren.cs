@@ -10,16 +10,15 @@ using Optional.Unsafe;
 
 namespace Moda.Core.UI.Lengths;
 
+// TODO: could be useful as an IOptionalLength  
+
 public class SizeOfChildren : Length
 {
     
     public override Single Calculate()
     {
-        return (from owner in this.Owner
-                from axis in this.Axis
-            select owner.Children
-                .Max(a => a.GetBoundary(axis).BetaCoordinate.RelativeValue.ValueOrFailure()))
-            .ValueOrFailure();
+        return this.Owner.Children
+            .Max(a => a.GetBoundary(this.Axis).BetaCoordinate.RelativeValue.ValueOrFailure());
     }
 
 
@@ -38,7 +37,7 @@ public class SizeOfChildren : Length
 
     private void OwnerOnChildrenChanged(Cell sender, CollectionChangedArgs<Cell> args)
     {
-        this.Axis.MatchSome(axis =>
+        this._axis.MatchSome(axis =>
             ModifyPrerequisites(
                 GetBetaCoordinates(args.ItemsAdded, axis),
                 GetBetaCoordinates(args.ItemsRemoved, axis))

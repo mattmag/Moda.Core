@@ -11,11 +11,11 @@ namespace Moda.Core.UI.Lengths;
 
 
 
-public abstract class Arithmetic : OptionalLength
+public abstract class Arithmetic : CompositeLength, IOptionalLength
 {
     // private List<Func<Single>> components = new();
-    private List<Func<Option<Single>>> tryComponents = new();
-    private List<Operation> operations = new();
+    private readonly List<Func<Option<Single>>> tryComponents = new();
+    private readonly List<Operation> operations = new();
 
 
     public Arithmetic()
@@ -23,34 +23,34 @@ public abstract class Arithmetic : OptionalLength
         
     }
 
-    protected Arithmetic(Length lengthA, Length lengthB, Operation operation)
+    protected Arithmetic(ILength lengthA, ILength lengthB, Operation operation)
     {
         this.AddLength(lengthA);
         this.AddLength(lengthB);
         this.AddOperation(operation);
     }
 
-    protected Arithmetic(Length length, Single constant, Operation operation)
+    protected Arithmetic(ILength length, Single constant, Operation operation)
     {
         this.AddLength(length);
         this.AddConstant(constant);
         this.AddOperation(operation);
     }
     
-    protected Arithmetic(Single constant, Length length, Operation operation)
+    protected Arithmetic(Single constant, ILength length, Operation operation)
     {
         this.AddConstant(constant);
         this.AddLength(length);
         this.AddOperation(operation);
     }
     
-    protected new void AddLength(Length length)
+    protected void AddLength(ILength length)
     {
         base.AddLength(length);
         this.tryComponents.Add(() => length.Calculate().Some());
     }
     
-    protected void AddLength(OptionalLength length)
+    protected void AddLength(IOptionalLength length)
     {
         base.AddLength(length);
         this.tryComponents.Add(length.TryCalculate);
@@ -89,21 +89,32 @@ public abstract class Arithmetic : OptionalLength
         return TryCalculate().ValueOrFailure();
     }
 
-
-    public override Option<Single> TryCalculate()
+    // TODO: unit test 
+    public Option<Single> TryCalculate()
     {
+        if (!this.tryComponents.Any())
+        {
+            return 0f.Some();
+        }
+        
+        if ( this.tryComponents.Count !=  this.operations.Count + 1)
+        {
+            throw new InvalidOperationException(
+                $"Number of components `{this.tryComponents.Count}` does not match number of" +
+                $" operations `{this.operations.Count}` + 1");
+        }
+        
         // TODO: ? do better ? idk
         Option<Single> running = this.tryComponents.First().Invoke();
-        while (running.HasValue)
+        
+        for (int i = 0; i < this.operations.Count && running.HasValue; i++)
         {
-            for (int i = 0; i < this.tryComponents.Count; i++)
-            {
-                Option<Single> next = this.tryComponents[i + 1].Invoke();
-                Int32 index = i;
-                Option<Single> running1 = running;
-                running = next.Map(a => this.operations[index](running1.ValueOrFailure(), a));
-            }
+            Int32 index = i;
+            Single running1 = running.ValueOrFailure();
+            Option<Single> next = this.tryComponents[index + 1].Invoke();
+            running = next.Map(a => this.operations[index](running1, a));
         }
+        
 
         return running;
     }
