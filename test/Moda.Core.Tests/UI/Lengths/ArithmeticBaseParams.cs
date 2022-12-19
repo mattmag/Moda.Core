@@ -57,6 +57,12 @@ public abstract class ArithmeticBaseParams<TArithmetic, TArg1, TArg2>
     
     protected static T CreateArg<T>(Single val)
     {
+        if (typeof(T) == typeof(Length))
+        {
+            Mock<Length> lengthA = new();
+            lengthA.Setup(a => a.Calculate()).Returns(val);
+            return (T)(object)lengthA.Object;
+        }
         if (typeof(T) == typeof(ILength))
         {
             Mock<ILength> lengthA = new();

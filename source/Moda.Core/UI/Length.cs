@@ -11,47 +11,7 @@ using Optional.Unsafe;
 
 namespace Moda.Core.UI;
 
-public interface ILength : ICalculation
-{
-    public static Sum operator +(ILength lengthA, ILength lengthB) =>
-        Sum.Add(lengthA, lengthB);
-    
-    public static Sum operator +(ILength length, Single constant) =>
-        Sum.Add(length, constant);
-    
-    public static Sum operator +(Single constant, ILength length) =>
-        Sum.Add(length, constant);
-    
-    public static Sum operator -(ILength lengthA, ILength lengthB) =>
-        Sum.Subtract(lengthA, lengthB);
-    
-     public static Sum operator -(ILength length, Single constant) =>
-        Sum.Subtract(length, constant);
-    
-    public static Sum operator -(Single constant, ILength length) =>
-        Sum.Subtract(constant, length);
-    
-    public static Product operator *(ILength lengthA, ILength lengthB) =>
-        Product.Multiply(lengthA, lengthB);
-    
-    public static Product operator *(ILength lengthA, Single constant) =>
-        Product.Multiply(lengthA, constant);
-    
-    public static Product operator *(Single constant, ILength length) =>
-        Product.Multiply(length, constant);
-    
-    public static Product operator /(ILength lengthA, ILength lengthB) =>
-        Product.Divide(lengthA, lengthB);
-    
-     public static Product operator /(ILength length, Single constant) =>
-        Product.Divide(length, constant);
-    
-    public static Product operator /(Single constant, ILength length) =>
-        Product.Divide(constant, length);
-    
-}
-
-public abstract class Length : ILength, ICalculation
+public abstract class Length : ILength
 {
     
     // explicitly relay to ILength operators as the compiler won't do it for us in some cases
@@ -61,29 +21,29 @@ public abstract class Length : ILength, ICalculation
     public static Sum operator +(Length lengthA, ILength lengthB) => (ILength)lengthA + lengthB;
     
     public static Sum operator +(Length length, Single constant) => (ILength)length + constant;
-
+    
     public static Sum operator +(Single constant, Length length) => constant + (ILength)length;
-
+    
     
     public static Sum operator -(Length lengthA, ILength lengthB) => (ILength)lengthA - lengthB;
     
     public static Sum operator -(Length length, Single constant) => (ILength)length - constant;
     
     public static Sum operator -(Single constant, Length length) => constant - (ILength)length;
-
-
+    
+    
     public static Product operator *(Length lengthA, ILength lengthB) => (ILength)lengthA * lengthB;
-
+    
     public static Product operator *(Length length, Single constant) => (ILength)length * constant;
-
+    
     public static Product operator *(Single constant, Length length) => constant * (ILength)length;
-
+    
     public static Product operator /(Length lengthA, ILength lengthB) => (ILength)lengthA / lengthB;
-
+    
     public static Product operator /(Length length, Single constant) => (ILength)length / constant;
-
+    
     public static Product operator /(Single constant, Length length) => constant / (ILength)length;
-
+    
     
 
     public void Initialize(Cell owner, Axis axis)
@@ -94,10 +54,9 @@ public abstract class Length : ILength, ICalculation
         OnInitialize(owner, axis);
     }
 
-    // TODO: unit test these
-    // TODO: move to ILength
 
-    public Boolean IsInitialized { get; private set; }
+
+    protected Boolean IsInitialized { get; private set; }
     
     protected Option<Axis> _axis { get; private set; }
     protected Axis Axis => this._axis.ValueOrFailure();
@@ -108,7 +67,6 @@ public abstract class Length : ILength, ICalculation
     
     public abstract Single Calculate();
 
-    // public abstract Option<Single> TryCalculate();
     
     private HashSet<Coordinate> _prerequisites = new();
     public IEnumerable<Coordinate> Prerequisites => this._prerequisites;

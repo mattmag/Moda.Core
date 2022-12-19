@@ -39,30 +39,46 @@ public class Sum : Arithmetic
     public static Sum Subtract(Single constant, ILength length) => new(constant, length, SUBTRACT);
     
     
+    
+    
     public static Sum operator +(Sum sum, ILength length)
     {
-        sum.AddLength(length);
+        sum.AddLengthComponent(length);
         sum.AddOperation(ADD);
         return sum;
     }
+    
+    public static Sum operator +(ILength length, Sum sum) => sum + length;
+    
+    
+    
     
     public static Sum operator +(Sum sum, Single constant)
     {
-        sum.AddConstant(constant);
+        sum.AddConstantComponent(constant);
         sum.AddOperation(ADD);
         return sum;
     }
+    public static Sum operator +(Single constant, Sum sum) => sum + constant;
+    
+    
     
     public static Sum operator -(Sum sum, ILength length)
     {
-        sum.AddLength(length);
+        sum.AddLengthComponent(length);
         sum.AddOperation(SUBTRACT);
         return sum;
     }
     
+    // public static Sum operator -(ILength length, Sum sum)
+    // {
+        #warning my brain stopped worker
+        #warning also how many others of these do we need
+    // }
+    
     public static Sum operator -(Sum sum, Single constant)
     {
-        sum.AddConstant(constant);
+        sum.AddConstantComponent(constant);
         sum.AddOperation(SUBTRACT);
         return sum;
     }

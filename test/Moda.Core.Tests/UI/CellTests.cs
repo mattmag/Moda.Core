@@ -108,8 +108,8 @@ public class CellTests
             Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
         Cell child = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell.Children.Should().BeEquivalentTo(new[] { child });
     }
     
@@ -122,23 +122,23 @@ public class CellTests
         
         Cell childA = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childB = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childC = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childD = cell.CreateChild(a => a
             .InsertAfter(childB)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         cell.Children.Should().BeEquivalentTo(new[] { childA, childB, childD, childC });
     }
@@ -153,23 +153,23 @@ public class CellTests
         
         Cell childA = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childB = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childC = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childD = cell.CreateChild(a => a
             .InsertBefore(childB)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         cell.Children.Should().BeEquivalentTo(new[] { childA, childD, childB, childC });
     }
@@ -183,23 +183,23 @@ public class CellTests
         
         Cell childA = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childB = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childC = cell.CreateChild(a => a
             .Append()
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell childD = cell.CreateChild(a => a
             .InsertAt(1)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         cell.Children.Should().BeEquivalentTo(new[] { childA, childD, childB, childC });
     }
@@ -237,5 +237,44 @@ public class CellTests
         cell.XBoundary.BetaCoordinate.DebugName.Should().Be("TestCell.X.Beta");
         cell.YBoundary.AlphaCoordinate.DebugName.Should().Be("TestCell.Y.Alpha");
         cell.YBoundary.AlphaCoordinate.DebugName.Should().Be("TestCell.Y.Alpha");
+    }
+
+
+    // GetCoordinates() Tests
+    //----------------------------------------------------------------------------------------------
+    [Test]
+    public void GetCoordinatesShouldReturnCoordinatesOfBothBoundaries()
+    {
+         Cell cell = new(Mock.Of<IHoneyComb>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+         cell.GetCoordinates().Should().BeEquivalentTo(new[]
+             {
+                 cell.XBoundary.AlphaCoordinate, cell.XBoundary.BetaCoordinate,
+                 cell.YBoundary.AlphaCoordinate, cell.YBoundary.BetaCoordinate,
+             });
+    }
+
+
+    // GetBoundary() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void GetBoundaryShouldReturnRelevantBoundary()
+    {
+         Cell cell = new(Mock.Of<IHoneyComb>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+         cell.GetBoundary(Axis.X).Should().BeSameAs(cell.XBoundary);
+         cell.GetBoundary(Axis.Y).Should().BeSameAs(cell.YBoundary);
+    }
+    
+    [Test]
+    public void GetBoundaryShouldThrownExceptionWhenBoundaryOutOfRange()
+    {
+         Cell cell = new(Mock.Of<IHoneyComb>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>(),
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+         cell.Invoking(a => a.GetBoundary((Axis)999)).Should().Throw<ArgumentOutOfRangeException>();
     }
 }

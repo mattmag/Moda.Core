@@ -45,28 +45,28 @@ public class Product : Arithmetic
     
     public static Product operator *(Product sum, ILength length)
     {
-        sum.AddLength(length);
+        sum.AddLengthComponent(length);
         sum.AddOperation(MULTIPLY);
         return sum;
     }
     
     public static Product operator *(Product sum, Single constant)
     {
-        sum.AddConstant(constant);
+        sum.AddConstantComponent(constant);
         sum.AddOperation(MULTIPLY);
         return sum;
     }
     
     public static Product operator /(Product sum, ILength length)
     {
-        sum.AddLength(length);
+        sum.AddLengthComponent(length);
         sum.AddOperation(DIVIDE);
         return sum;
     }
     
     public static Product operator /(Product sum, Single constant)
     {
-        sum.AddConstant(constant);
+        sum.AddConstantComponent(constant);
         sum.AddOperation(DIVIDE);
         return sum;
     }

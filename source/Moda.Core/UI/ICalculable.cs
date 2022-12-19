@@ -12,7 +12,7 @@ public interface ICalculation
 {
     void Initialize(Cell owner, Axis axis);
     Single Calculate();
-    public IEnumerable<Coordinate> Prerequisites { get; }
+    IEnumerable<Coordinate> Prerequisites { get; }
     event NotificationHandler<ICalculation>? ValueInvalidated;
     event CollectionChangedHandler<ICalculation, Coordinate>? PrerequisitesChanged;
 }

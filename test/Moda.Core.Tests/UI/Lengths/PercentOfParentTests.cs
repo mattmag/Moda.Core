@@ -156,9 +156,9 @@ public class PercentOfParentTests
         }
     }
     
-    private Length Len(Single value)
+    private ILength Len(Single value)
     {
-        Mock<Length> length = new();
+        Mock<ILength> length = new();
         length.Setup(a => a.Calculate()).Returns(value);
         return length.Object;
     }

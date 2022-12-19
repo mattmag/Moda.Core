@@ -16,6 +16,8 @@ using NUnit.Framework;
 
 namespace Moda.Core.Tests.UI.Builders;
 
+
+
 [TestFixture(typeof(HAnchorBuilder), typeof(HAnchor), nameof(HAnchorBuilder.WithWidth))]
 [TestFixture(typeof(VAnchorBuilder), typeof(VAnchor), nameof(VAnchorBuilder.WithHeight))]
 public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
@@ -33,47 +35,11 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
     public AnchoredAxisBuilderFixture(string nameOfSetLengthMethod)
     {
         this.setLengthMethod = (typeof(TBuilder)
-            .GetMethod(nameOfSetLengthMethod, new[] { typeof(Length) }) ?? throw new());
+            .GetMethod(nameOfSetLengthMethod, new[] { typeof(ILength) }) ?? throw new());
         this.offsetByMethod = (typeof(TBuilder)
-            .GetMethod("OffsetBy", new[] { typeof(Length) }) ?? throw new());
+            .GetMethod("OffsetBy", new[] { typeof(ILength) }) ?? throw new());
     }
         
-        
-    // Constructor Tests
-    //----------------------------------------------------------------------------------------------
-    
-    // [TestCaseSource(nameof(AnchorConversionData))]
-    // public NAnchor ConstructorShouldSetAndConvertAnchor(HAnchor anchor)
-    // {
-    //     CellBuilder cellBuilder = new();
-    //     AnchoredHorizontalBuilder axisBuilder = new(cellBuilder, anchor);
-    //     return axisBuilder.Anchor;
-    // }
-    
-    // public static IEnumerable<TestCaseData> AnchorConversionData()
-    // {
-    //     if (typeof(TAnchor) == typeof(HAnchor))
-    //     {
-    //         return new[]
-    //         {
-    //             new TestCaseData(HAnchor.Left).Returns(NAnchor.Alpha),
-    //             new TestCaseData(HAnchor.Center).Returns(NAnchor.Center),
-    //             new TestCaseData(HAnchor.Right).Returns(NAnchor.Beta),
-    //         };
-    //     }
-    //
-    //     if (typeof(TAnchor) == typeof(VAnchor))
-    //     {
-    //         return new[]
-    //             {
-    //                 new TestCaseData(VAnchor.Up).Returns(NAnchor.Alpha),
-    //                 new TestCaseData(VAnchor.Middle).Returns(NAnchor.Center),
-    //                 new TestCaseData(VAnchor.Down).Returns(NAnchor.Beta),
-    //             };
-    //     }
-    //
-    //     throw new ArgumentException();
-    // }
 
 
     // With{Length}() Tests
@@ -206,9 +172,9 @@ public class AnchoredAxisBuilderFixture<TBuilder, TAnchor>
         }
     }
     
-    private Length Len(Single value)
+    private ILength Len(Single value)
     {
-        Mock<Length> length = new();
+        Mock<ILength> length = new();
         length.Setup(a => a.Calculate()).Returns(value);
         return length.Object;
     }

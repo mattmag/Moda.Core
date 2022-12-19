@@ -18,45 +18,39 @@ public abstract class Arithmetic : CompositeLength, IOptionalLength
     private readonly List<Operation> operations = new();
 
 
-    public Arithmetic()
+    protected Arithmetic()
     {
         
     }
 
     protected Arithmetic(ILength lengthA, ILength lengthB, Operation operation)
     {
-        this.AddLength(lengthA);
-        this.AddLength(lengthB);
+        this.AddLengthComponent(lengthA);
+        this.AddLengthComponent(lengthB);
         this.AddOperation(operation);
     }
 
     protected Arithmetic(ILength length, Single constant, Operation operation)
     {
-        this.AddLength(length);
-        this.AddConstant(constant);
+        this.AddLengthComponent(length);
+        this.AddConstantComponent(constant);
         this.AddOperation(operation);
     }
     
     protected Arithmetic(Single constant, ILength length, Operation operation)
     {
-        this.AddConstant(constant);
-        this.AddLength(length);
+        this.AddConstantComponent(constant);
+        this.AddLengthComponent(length);
         this.AddOperation(operation);
     }
     
-    protected void AddLength(ILength length)
+    protected void AddLengthComponent(ILength length)
     {
         base.AddLength(length);
         this.tryComponents.Add(() => length.Calculate().Some());
     }
-    
-    protected void AddLength(IOptionalLength length)
-    {
-        base.AddLength(length);
-        this.tryComponents.Add(length.TryCalculate);
-    }
 
-    protected void AddConstant(Single constant)
+    protected void AddConstantComponent(Single constant)
     {
         this.tryComponents.Add(() => constant.Some());
     }

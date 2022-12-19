@@ -35,8 +35,8 @@ public class HiveTests
         entityManager.Invocations.Clear();
         Cell cell = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         entityManager.Verify(a => a.AddEntity(It.Is<IEnumerable<Object>>(
                 c => AssertionHelper.ToPredicate(() => c.Should().BeEquivalentTo(new[] { cell }, ""
@@ -56,8 +56,8 @@ public class HiveTests
         entityManager.Invocations.Clear();
         Cell cell = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>())
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>())
             .WithComponents(componentA, componentB));
         
         entityManager.Verify(a => a.AddEntity(It.Is<IEnumerable<Object>>(
@@ -77,23 +77,23 @@ public class HiveTests
         entityManager.Invocations.Clear();
         Cell cell1 = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell cell2 = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell cell3 = hive.NewCell(a => a
             .AppendTo(cell2)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         
         Cell cell4 = hive.NewCell(a => a
             .AppendTo(cell2)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
 
         hive.Root.Children.Should().ContainInOrder(cell1, cell2);
         cell2.Children.Should().ContainInOrder(cell3, cell4);
@@ -108,20 +108,20 @@ public class HiveTests
         entityManager.Invocations.Clear();
         Cell cell1 = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell1.DebugName = "cell1";
         
         Cell cell2 = hive.NewCell(a => a
             .AppendTo(cell1)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell2.DebugName = "cell2";
         
         Cell cell3 = hive.NewCell(a => a
             .InsertBefore(cell2)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell3.DebugName = "cell3";
 
         cell1.Children.Should().ContainInOrder(cell3, cell2);
@@ -136,26 +136,26 @@ public class HiveTests
         entityManager.Invocations.Clear();
         Cell cell1 = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell1.DebugName = "cell1";
         
         Cell cell2 = hive.NewCell(a => a
             .AppendTo(cell1)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell2.DebugName = "cell2";
         
         Cell cell3 = hive.NewCell(a => a
             .AppendTo(cell1)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell3.DebugName = "cell3";
         
         Cell cell4 = hive.NewCell(a => a
             .InsertAfter(cell2)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell4.DebugName = "cell4";
 
         cell1.Children.Should().ContainInOrder(cell2, cell4, cell3);
@@ -171,26 +171,26 @@ public class HiveTests
         entityManager.Invocations.Clear();
         Cell cell1 = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell1.DebugName = "cell1";
         
         Cell cell2 = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell2.DebugName = "cell2";
         
         Cell cell3 = hive.NewCell(a => a
             .AppendTo(hive.Root)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell3.DebugName = "cell3";
         
         Cell cell4 = hive.NewCell(a => a
             .InsertAt(hive.Root, 2)
-            .AnchorLeft().WithWidth(Mock.Of<Length>())
-            .AnchorUp().WithHeight(Mock.Of<Length>()));
+            .AnchorLeft().WithWidth(Mock.Of<ILength>())
+            .AnchorUp().WithHeight(Mock.Of<ILength>()));
         cell4.DebugName = "cell4";
 
         hive.Root.Children.Should().ContainInOrder(cell1, cell2, cell4, cell3);

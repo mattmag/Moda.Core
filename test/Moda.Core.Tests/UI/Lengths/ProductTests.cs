@@ -55,16 +55,22 @@ public class ProductTests
 
 
 
-[TestFixture(typeof(Product), typeof(ILength), typeof(ILength), nameof(MultiplyLengthLengthParams))]
-[TestFixture(typeof(Product), typeof(ILength), typeof(Single), nameof(MultiplyLengthConstantParams))]
-[TestFixture(typeof(Product), typeof(ILength), typeof(ILength), nameof(LengthTimesLengthParams))]
-[TestFixture(typeof(Product), typeof(ILength), typeof(Single), nameof(LengthTimesConstantParams))]
-[TestFixture(typeof(Product), typeof(Single), typeof(ILength), nameof(ConstantTimesLengthParams))]
-[TestFixture(typeof(Product), typeof(ILength), typeof(ILength), nameof(DivideLengthLengthParams))]
-[TestFixture(typeof(Product), typeof(ILength), typeof(Single), nameof(DivideLengthConstantParams))]
-[TestFixture(typeof(Product), typeof(ILength), typeof(ILength), nameof(LengthDivideByLengthParams))]
-[TestFixture(typeof(Product), typeof(ILength), typeof(Single), nameof(LengthDivideByConstantParams))]
-[TestFixture(typeof(Product), typeof(Single), typeof(ILength), nameof(ConstantDivideByLengthParams))]
+[TestFixture(typeof(Product), typeof(ILength), typeof(ILength), nameof(MultiplyILengthILengthParams))]
+[TestFixture(typeof(Product), typeof(ILength), typeof(Single), nameof(MultiplyILengthConstantParams))]
+[TestFixture(typeof(Product), typeof(ILength), typeof(ILength), nameof(ILengthTimesILengthParams))]
+[TestFixture(typeof(Product), typeof(Length), typeof(Length), nameof(LengthTimesLengthParams))]
+[TestFixture(typeof(Product), typeof(ILength), typeof(Single), nameof(ILengthTimesConstantParams))]
+[TestFixture(typeof(Product), typeof(Length), typeof(Single), nameof(LengthTimesConstantParams))]
+[TestFixture(typeof(Product), typeof(Single), typeof(ILength), nameof(ConstantTimesILengthParams))]
+[TestFixture(typeof(Product), typeof(Single), typeof(Length), nameof(ConstantTimesLengthParams))]
+[TestFixture(typeof(Product), typeof(ILength), typeof(ILength), nameof(DivideILengthILengthParams))]
+[TestFixture(typeof(Product), typeof(ILength), typeof(Single), nameof(DivideILengthConstantParams))]
+[TestFixture(typeof(Product), typeof(ILength), typeof(ILength), nameof(ILengthDivideByILengthParams))]
+[TestFixture(typeof(Product), typeof(Length), typeof(Length), nameof(LengthDivideByLengthParams))]
+[TestFixture(typeof(Product), typeof(ILength), typeof(Single), nameof(ILengthDivideByConstantParams))]
+[TestFixture(typeof(Product), typeof(Length), typeof(Single), nameof(LengthDivideByConstantParams))]
+[TestFixture(typeof(Product), typeof(Single), typeof(ILength), nameof(ConstantDivideByILengthParams))]
+[TestFixture(typeof(Product), typeof(Single), typeof(Length), nameof(ConstantDivideByLengthParams))]
 public partial class ArithmeticBaseFixture<TArithmetic, TArg1, TArg2>
     where TArithmetic : Arithmetic
     where TArg1 : notnull
@@ -90,9 +96,9 @@ public partial class ArithmeticSecondaryOpFixture<TArithmetic, TArg>
 // Multiple
 //----------------------------------------------------------------------------------------------
 
-public class MultiplyLengthLengthParams : ArithmeticBaseParams<Product, ILength, ILength>
+public class MultiplyILengthILengthParams : ArithmeticBaseParams<Product, ILength, ILength>
 {
-    public MultiplyLengthLengthParams() : base(new(2, 4, 8), new(10, 5, 50))
+    public MultiplyILengthILengthParams() : base(new(2, 4, 8), new(10, 5, 50))
     {
     }
     
@@ -100,9 +106,9 @@ public class MultiplyLengthLengthParams : ArithmeticBaseParams<Product, ILength,
 }
 
 
-public class MultiplyLengthConstantParams : ArithmeticBaseParams<Product, ILength, Single>
+public class MultiplyILengthConstantParams : ArithmeticBaseParams<Product, ILength, Single>
 {
-    public MultiplyLengthConstantParams() : base(new(2, 4, 8), new(10, 4, 40))
+    public MultiplyILengthConstantParams() : base(new(2, 4, 8), new(10, 4, 40))
     {
     }
     
@@ -110,40 +116,67 @@ public class MultiplyLengthConstantParams : ArithmeticBaseParams<Product, ILengt
 }
 
 
-public class LengthTimesLengthParams : ArithmeticBaseParams<Product, ILength, ILength>
+public class ILengthTimesILengthParams : ArithmeticBaseParams<Product, ILength, ILength>
 {
-    public LengthTimesLengthParams() : base(new(2, 4, 8), new(10, 5, 50))
+    public ILengthTimesILengthParams() : base(new(2, 4, 8), new(10, 5, 50))
     {
     }
     
     public override Func<ILength, ILength, Product> Factory => (a, b) => a * b;
 }
 
-public class LengthTimesConstantParams : ArithmeticBaseParams<Product, ILength, Single>
+public class LengthTimesLengthParams : ArithmeticBaseParams<Product, Length, Length>
 {
-    public LengthTimesConstantParams() : base(new(2, 4, 8), new(10, 4, 40))
+    public LengthTimesLengthParams() : base(new(2, 4, 8), new(10, 5, 50))
+    {
+    }
+    
+    public override Func<Length, Length, Product> Factory => (a, b) => a * b;
+}
+
+public class ILengthTimesConstantParams : ArithmeticBaseParams<Product, ILength, Single>
+{
+    public ILengthTimesConstantParams() : base(new(2, 4, 8), new(10, 4, 40))
     {
     }
     
     public override Func<ILength, Single, Product> Factory => (a, b) => a * b;
 }
 
-
-public class ConstantTimesLengthParams : ArithmeticBaseParams<Product, Single, ILength>
+public class LengthTimesConstantParams : ArithmeticBaseParams<Product, Length, Single>
 {
-    public ConstantTimesLengthParams() : base(new(2, 4, 8), new(2, 5, 10))
+    public LengthTimesConstantParams() : base(new(2, 4, 8), new(10, 4, 40))
+    {
+    }
+    
+    public override Func<Length, Single, Product> Factory => (a, b) => a * b;
+}
+
+
+public class ConstantTimesILengthParams : ArithmeticBaseParams<Product, Single, ILength>
+{
+    public ConstantTimesILengthParams() : base(new(2, 4, 8), new(2, 5, 10))
     {
     }
     
     public override Func<Single, ILength, Product> Factory => (a, b) => a * b;
 }
 
+public class ConstantTimesLengthParams : ArithmeticBaseParams<Product, Single, Length>
+{
+    public ConstantTimesLengthParams() : base(new(2, 4, 8), new(2, 5, 10))
+    {
+    }
+    
+    public override Func<Single, Length, Product> Factory => (a, b) => a * b;
+}
+
 
 // Divide
 //----------------------------------------------------------------------------------------------
-public class DivideLengthLengthParams : ArithmeticBaseParams<Product, ILength, ILength>
+public class DivideILengthILengthParams : ArithmeticBaseParams<Product, ILength, ILength>
 {
-    public DivideLengthLengthParams() : base(new(24, 6, 4), new(30, 8, 3.75f))
+    public DivideILengthILengthParams() : base(new(24, 6, 4), new(30, 8, 3.75f))
     {
     }
     
@@ -151,9 +184,9 @@ public class DivideLengthLengthParams : ArithmeticBaseParams<Product, ILength, I
 }
 
 
-public class DivideLengthConstantParams : ArithmeticBaseParams<Product, ILength, Single>
+public class DivideILengthConstantParams : ArithmeticBaseParams<Product, ILength, Single>
 {
-    public DivideLengthConstantParams() : base(new(24, 6, 4), new(30, 6, 5))
+    public DivideILengthConstantParams() : base(new(24, 6, 4), new(30, 6, 5))
     {
     }
     
@@ -161,32 +194,59 @@ public class DivideLengthConstantParams : ArithmeticBaseParams<Product, ILength,
 }
 
 
-public class LengthDivideByLengthParams : ArithmeticBaseParams<Product, ILength, ILength>
+public class ILengthDivideByILengthParams : ArithmeticBaseParams<Product, ILength, ILength>
 {
-    public LengthDivideByLengthParams() : base(new(24, 6, 4), new(30, 8, 3.75f))
+    public ILengthDivideByILengthParams() : base(new(24, 6, 4), new(30, 8, 3.75f))
     {
     }
     
     public override Func<ILength, ILength, Product> Factory => (a, b) => a / b;
 }
 
-public class LengthDivideByConstantParams : ArithmeticBaseParams<Product, ILength, Single>
+public class LengthDivideByLengthParams : ArithmeticBaseParams<Product, Length, Length>
 {
-    public LengthDivideByConstantParams() : base(new(24, 6, 4), new(30, 6, 5))
+    public LengthDivideByLengthParams() : base(new(24, 6, 4), new(30, 8, 3.75f))
+    {
+    }
+    
+    public override Func<Length, Length, Product> Factory => (a, b) => a / b;
+}
+
+public class ILengthDivideByConstantParams : ArithmeticBaseParams<Product, ILength, Single>
+{
+    public ILengthDivideByConstantParams() : base(new(24, 6, 4), new(30, 6, 5))
     {
     }
     
     public override Func<ILength, Single, Product> Factory => (a, b) => a / b;
 }
 
+public class LengthDivideByConstantParams : ArithmeticBaseParams<Product, Length, Single>
+{
+    public LengthDivideByConstantParams() : base(new(24, 6, 4), new(30, 6, 5))
+    {
+    }
+    
+    public override Func<Length, Single, Product> Factory => (a, b) => a / b;
+}
 
-public class ConstantDivideByLengthParams : ArithmeticBaseParams<Product, Single, ILength>
+public class ConstantDivideByILengthParams : ArithmeticBaseParams<Product, Single, ILength>
+{
+    public ConstantDivideByILengthParams() : base(new(24, 6, 4), new(24, 12, 2))
+    {
+    }
+    
+    public override Func<Single, ILength, Product> Factory => (a, b) => a / b;
+}
+
+
+public class ConstantDivideByLengthParams : ArithmeticBaseParams<Product, Single, Length>
 {
     public ConstantDivideByLengthParams() : base(new(24, 6, 4), new(24, 12, 2))
     {
     }
     
-    public override Func<Single, ILength, Product> Factory => (a, b) => a / b;
+    public override Func<Single, Length, Product> Factory => (a, b) => a / b;
 }
 
 
