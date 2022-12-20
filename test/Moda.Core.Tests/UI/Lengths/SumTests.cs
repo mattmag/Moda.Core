@@ -26,12 +26,16 @@ public class SumTests
     [Test]
     public void CalculateFromCombinedOperationsShouldMatchCSharpRules()
     {
-        #warning reinstate
-        // Single expected = 4.3f - (40.1f + 2.7f) + 13.7f - 18.0f + (30.2f - 2.1f + 1.0f);
-        // Single result = (Len(4.3f) - (40.1f + Len(2.7f)) + Len(13.7f) - Len(18.0f) +
-        //     (Len(30.2f) - Len(2.1f) + 1.0f)).Calculate();
-        // result.Should().Be(expected);
+        Single expected = 4.3f - (40.1f + 2.7f) + 13.7f - 18.0f + (30.2f - 2.1f + 1.0f);
+        Single result = (Len(4.3f) - (40.1f + Len(2.7f)) + Len(13.7f) - Len(18.0f) +
+            (Len(30.2f) - Len(2.1f) + 1.0f)).Calculate();
+        result.Should().Be(expected);
     }
+
+
+    // Support
+    //----------------------------------------------------------------------------------------------
+    
 
     private ILength Len(Single value)
     {
@@ -72,10 +76,10 @@ public partial class ArithmeticBaseFixture<TArithmetic, TArg1, TArg2>
 }
 
 
-[TestFixture(typeof(Sum), typeof(ILength), nameof(SecondaryAddILengthParams))]
-[TestFixture(typeof(Sum), typeof(Single), nameof(SecondaryAddConstantParams))]
-[TestFixture(typeof(Sum), typeof(ILength), nameof(SecondarySubtractILengthParams))]
-[TestFixture(typeof(Sum), typeof(Single), nameof(SecondarySubtractConstantParams))]
+[TestFixture(typeof(Sum), typeof(ILength), nameof(SumPlusILengthParams))]
+[TestFixture(typeof(Sum), typeof(Single), nameof(SumPlusConstantParams))]
+[TestFixture(typeof(Sum), typeof(ILength), nameof(SumMinusILengthParams))]
+[TestFixture(typeof(Sum), typeof(Single), nameof(SumMinusConstantParams))]
 public partial class ArithmeticSecondaryOpFixture<TArithmetic, TArg>
     where TArithmetic : Arithmetic
     where TArg : notnull
@@ -249,9 +253,9 @@ public class ConstantMinusLengthParams : ArithmeticBaseParams<Sum, Single, Lengt
 // Secondary Add
 //----------------------------------------------------------------------------------------------
 
-public class SecondaryAddILengthParams : ArithmeticSecondaryOpParams<Sum, ILength>
+public class SumPlusILengthParams : ArithmeticSecondaryOpParams<Sum, ILength>
 {
-    public SecondaryAddILengthParams() : base(new(1, 2, 5, 8), new(4, 6, 2, 12))
+    public SumPlusILengthParams() : base(new(1, 2, 5, 8), new(4, 6, 2, 12))
     {
     }
     
@@ -259,9 +263,10 @@ public class SecondaryAddILengthParams : ArithmeticSecondaryOpParams<Sum, ILengt
     public override Func<Sum, ILength, Sum> SecondOperation => (sum, c) => sum + c;
 }
 
-public class SecondaryAddConstantParams : ArithmeticSecondaryOpParams<Sum, Single>
+
+public class SumPlusConstantParams : ArithmeticSecondaryOpParams<Sum, Single>
 {
-    public SecondaryAddConstantParams() : base(new(1, 2, 5, 8), new(4, 6, 5, 15))
+    public SumPlusConstantParams() : base(new(1, 2, 5, 8), new(4, 6, 5, 15))
     {
     }
     
@@ -269,12 +274,14 @@ public class SecondaryAddConstantParams : ArithmeticSecondaryOpParams<Sum, Singl
     public override Func<Sum, Single, Sum> SecondOperation => (sum, c) => sum + c;
 }
 
+
+
 // Secondary Subtract
 //----------------------------------------------------------------------------------------------
 
-public class SecondarySubtractILengthParams : ArithmeticSecondaryOpParams<Sum, ILength>
+public class SumMinusILengthParams : ArithmeticSecondaryOpParams<Sum, ILength>
 {
-    public SecondarySubtractILengthParams() : base(new(20, 3, 2, 15), new(40, 13, 4, 23))
+    public SumMinusILengthParams() : base(new(20, 3, 2, 15), new(40, 13, 4, 23))
     {
     }
     
@@ -282,9 +289,10 @@ public class SecondarySubtractILengthParams : ArithmeticSecondaryOpParams<Sum, I
     public override Func<Sum, ILength, Sum> SecondOperation => (sum, c) => sum - c;
 }
 
-public class SecondarySubtractConstantParams : ArithmeticSecondaryOpParams<Sum, Single>
+
+public class SumMinusConstantParams : ArithmeticSecondaryOpParams<Sum, Single>
 {
-    public SecondarySubtractConstantParams() : base(new(20, 3, 2, 15), new(40, 13, 2, 25))
+    public SumMinusConstantParams() : base(new(20, 3, 2, 15), new(40, 13, 2, 25))
     {
     }
     

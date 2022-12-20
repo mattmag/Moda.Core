@@ -37,51 +37,45 @@ public class Sum : Arithmetic
     public static Sum Subtract(ILength lengthA, ILength lengthB) => new(lengthA, lengthB, SUBTRACT);
     public static Sum Subtract(ILength length, Single constant) => new(length, constant, SUBTRACT);
     public static Sum Subtract(Single constant, ILength length) => new(constant, length, SUBTRACT);
-    
-    
-    
+
+
+
+    // Addition Operators (for absorption)
+    //----------------------------------------------------------------------------------------------
     
     public static Sum operator +(Sum sum, ILength length)
     {
-        sum.AddLengthComponent(length);
-        sum.AddOperation(ADD);
+        sum.AppendLengthComponent(length);
+        sum.AppendOperation(ADD);
         return sum;
     }
-    
-    public static Sum operator +(ILength length, Sum sum) => sum + length;
-    
-    
-    
-    
+
     public static Sum operator +(Sum sum, Single constant)
     {
-        sum.AddConstantComponent(constant);
-        sum.AddOperation(ADD);
+        sum.AppendConstantComponent(constant);
+        sum.AppendOperation(ADD);
         return sum;
     }
-    public static Sum operator +(Single constant, Sum sum) => sum + constant;
     
     
+    
+    // Subtraction Operators (for absorption)
+    //----------------------------------------------------------------------------------------------
     
     public static Sum operator -(Sum sum, ILength length)
     {
-        sum.AddLengthComponent(length);
-        sum.AddOperation(SUBTRACT);
+        sum.AppendLengthComponent(length);
+        sum.AppendOperation(SUBTRACT);
         return sum;
     }
-    
-    // public static Sum operator -(ILength length, Sum sum)
-    // {
-        #warning my brain stopped worker
-        #warning also how many others of these do we need
-    // }
-    
+ 
     public static Sum operator -(Sum sum, Single constant)
     {
-        sum.AddConstantComponent(constant);
-        sum.AddOperation(SUBTRACT);
+        sum.AppendConstantComponent(constant);
+        sum.AppendOperation(SUBTRACT);
         return sum;
     }
+    
 }
 
 

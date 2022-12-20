@@ -12,18 +12,14 @@ using Optional.Unsafe;
 
 namespace Moda.Core.UI.Lengths;
 
-public class AdjacentToPrevious : Length, IOptionalLength
+public class SideOfPrevious : Length, IOptionalLength
 {
-    private NAdjacent side;
+    private NCoordinate side;
     private readonly Option<ILength> offset;
 
 
-    public AdjacentToPrevious(NAdjacent side)
-    {
-        this.side = side;
-    }
-    
-    public AdjacentToPrevious(NAdjacent side, Option<ILength> offset)
+ 
+    public SideOfPrevious(NCoordinate side, Option<ILength> offset)
     {
         this.side = side;
         this.offset = offset;
@@ -39,8 +35,10 @@ public class AdjacentToPrevious : Length, IOptionalLength
 
     public Option<Single> TryCalculate()
     {
-        return (from peer in this.GetPeer()
-            select GetRelevantCoordinate(peer));
+        return from peer in this.GetPeer()
+            select this.offset.Match(
+                off => GetRelevantCoordinate(peer) + off.Calculate(),
+                () => GetRelevantCoordinate(peer));
     }
 
 
@@ -49,8 +47,8 @@ public class AdjacentToPrevious : Length, IOptionalLength
         Boundary boundary = peer.GetBoundary(this.Axis);
         return this.side switch
             {
-                NAdjacent.AlphaToOtherBeta => boundary.AlphaCoordinate.RelativeValue.ValueOrFailure(),
-                NAdjacent.BetaToOtherAlpha => boundary.BetaCoordinate.RelativeValue.ValueOrFailure(),
+                NCoordinate.Alpha => boundary.AlphaCoordinate.RelativeValue.ValueOrFailure(),
+                NCoordinate.Beta => boundary.BetaCoordinate.RelativeValue.ValueOrFailure(),
                 _ => throw new ArgumentOutOfRangeException()
             };
     }
@@ -58,6 +56,7 @@ public class AdjacentToPrevious : Length, IOptionalLength
     private Option<Cell> GetPeer()
     {
         // TODO: find and store peer during init and children chages for performance
+        // TODO: better exceptions than OptionValueMissingException ? can't inherit though...
         IReadOnlyList<Cell> peers = this.Owner.Parent.ValueOrFailure().Children;
         return peers
             .IndexOf(this.Owner)

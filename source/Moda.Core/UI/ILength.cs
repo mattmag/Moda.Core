@@ -46,4 +46,6 @@ public interface ILength : ICalculation
     public static Product operator /(Single constant, ILength length) =>
         Product.Divide(constant, length);
     
+    // TODO: unary - operator ?
+    
 }

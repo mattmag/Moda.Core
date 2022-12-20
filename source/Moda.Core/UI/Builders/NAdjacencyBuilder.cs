@@ -46,9 +46,9 @@ public abstract class NAdjacencyBuilder
         return this.adjacent switch
             {
                 NAdjacent.AlphaToOtherBeta => new(NCoordinate.Alpha,
-                    _ => new AdjacentToPrevious(NAdjacent.AlphaToOtherBeta, this.offset)),
+                    _ => new SideOfPrevious(NCoordinate.Beta, this.offset)),
                 NAdjacent.BetaToOtherAlpha => new(NCoordinate.Beta,
-                    _ => new AdjacentToPrevious(NAdjacent.BetaToOtherAlpha, this.offset)),
+                    _ => new SideOfPrevious(NCoordinate.Alpha, this.offset)),
                 _ => throw new ArgumentOutOfRangeException()
             };
     }

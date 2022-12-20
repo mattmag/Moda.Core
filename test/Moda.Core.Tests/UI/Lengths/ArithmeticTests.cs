@@ -46,8 +46,8 @@ public class ArithmeticTests
     {
         public InvalidArithmetic1()
         {
-            this.AddConstantComponent(1);
-            this.AddLengthComponent(Mock.Of<ILength>());
+            this.AppendConstantComponent(1);
+            this.AppendLengthComponent(Mock.Of<ILength>());
         }
     }
     
@@ -55,10 +55,10 @@ public class ArithmeticTests
     {
         public InvalidArithmetic2()
         {
-            this.AddConstantComponent(1);
-            this.AddLengthComponent(Mock.Of<ILength>());
-            this.AddOperation((a, b) => a + b);
-            this.AddLengthComponent(Mock.Of<ILength>());
+            this.AppendConstantComponent(1);
+            this.AppendLengthComponent(Mock.Of<ILength>());
+            this.AppendOperation((a, b) => a + b);
+            this.AppendLengthComponent(Mock.Of<ILength>());
         }
     }
 
