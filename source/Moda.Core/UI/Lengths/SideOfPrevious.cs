@@ -4,7 +4,6 @@
 // If a copy of the MPL was not distributed with this file, You can obtain one at
 // https://mozilla.org/MPL/2.0/
 
-using Moda.Core.UI.Builders;
 using Moda.Core.Utility.Data;
 using Optional;
 using Optional.Linq;
@@ -14,19 +13,43 @@ namespace Moda.Core.UI.Lengths;
 
 public class SideOfPrevious : Length, IOptionalLength
 {
-    private NCoordinate side;
-    private readonly Option<ILength> offset;
+    private NCoordinate targetSide;
+    private Option<ILength> offset;
+    private Option<Coordinate> targetCoordinate;
 
 
- 
-    public SideOfPrevious(NCoordinate side, Option<ILength> offset)
+
+    //##############################################################################################
+    //
+    //  Constructors
+    //
+    //##############################################################################################
+    
+    public SideOfPrevious(NCoordinate targetSide, Option<ILength> offset)
     {
-        this.side = side;
+        this.targetSide = targetSide;
         this.offset = offset;
     }
+
+
+    //##############################################################################################
+    //
+    //  Fields
+    //
+    //##############################################################################################
     
+
+    public IEnumerable<Coordinate> Prerequisites { get; private set; } = 
+        Enumerable.Empty<Coordinate>();
+
+
+    //##############################################################################################
+    //
+    //  Public Methods
+    //
+    //##############################################################################################
     
-    
+
     public override Single Calculate()
     {
         return this.TryCalculate().ValueOrFailure();
@@ -35,35 +58,57 @@ public class SideOfPrevious : Length, IOptionalLength
 
     public Option<Single> TryCalculate()
     {
-        return from peer in this.GetPeer()
-            select this.offset.Match(
-                off => GetRelevantCoordinate(peer) + off.Calculate(),
-                () => GetRelevantCoordinate(peer));
+        return this.targetCoordinate.Map(coordinate => this.offset.Match(
+                off => coordinate.RelativeValue.ValueOrFailure() + off.Calculate(),
+                () => coordinate.RelativeValue.ValueOrFailure()));
     }
 
 
-    private Single GetRelevantCoordinate(Cell peer)
-    {
-        Boundary boundary = peer.GetBoundary(this.Axis);
-        return this.side switch
-            {
-                NCoordinate.Alpha => boundary.AlphaCoordinate.RelativeValue.ValueOrFailure(),
-                NCoordinate.Beta => boundary.BetaCoordinate.RelativeValue.ValueOrFailure(),
-                _ => throw new ArgumentOutOfRangeException()
-            };
-    }
+    //##############################################################################################
+    //
+    //  Private methods
+    //
+    //##############################################################################################
     
-    private Option<Cell> GetPeer()
+
+    protected override void OnInitialize(Cell owner, Axis axis)
     {
-        // TODO: find and store peer during init and children chages for performance
-        // TODO: better exceptions than OptionValueMissingException ? can't inherit though...
-        IReadOnlyList<Cell> peers = this.Owner.Parent.ValueOrFailure().Children;
-        return peers
-            .IndexOf(this.Owner)
-            .Filter(a => a > 0)
-            .Map(a => peers[a - 1]);
+        UpdateTargetCoordinate();
+        SetupParent(Option.None<Cell>(), owner.Parent);
+        owner.ParentChanged += (_, args) => SetupParent(args.OldValue, args.NewValue);
     }
 
 
+    private void SetupParent(Option<Cell> oldParent, Option<Cell> newParent)
+    {
+        oldParent.MatchSome(p => p.ChildrenChanged -= ParentOnChildrenChanged);
+        newParent.MatchSome(p => p.ChildrenChanged += ParentOnChildrenChanged);
+    }
+
+
+    private void ParentOnChildrenChanged(Cell sender, CollectionChangedArgs<Cell> args)
+    {
+        UpdateTargetCoordinate();
+    }
+
+    
+    
+    private void UpdateTargetCoordinate()
+    {
+        Option<Coordinate> newTarget = this.Owner.Parent.FlatMap(parent =>
+            parent.Children.IndexOf(this.Owner)
+                .Filter(a => a > 0)
+                .Map(a => parent.Children[a - 1])
+                .Map(peer => peer.GetBoundary(this.Axis).GetCoordinate(this.targetSide))
+        );
+
+        if (this.targetCoordinate != newTarget)
+        {
+            Option<Coordinate> oldTarget = this.targetCoordinate;
+            this.targetCoordinate = newTarget;
+            this.Prerequisites = this.targetCoordinate.YieldOrEmpty();
+            RaisePrerequistesChanged( newTarget.YieldOrEmpty(), oldTarget.YieldOrEmpty());
+        }
+    }
     
 }

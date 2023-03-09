@@ -166,6 +166,25 @@ public class BoundaryTests
                 a => a.WithStrictOrdering());
     }
     
+    // GetCoordinate() Tests
+    //----------------------------------------------------------------------------------------------
+    
+    [Test]
+    public void GetCoordinateShouldReturnAlpha()
+    {
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+        boundary.GetCoordinate(NCoordinate.Alpha).Should().BeSameAs(boundary.AlphaCoordinate);
+    }
+    
+    [Test]
+    public void GetCoordinateShouldReturnBeta()
+    {
+        Boundary boundary = new(GetMockedCell(), Axis.X,
+            Mock.Of<ICalculation>(), Mock.Of<ICalculation>());
+        boundary.GetCoordinate(NCoordinate.Beta).Should().BeSameAs(boundary.BetaCoordinate);
+    }
+    
     // Support
     //----------------------------------------------------------------------------------------------
     private static Cell GetMockedCell() => new(Mock.Of<IHoneyComb>(), Mock.Of<ICalculation>(),

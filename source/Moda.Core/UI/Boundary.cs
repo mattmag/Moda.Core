@@ -88,7 +88,28 @@ public class Boundary
         yield return this.BetaCoordinate;
     }
 
-    
+    /// <summary>
+    ///     Get the specified coordinate.
+    /// </summary>
+    /// <param name="coordinate">
+    ///     The coordinate of interest.
+    /// </param>
+    /// <returns>
+    ///     <see cref="AlphaCoordinate"/> when <paramref name="coordinate"/> is
+    ///     <see cref="NCoordinate.Alpha"/>, <see cref="BetaCoordinate"/> when
+    ///     <paramref name="coordinate"/> is <see cref="NCoordinate.Beta"/>
+    /// </returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     When an unknown value is passed to the <paramref name="coordinate"/> parameter. 
+    /// </exception>
+    public Coordinate GetCoordinate(NCoordinate coordinate) => coordinate switch
+        {
+            NCoordinate.Alpha => this.AlphaCoordinate,
+            NCoordinate.Beta => this.BetaCoordinate,
+            _ => throw new ArgumentOutOfRangeException(nameof(coordinate), coordinate, null)
+        };
+
+
     //##############################################################################################
     //
     //  Private Methods
