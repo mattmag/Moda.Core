@@ -34,10 +34,31 @@ public class Cell : TreeNode<Cell>
     {
         this.hive = hive;
         this.XBoundary = new(this, Axis.X, xAlpha, xBeta);
+        this.XBoundary.AlphaCoordinate.AbsoluteValueChanged += UpdateChildrenXTare;
         this.YBoundary = new(this, Axis.Y, yAlpha, yBeta);
+        this.YBoundary.AlphaCoordinate.AbsoluteValueChanged += UpdateChildrenYTare;
+    }
+
+
+    private void UpdateChildrenXTare(Coordinate sender, ValueChangedArgs<Option<Single>> args)
+    {
+        foreach (Cell child in this.Children)
+        {
+            child.XBoundary.AlphaCoordinate.Tare = args.NewValue;
+            child.XBoundary.BetaCoordinate.Tare = args.NewValue;
+        }
     }
     
-    
+     private void UpdateChildrenYTare(Coordinate sender, ValueChangedArgs<Option<Single>> args)
+    {
+        foreach (Cell child in this.Children)
+        {
+            child.YBoundary.AlphaCoordinate.Tare = args.NewValue;
+            child.YBoundary.BetaCoordinate.Tare = args.NewValue;
+        }
+    }
+
+
     //##############################################################################################
     //
     //  Public Properties
