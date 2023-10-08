@@ -465,6 +465,25 @@ public static class Extensions
     {
         return option.HasValue ? option : throw new InvalidOperationException();
     }
+
+
+    /// <summary>
+    ///     Create an enumerable with the value contained by option, if there is one. Otherwise,
+    ///     return an empty enumerable.
+    /// </summary>
+    /// <typeparam name="T">
+    ///     The type of the value contained by the option.
+    /// </typeparam>
+    /// <param name="option">
+    ///     The optional value
+    /// </param>
+    /// <returns>
+    ///     An enumerable with either the value contained within the option, or nothing.
+    /// </returns>
+    public static IEnumerable<T> YieldOrEmpty<T>(this Option<T> option)
+    {
+        return option.Map(a => (IEnumerable<T>)new[] { a }).ValueOr(Enumerable.Empty<T>());
+    }
 }
 
 
